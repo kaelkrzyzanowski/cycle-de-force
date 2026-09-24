@@ -1,6 +1,8 @@
 import 'fake-indexeddb/auto';
 import { afterEach, describe, expect, it } from 'vitest';
+import { buildBackup, parseBackup } from '../domain/backup';
 import { session, set, fixed } from '../domain/testUtils';
+import type { Session } from '../domain/types';
 import { openRepository } from './repository';
 import type { Repository } from './repository';
 
@@ -63,6 +65,41 @@ describe('repository IndexedDB', () => {
     const invalid = { ...session('2026-09-24', [], 'c'), id: undefined } as unknown as ReturnType<typeof session>;
     await expect(r.applyChanges({ deleteSessionIds: ['b'], saveSessions: [invalid] })).rejects.toThrow();
     expect(await r.getSession('b')).toBeDefined();
+  });
+
+  it('export puis restauration dans une base vidée = base identique', async () => {
+    const r = await fresh();
+    await r.ensureSeeded();
+    await r.saveSettings({ ...(await r.getSettings()), rounding: 2.5, lastBackupAt: '2026-09-20T08:00:00.000Z' });
+    await r.applyChanges({
+      saveCycles: [{ id: 'c1', name: 'Bloc 0', startDate: '2026-09-21', weeksCount: 7, max: { S: 170, B: 115, D: 210 }, weeklyPlan: [] }],
+      saveSessions: [
+        session('2026-09-22', [{ ...set(0, 4, fixed(147)), status: 'FAILED', actualReps: 3, actualKg: 168 }], 'a'),
+        session('2026-09-24', [set(0, 5, fixed(100))], 'b'),
+      ],
+      addMaxChanges: [{ id: 'm1', cycleId: 'c1', lift: 'D', from: 210, to: 215, at: '2026-09-24T10:00:00Z' }],
+    });
+    const before = await r.exportData();
+    const json = JSON.stringify(buildBackup(before, '2026-09-24T12:00:00Z'));
+
+    // « Vider les données du site » : une base neuve.
+    const empty = await openRepository(`test-${++n}`);
+    const parsed = parseBackup(json);
+    if (!parsed.ok) throw new Error(parsed.error);
+    await empty.replaceAll(parsed.backup.data, '{"avant":true}');
+    expect(await empty.exportData()).toEqual(before);
+    expect(await empty.getPreRestoreBackup()).toBe('{"avant":true}');
+    empty.close();
+  });
+
+  it('restauration atomique : en cas d’erreur, rien n’est modifié', async () => {
+    const r = await fresh();
+    await r.ensureSeeded();
+    const before = await r.exportData();
+    const bad = { ...before, sessions: [{ id: undefined } as unknown as Session] };
+    await expect(r.replaceAll(bad, 'x')).rejects.toThrow();
+    expect(await r.exportData()).toEqual(before);
+    expect(await r.getPreRestoreBackup()).toBeUndefined();
   });
 
   it('drapeaux', async () => {

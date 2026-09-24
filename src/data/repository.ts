@@ -1,3 +1,4 @@
+import type { BackupData } from '../domain/backup';
 import { DEFAULT_SETTINGS } from '../domain/types';
 import type { Cycle, Exercise, IsoDate, MaxChange, Session, SessionTemplate, Settings } from '../domain/types';
 import { seedData, SEED_VERSION } from '../seed';
@@ -41,6 +42,15 @@ export interface Repository {
   getFlag(key: string): Promise<string | undefined>;
   setFlag(key: string, value: string): Promise<void>;
 
+  /** Toute la base, pour la sauvegarde. */
+  exportData(): Promise<BackupData>;
+  /**
+   * Remplace toute la base en une transaction (rien n'est modifié en cas d'erreur)
+   * et conserve `previousBackup` comme « dernière sauvegarde avant restauration ».
+   */
+  replaceAll(data: BackupData, previousBackup: string): Promise<void>;
+  getPreRestoreBackup(): Promise<string | undefined>;
+
   /** Charge les modèles natifs et le catalogue au premier lancement. */
   ensureSeeded(): Promise<{ seeded: boolean }>;
   close(): void;
@@ -54,7 +64,32 @@ export interface Changes {
 }
 
 const SETTINGS_KEY = 'current';
+const PRE_RESTORE_KEY = 'preRestoreBackup';
 const byDate = (a: Session, b: Session): number => a.date.localeCompare(b.date);
+
+/**
+ * Lance des écritures dans une transaction et garantit le tout-ou-rien :
+ * une erreur synchrone (clé invalide…) n'annule pas la transaction d'elle-même.
+ */
+async function atomically(
+  tx: { done: Promise<void>; abort(): void },
+  queue: (push: (request: Promise<unknown>) => void) => void,
+): Promise<void> {
+  const requests: Promise<unknown>[] = [];
+  try {
+    queue((r) => requests.push(r));
+    await Promise.all([...requests, tx.done]);
+  } catch (err) {
+    for (const r of requests) r.catch(() => undefined);
+    tx.done.catch(() => undefined);
+    try {
+      tx.abort();
+    } catch {
+      // déjà annulée
+    }
+    throw err;
+  }
+}
 
 class IdbRepository implements Repository {
   constructor(private readonly db: CdfDb) {}
@@ -134,24 +169,12 @@ class IdbRepository implements Repository {
   async applyChanges(changes: Changes): Promise<void> {
     const tx = this.db.transaction(['cycles', 'sessions', 'maxChanges'], 'readwrite');
     const sessions = tx.objectStore('sessions');
-    const requests: Promise<unknown>[] = [];
-    try {
-      for (const c of changes.saveCycles ?? []) requests.push(tx.objectStore('cycles').put(c));
-      for (const id of changes.deleteSessionIds ?? []) requests.push(sessions.delete(id));
-      for (const s of changes.saveSessions ?? []) requests.push(sessions.put(s));
-      for (const m of changes.addMaxChanges ?? []) requests.push(tx.objectStore('maxChanges').put(m));
-      await Promise.all([...requests, tx.done]);
-    } catch (err) {
-      // Une erreur synchrone (clé invalide…) n'annule pas la transaction d'elle-même.
-      for (const r of requests) r.catch(() => undefined);
-      tx.done.catch(() => undefined);
-      try {
-        tx.abort();
-      } catch {
-        // déjà annulée
-      }
-      throw err;
-    }
+    await atomically(tx, (push) => {
+      for (const c of changes.saveCycles ?? []) push(tx.objectStore('cycles').put(c));
+      for (const id of changes.deleteSessionIds ?? []) push(sessions.delete(id));
+      for (const s of changes.saveSessions ?? []) push(sessions.put(s));
+      for (const m of changes.addMaxChanges ?? []) push(tx.objectStore('maxChanges').put(m));
+    });
   }
 
   async getFlag(key: string): Promise<string | undefined> {
@@ -160,6 +183,40 @@ class IdbRepository implements Repository {
   }
   async setFlag(key: string, value: string): Promise<void> {
     await this.db.put('meta', { key: `flag:${key}`, value });
+  }
+
+  async exportData(): Promise<BackupData> {
+    const tx = this.db.transaction(['settings', 'templates', 'exercises', 'cycles', 'sessions', 'maxChanges'], 'readonly');
+    const [settings, templates, exercises, cycles, sessions, maxChanges] = await Promise.all([
+      tx.objectStore('settings').get(SETTINGS_KEY),
+      tx.objectStore('templates').getAll(),
+      tx.objectStore('exercises').getAll(),
+      tx.objectStore('cycles').getAll(),
+      tx.objectStore('sessions').getAll(),
+      tx.objectStore('maxChanges').getAll(),
+    ]);
+    await tx.done;
+    return { settings: { ...DEFAULT_SETTINGS, ...settings }, templates, exercises, cycles, sessions: sessions.sort(byDate), maxChanges };
+  }
+
+  async replaceAll(data: BackupData, previousBackup: string): Promise<void> {
+    const stores = ['settings', 'templates', 'exercises', 'cycles', 'sessions', 'maxChanges', 'meta'] as const;
+    const tx = this.db.transaction([...stores], 'readwrite');
+    await atomically(tx, (push) => {
+      for (const name of stores) if (name !== 'meta') push(tx.objectStore(name).clear());
+      push(tx.objectStore('settings').put(data.settings, SETTINGS_KEY));
+      for (const t of data.templates) push(tx.objectStore('templates').put(t));
+      for (const e of data.exercises) push(tx.objectStore('exercises').put(e));
+      for (const c of data.cycles) push(tx.objectStore('cycles').put(c));
+      for (const s of data.sessions) push(tx.objectStore('sessions').put(s));
+      for (const m of data.maxChanges) push(tx.objectStore('maxChanges').put(m));
+      push(tx.objectStore('meta').put({ key: PRE_RESTORE_KEY, value: previousBackup }));
+    });
+  }
+
+  async getPreRestoreBackup(): Promise<string | undefined> {
+    const record = await this.db.get('meta', PRE_RESTORE_KEY);
+    return record === undefined ? undefined : String(record.value);
   }
 
   async ensureSeeded(): Promise<{ seeded: boolean }> {

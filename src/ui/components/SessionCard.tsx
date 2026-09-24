@@ -28,6 +28,8 @@ export function SessionDot({ color, status, name }: { color: string; status: Ses
 
 interface CardProps {
   session: Session;
+  /** Nom affiché (« Deadlift S3 »). */
+  label: string;
   color: string;
   max: Maxes;
   rounding: Rounding;
@@ -36,7 +38,7 @@ interface CardProps {
   onActions: () => void;
 }
 
-export function SessionCard({ session, color, max, rounding, today, onOpen, onActions }: CardProps) {
+export function SessionCard({ session, label, color, max, rounding, today, onOpen, onActions }: CardProps) {
   const status = deriveSessionStatus(session, today);
   const press = useLongPress(onOpen, onActions);
   const totals = sessionTotals(session, max, rounding);
@@ -47,7 +49,7 @@ export function SessionCard({ session, color, max, rounding, today, onOpen, onAc
     <article class={`session-card st-${status}`} style={{ '--tpl': color }}>
       <button type="button" class="session-card-main" {...press}>
         <span class="session-card-title">
-          <span class="session-name">{session.name}</span>
+          <span class="session-name">{label}</span>
           <span class={`status-pill st-${status}`}>
             {STATUS_GLYPH[status] && <span aria-hidden="true">{STATUS_GLYPH[status]} </span>}
             {S.sessionStatus[status]}
@@ -62,7 +64,7 @@ export function SessionCard({ session, color, max, rounding, today, onOpen, onAc
           </span>
         )}
       </button>
-      <button type="button" class="icon-btn session-more" aria-label={S.sessionCard.actions(session.name)} onClick={onActions}>
+      <button type="button" class="icon-btn session-more" aria-label={S.sessionCard.actions(label)} onClick={onActions}>
         ⋯
       </button>
     </article>

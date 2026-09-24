@@ -14,6 +14,7 @@ import {
   tonnageByWeek,
   volumeByTemplate,
 } from '../../domain/stats';
+import { sessionLabel } from '../../domain/templates';
 import { LIFTS } from '../../domain/types';
 import type { Cycle, MaxChange, Session, SessionTemplate, SetStatus } from '../../domain/types';
 import { ColumnChart } from '../charts/ColumnChart';
@@ -88,6 +89,8 @@ function Stats({ sessions, cycles, templates, changes }: Data) {
   const progress = exerciseId ? exerciseProgress(sessions, exerciseId, maxOf, rounding) : [];
   const history = maxHistory(cycles, changes);
   const volume = volumeByTemplate(inCycle, maxOf, rounding);
+  const labelOf = (s: { name: string; cycleWeek: number | null; templateId: string | null }) =>
+    sessionLabel(s, templates.find((t) => t.id === s.templateId));
   const templateName = (id: string | null) => templates.find((t) => t.id === id)?.name ?? S.stats.noTemplate;
   const templateColor = (id: string | null) => templates.find((t) => t.id === id)?.color ?? '#6b7280';
   // Les marches se prolongent jusqu'à aujourd'hui (ou jusqu'au dernier changement s'il est futur).
@@ -124,12 +127,12 @@ function Stats({ sessions, cycles, templates, changes }: Data) {
         <ChartCard
           title={S.stats.byWeek}
           subtitle={cycle.name}
-          table={{ head: [S.stats.colWeek, S.stats.colTonnage], rows: weeks.map((w) => [`S${w.week}`, formatKg(w.tonnage)]) }}
+          table={{ head: [S.stats.colWeek, S.stats.colTonnage], rows: weeks.map((w) => [S.common.week(w.week), formatKg(w.tonnage)]) }}
         >
           <ColumnChart
             ariaLabel={`${S.stats.byWeek}, ${cycle.name}`}
             formatValue={formatTonnage}
-            data={weeks.map((w) => ({ key: String(w.week), label: `S${w.week}`, value: w.tonnage, tip: `${cycle.name} · S${w.week}` }))}
+            data={weeks.map((w) => ({ key: String(w.week), label: S.common.week(w.week), value: w.tonnage, tip: `${cycle.name} · ${S.common.week(w.week)}` }))}
           />
         </ChartCard>
       )}
@@ -140,7 +143,7 @@ function Stats({ sessions, cycles, templates, changes }: Data) {
           subtitle={cycle?.name}
           table={{
             head: [S.stats.colDate, S.stats.colSession, S.stats.colTonnage],
-            rows: perSession.map((s) => [formatDayMedium(s.date), s.name, formatKg(s.tonnage)]),
+            rows: perSession.map((s) => [formatDayMedium(s.date), labelOf(s), formatKg(s.tonnage)]),
           }}
         >
           <ColumnChart
@@ -150,7 +153,7 @@ function Stats({ sessions, cycles, templates, changes }: Data) {
               key: s.sessionId,
               label: formatDayShort(s.date),
               value: s.tonnage,
-              tip: `${s.name} · ${formatDayMedium(s.date)}`,
+              tip: `${labelOf(s)} · ${formatDayMedium(s.date)}`,
             }))}
           />
         </ChartCard>

@@ -17,14 +17,14 @@ test('stats : tonnage par semaine, charge max et e1RM, max S/B/D', async ({ page
   await page.getByRole('button', { name: 'Semaine', exact: true }).click();
 
   // S1 : Deadlift entièrement validé.
-  await page.locator('.session-card-main', { has: page.locator('.session-name', { hasText: /^Deadlift$/ }) }).click();
+  await page.locator('.session-card-main', { has: page.locator('.session-name', { hasText: /^Deadlift S\d$/ }) }).click();
   await validateAll(page);
   await expect(page.locator('.totals-bar')).toContainText(/11\s?592\skg/);
 
   // S2 : Deadlift validé, dernière série lourde en échec (2 × 179).
   await page.goto('/#/calendrier');
   await page.getByRole('button', { name: 'Période suivante' }).click();
-  await page.locator('.session-card-main', { has: page.locator('.session-name', { hasText: /^Deadlift$/ }) }).click();
+  await page.locator('.session-card-main', { has: page.locator('.session-name', { hasText: /^Deadlift S\d$/ }) }).click();
   await validateAll(page);
   const last = page.locator('.exercise-card', { has: page.getByRole('heading', { name: 'Deadlift Sumo + Inche mur' }) }).locator('.set-pill').nth(3);
   await last.click({ delay: 700 });
@@ -48,7 +48,7 @@ test('stats : tonnage par semaine, charge max et e1RM, max S/B/D', async ({ page
   const box = (await weekChart.boundingBox())!;
   await weekChart.click({ position: { x: 40 + ((box.width - 48) / 7) * 1.5, y: box.height / 2 } });
   await expect(weekCard.locator('.chart-tip')).toContainText(/10\s?738\skg/);
-  await expect(weekCard.locator('.chart-tip')).toContainText('Bloc 0 · S2');
+  await expect(weekCard.locator('.chart-tip')).toContainText('Bloc 0 · Sem. 2');
   await weekCard.getByText('Voir les données').click();
   await expect(weekCard.locator('tbody tr')).toHaveCount(7);
 

@@ -1,5 +1,6 @@
 import { findCycleForDate } from '../../domain/cycles';
 import { addDays, todayIso } from '../../domain/dates';
+import { sessionLabel } from '../../domain/templates';
 import type { Cycle, Session, SessionTemplate } from '../../domain/types';
 import { templatesById } from '../actions';
 import { BackupReminder } from '../components/BackupReminder';
@@ -36,6 +37,7 @@ export function TodayScreen() {
     <SessionCard
       key={s.id}
       session={s}
+      label={sessionLabel(s, s.templateId ? templates.get(s.templateId) : undefined)}
       color={(s.templateId ? templates.get(s.templateId)?.color : undefined) ?? NEUTRAL_COLOR}
       max={data.cycles.find((c) => c.id === s.cycleId)?.max ?? { S: 0, B: 0, D: 0 }}
       rounding={settings.rounding}

@@ -2,6 +2,7 @@ import type { ConflictChoice } from '../../domain/cycles';
 import type { IsoDate, Session } from '../../domain/types';
 import { formatDayMedium } from '../format';
 import { S } from '../strings';
+import { useSessionLabel } from '../useSessionLabel';
 
 const OPTIONS: { value: ConflictChoice; label: string }[] = [
   { value: 'REPLACE', label: S.conflicts.replace },
@@ -24,6 +25,7 @@ interface Props {
 
 /** Pour chaque jour déjà occupé : Remplacer / Ajouter à côté / Ignorer ce jour. */
 export function ConflictResolver({ dates, existing, choices, onChange }: Props) {
+  const labelOf = useSessionLabel();
   if (dates.length === 0) return null;
   const setAll = (value: ConflictChoice) => onChange(Object.fromEntries(dates.map((d) => [d, value])));
 
@@ -49,7 +51,7 @@ export function ConflictResolver({ dates, existing, choices, onChange }: Props) 
         </div>
       )}
       {dates.map((date) => {
-        const names = existing.filter((s) => s.date === date).map((s) => s.name);
+        const names = existing.filter((s) => s.date === date).map(labelOf);
         const label = formatDayMedium(date);
         return (
           <div key={date} class="field conflict-row">

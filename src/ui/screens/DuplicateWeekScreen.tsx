@@ -3,6 +3,7 @@ import { conflictDates, cycleWeekOf, duplicateWeek, findCycleForDate, resolveCon
 import type { CopyMode } from '../../domain/cycles';
 import { addDays, mondayOf, todayIso } from '../../domain/dates';
 import { newId } from '../../domain/ids';
+import { sessionLabel } from '../../domain/templates';
 import type { Cycle, IsoDate, Session, SessionTemplate } from '../../domain/types';
 import { commit, templatesById } from '../actions';
 import { allResolved, ConflictResolver } from '../components/ConflictResolver';
@@ -95,7 +96,7 @@ export function DuplicateWeekScreen({ from }: { from: IsoDate | null }) {
         ) : (
           <p>
             <strong>{S.duplicateWeek.found(data.source.length)}</strong> :{' '}
-            {data.source.map((s) => s.name).join(' · ')}
+            {data.source.map((s) => sessionLabel(s, data.templates.find((t) => t.id === s.templateId))).join(' · ')}
           </p>
         )}
       </section>
@@ -128,7 +129,7 @@ export function DuplicateWeekScreen({ from }: { from: IsoDate | null }) {
                 <div class="segmented scroll" role="group" aria-label={S.copyMode.templateWeek}>
                   {Array.from({ length: maxWeeks }, (_, i) => i + 1).map((w) => (
                     <button key={w} type="button" class="num" aria-pressed={k === w} onClick={() => setTemplateWeek(w)}>
-                      S{w}
+                      {S.common.week(w)}
                     </button>
                   ))}
                 </div>

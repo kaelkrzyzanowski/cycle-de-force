@@ -3,7 +3,27 @@ import type { ExercisePrescription, IsoDate, Lift, Session, SessionTemplate } fr
 
 type NewId = () => string;
 
-export const TEMPLATE_COLORS = ['#b5452f', '#c9a227', '#3d6fd1', '#2a9d8f', '#c2417a', '#6b8e23', '#8d6e63', '#6b7280'];
+/**
+ * Numéro de semaine dans la vague propre au modèle : S0 = deload, puis 1, 2… (test au RM en dernier).
+ * null si le modèle n'a pas de semaine de deload.
+ */
+export function waveWeek(template: Pick<SessionTemplate, 'deloadWeek' | 'weeksCount'>, cycleWeek: number): number | null {
+  if (!template.deloadWeek) return null;
+  const n = template.weeksCount;
+  return (((cycleWeek - template.deloadWeek) % n) + n) % n;
+}
+
+/** Nom affiché d'une séance : « Deadlift S3 » si son modèle a une vague numérotée. */
+export function sessionLabel(
+  session: Pick<Session, 'name' | 'cycleWeek' | 'templateId'>,
+  template: Pick<SessionTemplate, 'id' | 'deloadWeek' | 'weeksCount'> | undefined,
+): string {
+  if (!template || session.templateId !== template.id || session.cycleWeek === null) return session.name;
+  const week = waveWeek(template, session.cycleWeek);
+  return week === null ? session.name : `${session.name} S${week}`;
+}
+
+export const TEMPLATE_COLORS =['#b5452f', '#c9a227', '#3d6fd1', '#2a9d8f', '#c2417a', '#6b8e23', '#8d6e63', '#6b7280'];
 
 export function emptyTemplate(name: string, weeksCount: number, color: string, newId: NewId): SessionTemplate {
   const weeks: Record<number, ExercisePrescription[]> = {};

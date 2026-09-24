@@ -16,7 +16,7 @@ test('créer « Bench volume » sur 4 semaines, progression 65 → 80 %, et l’
   await page.getByLabel('Nom du modèle').fill('Bench volume');
   await setNumber(page, 'Nombre de semaines', '4');
   await page.getByRole('button', { name: 'Créer le modèle' }).click();
-  await expect(page.getByRole('tab')).toHaveText(['S1', 'S2', 'S3', 'S4']);
+  await expect(page.getByRole('tab')).toHaveText(['Sem. 1', 'Sem. 2', 'Sem. 3', 'Sem. 4']);
 
   // Semaine 1 : Développé couché 4 × 8.
   await page.getByRole('combobox', { name: 'Nom du nouvel exercice' }).fill('Développé couché');
@@ -36,9 +36,9 @@ test('créer « Bench volume » sur 4 semaines, progression 65 → 80 %, et l’
   await expect(prog.getByRole('combobox')).toHaveValue('developpe-couche');
   await expect(prog.getByRole('button', { name: 'Bench', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await setNumber(page, 'À (%)', '80');
-  await expect(prog).toContainText(/S1 65 % · S2 70 % · S3 75 % · S4 80 %/);
+  await expect(prog).toContainText(/Sem\. 1 65 % · Sem\. 2 70 % · Sem\. 3 75 % · Sem\. 4 80 %/);
   await prog.getByRole('button', { name: 'Appliquer', exact: true }).click();
-  await page.getByRole('tab', { name: 'S3' }).click();
+  await page.getByRole('tab', { name: 'Sem. 3' }).click();
   await expect(page.getByRole('textbox', { name: 'Valeur de charge série 1' })).toHaveValue('75');
   await page.getByRole('button', { name: 'Enregistrer' }).click();
   await expect(page.getByRole('status')).toHaveText('Modèle enregistré');
@@ -74,7 +74,7 @@ test('progression : la semaine de deload ne fait pas avancer le pourcentage', as
   const prog = page.getByRole('dialog');
   await prog.getByRole('combobox').selectOption({ label: 'Développé couché' });
   await prog.getByLabel('Toutes').check();
-  await expect(prog).toContainText(/S1 65 % · S2 70 % · S3 deload · S4 75 % · S5 80 % · S6 85 % · S7 85 %/);
+  await expect(prog).toContainText(/Sem\. 1 65 % · Sem\. 2 70 % · Sem\. 3 deload · Sem\. 4 75 % · Sem\. 5 80 % · Sem\. 6 85 % · Sem\. 7 85 %/);
 });
 
 test('modifier un modèle natif, mettre à jour les séances futures, puis le réinitialiser', async ({ page }) => {
@@ -83,7 +83,11 @@ test('modifier un modèle natif, mettre à jour les séances futures, puis le r�
   await page.goto('/#/modeles');
   await page.getByRole('link', { name: /^Deadlift/ }).click();
 
-  await page.getByRole('tab', { name: 'S7' }).click();
+  // Deload du Deadlift en semaine 5 : S0, puis la vague repart.
+  await expect(page.getByLabel('Semaine de deload (S0)')).toHaveValue('5');
+  await expect(page.getByRole('tab')).toHaveText(['Sem. 1 S3', 'Sem. 2 S4', 'Sem. 3 S5', 'Sem. 4 S6', 'Sem. 5 S0', 'Sem. 6 S1', 'Sem. 7 S2']);
+
+  await page.getByRole('tab', { name: /^Sem\. 7/ }).click();
   const hackReps = page.locator('section', { has: page.getByRole('combobox', { name: 'Nom de l’exercice 3' }) }).getByRole('textbox', {
     name: 'Reps série 1',
   });
@@ -102,7 +106,7 @@ test('modifier un modèle natif, mettre à jour les séances futures, puis le r�
   await page.getByRole('button', { name: 'Autres actions' }).click();
   await page.getByRole('button', { name: 'Réinitialiser le modèle natif' }).click();
   await page.getByRole('button', { name: 'Confirmer' }).click();
-  await page.getByRole('tab', { name: 'S7' }).click();
+  await page.getByRole('tab', { name: /^Sem\. 7/ }).click();
   await expect(hackReps).toHaveValue('8');
   await page.getByRole('button', { name: 'Enregistrer' }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Mettre à jour ces séances' }).click();

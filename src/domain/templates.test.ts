@@ -12,6 +12,8 @@ import {
   progressionValues,
   refreshFromTemplate,
   sessionAsWeek,
+  sessionLabel,
+  waveWeek,
   setWeeksCount,
   untouchedFutureSessions,
   weekAsSession,
@@ -75,6 +77,38 @@ describe('modèles', () => {
   it('semaine ↔ séance : aller-retour sans perte', () => {
     const b = bench();
     for (let w = 1; w <= 7; w++) expect(sessionAsWeek(weekAsSession(b, w))).toEqual(b.weeks[w]);
+  });
+});
+
+describe('numéro de semaine de la vague (S0 = deload)', () => {
+  const t = (id: string) => nativeTemplates().find((x) => x.id === id)!;
+
+  it('chaque mouvement part de son deload', () => {
+    const labels = (id: string) => [1, 2, 3, 4, 5, 6, 7].map((w) => waveWeek(t(id), w));
+    expect(labels(TEMPLATE_IDS.squat)).toEqual([0, 1, 2, 3, 4, 5, 6]);
+    expect(labels(TEMPLATE_IDS.bench)).toEqual([5, 6, 0, 1, 2, 3, 4]);
+    expect(labels(TEMPLATE_IDS.deadlift)).toEqual([3, 4, 5, 6, 0, 1, 2]);
+    expect(waveWeek(t(TEMPLATE_IDS.sbd), 3)).toBeNull();
+  });
+
+  it('la semaine S1 est bien à 65 % et S6 est le test au RM', () => {
+    for (const id of [TEMPLATE_IDS.squat, TEMPLATE_IDS.bench, TEMPLATE_IDS.deadlift]) {
+      const tpl = t(id);
+      const cycleWeekOf = (wave: number) => [1, 2, 3, 4, 5, 6, 7].find((w) => waveWeek(tpl, w) === wave)!;
+      const main = (w: number) => tpl.weeks[w]!.find((e) => /^(Squat|Développé couché|Deadlift Sumo \+ Inche mur)$/.test(e.name));
+      expect(main(cycleWeekOf(0))).toBeUndefined(); // deload : pas de mouvement principal
+      expect(main(cycleWeekOf(1))?.sets[0]?.load).toMatchObject({ kind: 'PERCENT', pct: 0.65 });
+      expect(main(cycleWeekOf(6))?.sets.map((s) => s.reps)).toEqual([4, 1, 1, 8]);
+    }
+  });
+
+  it('nom affiché des séances', () => {
+    const base = { templateId: TEMPLATE_IDS.deadlift, name: 'Deadlift' };
+    expect(sessionLabel({ ...base, cycleWeek: 1 }, t(TEMPLATE_IDS.deadlift))).toBe('Deadlift S3');
+    expect(sessionLabel({ ...base, cycleWeek: 5 }, t(TEMPLATE_IDS.deadlift))).toBe('Deadlift S0');
+    expect(sessionLabel({ ...base, cycleWeek: null }, t(TEMPLATE_IDS.deadlift))).toBe('Deadlift');
+    expect(sessionLabel({ templateId: TEMPLATE_IDS.sbd, name: 'SBD', cycleWeek: 2 }, t(TEMPLATE_IDS.sbd))).toBe('SBD');
+    expect(sessionLabel({ ...base, cycleWeek: 1 }, undefined)).toBe('Deadlift');
   });
 });
 

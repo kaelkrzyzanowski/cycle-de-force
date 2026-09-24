@@ -14,6 +14,7 @@ import {
   setWeeksCount,
   TEMPLATE_COLORS,
   untouchedFutureSessions,
+  waveWeek,
   weekAsSession,
 } from '../../domain/templates';
 import { LIFTS } from '../../domain/types';
@@ -29,6 +30,14 @@ import { S } from '../strings';
 import { PrescriptionEditor, useCatalogue } from '../session/EditSession';
 
 const FAR_FUTURE = '9999-12-31';
+
+/** Pose ou retire la semaine de deload (sans laisser de clé `undefined` dans la base). */
+function withDeload(template: SessionTemplate, deloadWeek: number | undefined): SessionTemplate {
+  const copy = { ...template };
+  if (deloadWeek) copy.deloadWeek = deloadWeek;
+  else delete copy.deloadWeek;
+  return copy;
+}
 
 export function TemplateEditorScreen({ id }: { id: string }) {
   const data = useData(async (repo) => ({ template: await repo.getTemplate(id), catalogue: await repo.listExercises() }), [id]);
@@ -126,18 +135,44 @@ function Editor({ saved, catalogue }: { saved: SessionTemplate; catalogue: Exerc
           min={1}
           max={16}
           onChange={(n) => {
-            change(setWeeksCount(template, n));
+            const resized = setWeeksCount(template, n);
+            change(withDeload(resized, (template.deloadWeek ?? 0) <= n ? template.deloadWeek : undefined));
             setWeek(Math.min(week, n));
           }}
         />
+        <label class="field">
+          <span>{S.templateEditor.deload}</span>
+          <select
+            class="text-input"
+            value={String(template.deloadWeek ?? '')}
+            onChange={(e) => change(withDeload(template, Number(e.currentTarget.value) || undefined))}
+          >
+            <option value="">{S.templateEditor.deloadNone}</option>
+            {weeks.map((w) => (
+              <option key={w} value={w}>
+                {S.common.week(w)}
+              </option>
+            ))}
+          </select>
+          <span class="muted">{S.templateEditor.deloadHint}</span>
+        </label>
       </section>
 
-      <div class="segmented scroll week-tabs" role="tablist" aria-label={S.templateEditor.weekTabs}>
-        {weeks.map((w) => (
-          <button key={w} type="button" role="tab" class="num" aria-selected={w === week} onClick={() => setWeek(w)}>
-            {S.templateEditor.weekTab(w)}
-          </button>
-        ))}
+      <p class="muted tabs-caption" id="week-tabs-caption">
+        {template.deloadWeek ? S.templateEditor.weekTabsWave : S.templateEditor.weekTabs}
+      </p>
+      <div class="segmented scroll week-tabs" role="tablist" aria-labelledby="week-tabs-caption">
+        {weeks.map((w) => {
+          const wave = waveWeek(template, w);
+          return (
+            <button key={w} type="button" role="tab" class="num" aria-selected={w === week} onClick={() => setWeek(w)}>
+              {/* Lu « Sem. 5 S0 » ; affiché « 5 » avec la vague « S0 » dessous. */}
+              <span class="sr-only">Sem. </span>
+              <span class="tab-num">{w}</span>
+              {wave !== null && <span class="tab-wave"> S{wave}</span>}
+            </button>
+          );
+        })}
       </div>
 
       <div class="button-row start">
@@ -193,7 +228,7 @@ function Editor({ saved, catalogue }: { saved: SessionTemplate; catalogue: Exerc
           onApply={(next, skipped) => {
             change(next);
             setDialog(null);
-            app.toast(skipped.length ? S.templateEditor.progSkipped(skipped.map((w) => `S${w}`).join(', ')) : S.templateEditor.progApplied);
+            app.toast(skipped.length ? S.templateEditor.progSkipped(skipped.map((w) => S.common.week(w)).join(', ')) : S.templateEditor.progApplied);
           }}
           onClose={() => setDialog(null)}
         />
@@ -302,7 +337,7 @@ function WeekChecks({
             checked={selected.includes(w)}
             onChange={() => onChange(selected.includes(w) ? selected.filter((x) => x !== w) : [...selected, w].sort((a, b) => a - b))}
           />
-          S{w}
+          {S.common.week(w)}
         </label>
       ))}
     </fieldset>
@@ -414,7 +449,7 @@ function ProgressionSheet({
       <WeekChecks label={S.templateEditor.progWeeks} weeks={all} selected={weeks} onChange={setWeeks} />
       <p class="num" aria-live="polite">
         {[
-          ...preview.map((v) => ({ week: v.week, text: `S${v.week} ${formatKg(Math.round(v.pct * 1000) / 10)} %` })),
+          ...preview.map((v) => ({ week: v.week, text: `${S.common.week(v.week)} ${formatKg(Math.round(v.pct * 1000) / 10)} %` })),
           ...skippedWeeks.map((w) => ({ week: w, text: S.templateEditor.progAbsent(w) })),
         ]
           .sort((a, b) => a.week - b.week)

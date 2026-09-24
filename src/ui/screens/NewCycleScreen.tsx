@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'preact/hooks';
 import { conflictDates, cycleEndDate, generateCycleSessions, resolveConflicts } from '../../domain/cycles';
 import { addDays, isoWeekday, mondayOf, todayIso } from '../../domain/dates';
 import { newId } from '../../domain/ids';
+import { sessionLabel } from '../../domain/templates';
 import { LIFTS } from '../../domain/types';
 import type { Cycle, Maxes, Session, SessionTemplate, Weekday } from '../../domain/types';
 import { DEFAULT_MAX, DEFAULT_WEEKLY_PLAN } from '../../seed';
@@ -151,7 +152,7 @@ function Wizard({ cycles, templates }: Setup) {
                   <li key={i}>
                     <strong class="num">{S.cycleForm.weekLabel(i + 1)}</strong>{' '}
                     <span class="muted">{formatRange(monday, addDays(monday, 6))}</span>
-                    <div>{inWeek.map((s) => `${S.weekdays[isoWeekday(s.date) - 1]?.slice(0, 3)} ${s.name}`).join(' · ')}</div>
+                    <div>{inWeek.map((s) => `${S.weekdays[isoWeekday(s.date) - 1]?.slice(0, 3)} ${sessionLabel(s, byId.get(s.templateId ?? ''))}`).join(' · ')}</div>
                   </li>
                 );
               })}

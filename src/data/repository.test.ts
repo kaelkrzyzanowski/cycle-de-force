@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { buildBackup, parseBackup } from '../domain/backup';
 import { session, set, fixed } from '../domain/testUtils';
 import type { Session } from '../domain/types';
+import { openCdfDb } from './db';
 import { openRepository } from './repository';
 import type { Repository } from './repository';
 
@@ -28,6 +29,22 @@ describe('repository IndexedDB', () => {
     await r.saveTemplate({ ...t!, name: 'Deadlift perso' });
     await r.ensureSeeded();
     expect((await r.getTemplate('tpl-deadlift'))?.name).toBe('Deadlift perso');
+  });
+
+  it('mise à jour du seed : ajoute la semaine de deload sans écraser les modifications', async () => {
+    const r = await fresh();
+    await r.ensureSeeded();
+    // État d'une base créée avant la version 2 : modèle natif modifié, sans deloadWeek.
+    const old = { ...(await r.getTemplate('tpl-deadlift'))!, name: 'Deadlift perso' };
+    delete old.deloadWeek;
+    await r.saveTemplate(old);
+    const db = await openCdfDb(`test-${n}`);
+    await db.put('meta', { key: 'seedVersion', value: 1 });
+    db.close();
+
+    expect(await r.ensureSeeded()).toEqual({ seeded: true });
+    expect(await r.getTemplate('tpl-deadlift')).toMatchObject({ name: 'Deadlift perso', deloadWeek: 5 });
+    expect((await r.getTemplate('tpl-sbd'))?.deloadWeek).toBeUndefined();
   });
 
   it('réglages par défaut puis enregistrés', async () => {

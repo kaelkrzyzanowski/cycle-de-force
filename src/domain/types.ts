@@ -35,6 +35,11 @@ export interface SessionTemplate {
   color: string;
   native: boolean;
   weeksCount: number;
+  /**
+   * Semaine du cycle où tombe le deload (S0) de ce modèle. La vague se numérote à partir de là :
+   * S0 deload, S1, S2… jusqu'au test au RM. Absent : pas de numéro (ex. SBD, Joker).
+   */
+  deloadWeek?: number;
   /** Prescription par semaine de cycle (1..weeksCount). */
   weeks: Record<number, ExercisePrescription[]>;
 }

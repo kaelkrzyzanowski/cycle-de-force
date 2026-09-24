@@ -1,6 +1,7 @@
 import { cycleEndDate, cycleWeekOf } from '../../domain/cycles';
 import { addDays, todayIso } from '../../domain/dates';
 import { deriveSessionStatus } from '../../domain/sessionStatus';
+import { sessionLabel } from '../../domain/templates';
 import { sessionTotals } from '../../domain/totals';
 import type { Cycle, MaxChange, Session, SessionTemplate } from '../../domain/types';
 import { templatesById } from '../actions';
@@ -90,7 +91,7 @@ export function CycleScreen({ id }: { id: string }) {
                 </div>
                 <div class="dots">
                   {inWeek.map((s) => (
-                    <SessionDot key={s.id} color={colorOf(s)} status={deriveSessionStatus(s, today)} name={s.name} />
+                    <SessionDot key={s.id} color={colorOf(s)} status={deriveSessionStatus(s, today)} name={sessionLabel(s, s.templateId ? templates.get(s.templateId) : undefined)} />
                   ))}
                 </div>
                 <span class="muted">

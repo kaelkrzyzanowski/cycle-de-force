@@ -121,7 +121,7 @@ function checkData(data: unknown): asserts data is BackupData {
   check(isRecord(data['settings']), 'réglages absents');
 
   checkArray(data, 'templates', (t, w) => {
-    check(isStr(t['name']) && isNum(t['weeksCount']) && isRecord(t['weeks']), w);
+    check(isStr(t['name']) && isNum(t['weeksCount']) && isRecord(t['weeks']) && optNum(t['deloadWeek']), w);
     for (const week of Object.values(t['weeks'] as Json)) {
       check(Array.isArray(week), `${w} : semaine`);
       for (const ex of week) {

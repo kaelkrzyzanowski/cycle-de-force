@@ -10,6 +10,7 @@ import { Sheet } from '../components/Sheet';
 import { useApp, useData } from '../context';
 import { formatDayLong, formatKg, formatTonnage } from '../format';
 import { S } from '../strings';
+import { useSessionLabel } from '../useSessionLabel';
 import { useWakeLock } from '../useWakeLock';
 import { EditSession } from '../session/EditSession';
 import { SetPill } from '../session/SetPill';
@@ -53,6 +54,7 @@ function SessionView({ session: initial, cycle, cycleSessions, catalogue }: Data
   const [editing, setEditing] = useState(false);
   const [pending, setPending] = useState<Pending | null>(null);
   const max = cycle?.max ?? NO_MAX;
+  const labelOf = useSessionLabel();
   useWakeLock(true);
 
   /** Enregistre aussitôt ; le bandeau « Annuler » restaure l'état précédent. */
@@ -137,7 +139,7 @@ function SessionView({ session: initial, cycle, cycleSessions, catalogue }: Data
     <div class="stack session">
       <section class="stack tight">
         <div class="section-header">
-          <h2>{session.name}</h2>
+          <h2>{labelOf(session)}</h2>
           {!editing && (
             <button type="button" class="btn small" onClick={() => setEditing(true)}>
               {S.session.edit}

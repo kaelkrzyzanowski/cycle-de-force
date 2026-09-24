@@ -21,7 +21,7 @@ const on = (name: string, weeks: readonly number[], spec: string): Row => ({
 
 const byWeek = (name: string, weeks: Partial<Record<number, string>>): Row => ({ name, weeks });
 
-function build(id: string, name: string, color: string, rows: Row[]): SessionTemplate {
+function build(id: string, name: string, color: string, rows: Row[], deloadWeek?: number): SessionTemplate {
   const weeks: Record<number, ExercisePrescription[]> = {};
   for (const w of ALL) {
     weeks[w] = rows.flatMap((row) => {
@@ -30,8 +30,14 @@ function build(id: string, name: string, color: string, rows: Row[]): SessionTem
       return [{ exerciseId: slugify(row.name), name: row.name, sets: parseSets(spec) }];
     });
   }
-  return { id, name, color, native: true, weeksCount: WEEKS, weeks };
+  return { id, name, color, native: true, weeksCount: WEEKS, ...(deloadWeek ? { deloadWeek } : {}), weeks };
 }
+
+/**
+ * Vagues décalées du Bloc (0) : chaque mouvement a son deload (S0) à une semaine différente du cycle,
+ * puis S1 65 %, S2 75 %, S3 80 %, S4 85 %, S5 85 % + 90 %, S6 test au RM.
+ */
+const DELOAD_WEEK = { squat: 1, bench: 3, deadlift: 5 } as const;
 
 export const TEMPLATE_IDS = {
   deadlift: 'tpl-deadlift',
@@ -58,7 +64,7 @@ const deadlift = build(TEMPLATE_IDS.deadlift, 'Deadlift', '#b5452f', [
   every('Rowing 3 points', '3x12@36'),
   every('Tirage dos Rameur', '3x12@65'),
   on('Poulie Dos', [5], '3x12@40'),
-]);
+], DELOAD_WEEK.deadlift);
 
 const sbd = build(TEMPLATE_IDS.sbd, 'SBD', '#c9a227', [
   every('Squat 420', '3x4@60%S'),
@@ -88,7 +94,7 @@ const bench = build(TEMPLATE_IDS.bench, 'Bench', '#3d6fd1', [
   every('Triceps', '3x15@20'),
   every('Traction', '3x8@+7.5'),
   every('Biceps', '3x12@25'),
-]);
+], DELOAD_WEEK.bench);
 
 const squat = build(TEMPLATE_IDS.squat, 'Squat', '#2a9d8f', [
   on('Hack Squat Inversé', [1], '3x8@70'),
@@ -109,7 +115,7 @@ const squat = build(TEMPLATE_IDS.squat, 'Squat', '#2a9d8f', [
   every('Fente bulgare', '2x8@18'),
   every('Leg extension', '2x10@22.5'),
   every('Good morning', '2x8@80'),
-]);
+], DELOAD_WEEK.squat);
 
 const joker = build(TEMPLATE_IDS.joker, 'Joker', '#6b7280', [
   every('DC incliné haltères', '2x0'),

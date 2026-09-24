@@ -4,6 +4,7 @@ import { addDays, mondayOf, todayIso } from '../../domain/dates';
 import { newId } from '../../domain/ids';
 import { deriveSessionStatus } from '../../domain/sessionStatus';
 import type { Cycle, IsoDate, Session, SessionTemplate } from '../../domain/types';
+import { sessionLabel } from '../../domain/templates';
 import { exampleCycle } from '../../seed';
 import { commit, templatesById } from '../actions';
 import { NEUTRAL_COLOR, SessionCard, SessionDot } from '../components/SessionCard';
@@ -83,6 +84,7 @@ export function CalendarScreen() {
 
   const templates = templatesById(data.templates);
   const colorOf = (s: Session) => (s.templateId ? templates.get(s.templateId)?.color : undefined) ?? NEUTRAL_COLOR;
+  const labelOf = (s: Session) => sessionLabel(s, s.templateId ? templates.get(s.templateId) : undefined);
   const maxOf = (s: Session) => data.cycles.find((c) => c.id === s.cycleId)?.max ?? { S: 0, B: 0, D: 0 };
   const byDay = new Map<IsoDate, Session[]>();
   for (const s of data.sessions) byDay.set(s.date, [...(byDay.get(s.date) ?? []), s]);
@@ -105,6 +107,7 @@ export function CalendarScreen() {
       <SessionCard
         key={s.id}
         session={s}
+        label={labelOf(s)}
         color={colorOf(s)}
         max={maxOf(s)}
         rounding={app.settings.rounding}
@@ -185,6 +188,7 @@ export function CalendarScreen() {
             today={today}
             byDay={byDay}
             colorOf={colorOf}
+            labelOf={labelOf}
             onSelect={select}
           />
         ) : (
@@ -221,7 +225,7 @@ export function CalendarScreen() {
         <AddSessionSheet date={sheet.date} cycles={data.cycles} templates={data.templates} onClose={() => setSheet(null)} />
       )}
       {sheet?.kind === 'session' && (
-        <SessionActionsSheet session={sheet.session} cycles={data.cycles} onClose={() => setSheet(null)} />
+        <SessionActionsSheet session={sheet.session} label={labelOf(sheet.session)} cycles={data.cycles} onClose={() => setSheet(null)} />
       )}
       {sheet?.kind === 'menu' && (
         <Sheet title={S.calendar.actions} onClose={() => setSheet(null)}>
@@ -254,10 +258,11 @@ interface GridProps {
   today: IsoDate;
   byDay: ReadonlyMap<IsoDate, Session[]>;
   colorOf: (s: Session) => string;
+  labelOf: (s: Session) => string;
   onSelect: (d: IsoDate) => void;
 }
 
-function MonthGrid({ from, month, selected, today, byDay, colorOf, onSelect }: GridProps) {
+function MonthGrid({ from, month, selected, today, byDay, colorOf, labelOf, onSelect }: GridProps) {
   const days = Array.from({ length: 42 }, (_, i) => addDays(from, i));
   // Ne pas afficher une 6e ligne entièrement hors du mois.
   const visible = days.slice(35).some((d) => d.startsWith(month)) ? days : days.slice(0, 35);
@@ -293,7 +298,7 @@ function MonthGrid({ from, month, selected, today, byDay, colorOf, onSelect }: G
                 <span class="month-day num">{Number(day.slice(8))}</span>
                 <span class="dots">
                   {sessions.map((s) => (
-                    <SessionDot key={s.id} color={colorOf(s)} status={deriveSessionStatus(s, today)} name={s.name} />
+                    <SessionDot key={s.id} color={colorOf(s)} status={deriveSessionStatus(s, today)} name={labelOf(s)} />
                   ))}
                 </span>
               </button>

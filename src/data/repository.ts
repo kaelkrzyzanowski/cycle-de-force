@@ -230,8 +230,12 @@ class IdbRepository implements Repository {
     const templateStore = tx.objectStore('templates');
     const exerciseStore = tx.objectStore('exercises');
     for (const t of templates) {
-      // Ne pas écraser un modèle natif déjà modifié par l'utilisateur.
-      if (!(await templateStore.get(t.id))) await templateStore.put(t);
+      const existing = await templateStore.get(t.id);
+      // Ne pas écraser un modèle natif déjà modifié par l'utilisateur : seulement compléter les champs nouveaux.
+      if (!existing) await templateStore.put(t);
+      else if (existing.native && existing.deloadWeek === undefined && t.deloadWeek !== undefined) {
+        await templateStore.put({ ...existing, deloadWeek: t.deloadWeek });
+      }
     }
     for (const e of exercises) {
       if (!(await exerciseStore.get(e.id))) await exerciseStore.put(e);

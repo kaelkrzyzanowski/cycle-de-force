@@ -12,7 +12,17 @@ import { S } from '../strings';
 
 type Mode = 'menu' | 'move' | 'duplicate' | 'delete';
 
-export function SessionActionsSheet({ session, cycles, onClose }: { session: Session; cycles: readonly Cycle[]; onClose: () => void }) {
+export function SessionActionsSheet({
+  session,
+  label,
+  cycles,
+  onClose,
+}: {
+  session: Session;
+  label: string;
+  cycles: readonly Cycle[];
+  onClose: () => void;
+}) {
   const app = useApp();
   const [mode, setMode] = useState<Mode>('menu');
   const [date, setDate] = useState(session.date);
@@ -32,7 +42,7 @@ export function SessionActionsSheet({ session, cycles, onClose }: { session: Ses
     );
   const remove = () => run(commit(app, { deleteSessionIds: [session.id] }, S.sessionActions.deleted));
 
-  const title = `${session.name} · ${formatDayMedium(session.date)}`;
+  const title = `${label} · ${formatDayMedium(session.date)}`;
 
   return (
     <Sheet title={title} onClose={onClose}>

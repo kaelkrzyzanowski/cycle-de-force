@@ -250,7 +250,8 @@ h3 {
 h2 {
   font-size: 1.2rem;
 }
-h3 {
+h3,
+h2.card-title {
   font-size: 1.05rem;
 }
 p {
@@ -608,8 +609,12 @@ legend {
   background: var(--surface);
   cursor: pointer;
 }
+/* Jours hors du mois : fond effacé, chiffre en gris lisible (pas d'opacité, qui casserait le contraste). */
 .month-cell.is-outside {
-  opacity: 0.4;
+  background: transparent;
+}
+.month-cell.is-outside .month-day {
+  color: var(--text-muted);
 }
 .month-cell.is-today .month-day {
   color: var(--accent);

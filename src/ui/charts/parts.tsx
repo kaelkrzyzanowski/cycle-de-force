@@ -18,7 +18,7 @@ export function ChartCard({
 }) {
   return (
     <section class="card stack tight chart-card">
-      <h3>{title}</h3>
+      <h2 class="card-title">{title}</h2>
       {subtitle && <p class="muted chart-subtitle">{subtitle}</p>}
       {legend}
       {children}

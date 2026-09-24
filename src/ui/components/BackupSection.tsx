@@ -49,7 +49,9 @@ export function BackupSection() {
 
   return (
     <section class="card stack" aria-labelledby="backup-title">
-      <h3 id="backup-title">{S.backup.title}</h3>
+      <h2 id="backup-title" class="card-title">
+        {S.backup.title}
+      </h2>
       <p class="muted">{app.settings.lastBackupAt ? S.backup.last(when(app.settings.lastBackupAt)) : S.backup.never}</p>
       <button type="button" class="btn primary" onClick={() => void runExport(app)}>
         {S.backup.export}

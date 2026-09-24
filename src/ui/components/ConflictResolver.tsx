@@ -29,7 +29,7 @@ export function ConflictResolver({ dates, existing, choices, onChange }: Props) 
 
   return (
     <section class="card stack conflicts" aria-labelledby="conflicts-title">
-      <h3 id="conflicts-title">{S.conflicts.title}</h3>
+      <h2 id="conflicts-title" class="card-title">{S.conflicts.title}</h2>
       <p class="muted">{S.conflicts.intro}</p>
       {dates.length > 1 && (
         <div class="field">

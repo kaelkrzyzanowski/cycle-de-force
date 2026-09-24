@@ -99,7 +99,7 @@ function Wizard({ cycles, templates }: Setup) {
 
       {step === 1 && (
         <section class="card stack">
-          <h3>{S.cycleForm.max}</h3>
+          <h2 class="card-title">{S.cycleForm.max}</h2>
           <p class="muted">{S.cycleForm.maxHint}</p>
           {LIFTS.map((lift) => (
             <NumberField
@@ -117,7 +117,7 @@ function Wizard({ cycles, templates }: Setup) {
 
       {step === 2 && (
         <section class="card stack">
-          <h3>{S.cycleForm.planning}</h3>
+          <h2 class="card-title">{S.cycleForm.planning}</h2>
           {WEEKDAYS.map((weekday) => (
             <label key={weekday} class="plan-row">
               <span>{S.weekdays[weekday - 1]}</span>
@@ -141,7 +141,7 @@ function Wizard({ cycles, templates }: Setup) {
       {step === 3 && (
         <>
           <section class="card stack">
-            <h3>{cycle.name}</h3>
+            <h2 class="card-title">{cycle.name}</h2>
             <p class="muted">{formatRange(cycle.startDate, cycleEndDate(cycle))}</p>
             <ol class="preview-weeks">
               {Array.from({ length: weeksCount }, (_, i) => {

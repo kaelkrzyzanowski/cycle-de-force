@@ -78,7 +78,7 @@ function Form({ source, sessions, templates }: { source: Cycle; sessions: Sessio
 
       <section class="card stack">
         <div class="section-header">
-          <h3>{S.duplicateCycle.max}</h3>
+          <h2 class="card-title">{S.duplicateCycle.max}</h2>
           <button type="button" class="btn small" onClick={() => setMax({ ...source.max })}>
             {S.duplicateCycle.reset}
           </button>

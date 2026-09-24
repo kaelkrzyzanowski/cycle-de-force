@@ -186,7 +186,7 @@ export function conflictDates(incoming: readonly Session[], existing: readonly S
 export function resolveConflicts(
   incoming: readonly Session[],
   existing: readonly Session[],
-  choices: Readonly<Record<IsoDate, ConflictChoice>>,
+  choices: Readonly<Partial<Record<IsoDate, ConflictChoice>>>,
 ): { save: Session[]; remove: Session[] } {
   const conflicts = new Set(conflictDates(incoming, existing));
   const choice = (date: IsoDate): ConflictChoice => (conflicts.has(date) ? (choices[date] ?? 'ADD') : 'ADD');

@@ -29,11 +29,12 @@ function png(size, pixels) {
   ihdr.writeUInt32BE(size, 0);
   ihdr.writeUInt32BE(size, 4);
   ihdr[8] = 8; // profondeur
-  ihdr[9] = 2; // RGB
-  const raw = Buffer.alloc(size * (size * 3 + 1));
+  ihdr[9] = 6; // RGBA
+  const row = size * 4;
+  const raw = Buffer.alloc(size * (row + 1));
   for (let y = 0; y < size; y++) {
-    raw[y * (size * 3 + 1)] = 0;
-    pixels.copy(raw, y * (size * 3 + 1) + 1, y * size * 3, (y + 1) * size * 3);
+    raw[y * (row + 1)] = 0;
+    pixels.copy(raw, y * (row + 1) + 1, y * row, (y + 1) * row);
   }
   return Buffer.concat([
     Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
@@ -58,18 +59,19 @@ function shapes(scale) {
   ];
 }
 
-function draw(size, scale) {
-  const px = Buffer.alloc(size * size * 3);
-  const rects = shapes(scale);
+/** `background` : fond plein (icônes, écran de démarrage) ou transparent (premier plan de l'icône adaptative). */
+function draw(size, scale, { background = true, glyph = true } = {}) {
+  const px = Buffer.alloc(size * size * 4);
+  const rects = glyph ? shapes(scale) : [];
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
       const u = (x + 0.5) / size;
       const v = (y + 0.5) / size;
-      let color = BG;
+      let color = background ? [...BG, 255] : [0, 0, 0, 0];
       for (const [x0, x1, hh, col] of rects) {
-        if (u >= x0 && u <= x1 && Math.abs(v - 0.5) <= hh / 2) color = col;
+        if (u >= x0 && u <= x1 && Math.abs(v - 0.5) <= hh / 2) color = [...col, 255];
       }
-      px.set(color, (y * size + x) * 3);
+      px.set(color, (y * size + x) * 4);
     }
   }
   return png(size, px);
@@ -94,3 +96,13 @@ writeFileSync(new URL('icon-maskable-512.png', out), draw(512, 0.72)); // zone s
 writeFileSync(new URL('apple-touch-icon.png', out), draw(180, 0.85));
 writeFileSync(new URL('favicon.svg', out), svg());
 console.log('Icônes générées dans public/icons/');
+
+// Sources pour l'application Android (`npx capacitor-assets generate --android`).
+const assets = new URL('../assets/', import.meta.url);
+mkdirSync(assets, { recursive: true });
+writeFileSync(new URL('icon-only.png', assets), draw(1024, 0.85));
+writeFileSync(new URL('icon-foreground.png', assets), draw(1024, 0.6, { background: false })); // zone sûre adaptative
+writeFileSync(new URL('icon-background.png', assets), draw(1024, 1, { glyph: false }));
+writeFileSync(new URL('splash.png', assets), draw(2732, 0.3));
+writeFileSync(new URL('splash-dark.png', assets), draw(2732, 0.3));
+console.log('Sources Android générées dans assets/');

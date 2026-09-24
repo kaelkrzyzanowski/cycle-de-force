@@ -1,13 +1,64 @@
+import { addDays, todayIso } from '../../domain/dates';
+import type { Cycle, Session, SessionTemplate } from '../../domain/types';
+import { templatesById } from '../actions';
+import { NEUTRAL_COLOR, SessionCard } from '../components/SessionCard';
+import { useApp, useData } from '../context';
+import { formatDayLong } from '../format';
+import { href, navigate } from '../router';
 import { S } from '../strings';
 
-const dateFormat = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+interface Data {
+  today: Session[];
+  upcoming: Session | undefined;
+  cycles: Cycle[];
+  templates: SessionTemplate[];
+}
 
 export function TodayScreen() {
+  const { settings } = useApp();
+  const today = todayIso();
+  const data = useData<Data>(
+    async (repo) => {
+      const todaySessions = await repo.listSessionsBetween(today, today);
+      const next = todaySessions.length ? [] : await repo.listSessionsBetween(addDays(today, 1), addDays(today, 60));
+      return { today: todaySessions, upcoming: next[0], cycles: await repo.listCycles(), templates: await repo.listTemplates() };
+    },
+    [today],
+  );
+  if (!data) return <p class="muted">{S.loading}</p>;
+
+  const templates = templatesById(data.templates);
+  const card = (s: Session) => (
+    <SessionCard
+      key={s.id}
+      session={s}
+      color={(s.templateId ? templates.get(s.templateId)?.color : undefined) ?? NEUTRAL_COLOR}
+      max={data.cycles.find((c) => c.id === s.cycleId)?.max ?? { S: 0, B: 0, D: 0 }}
+      rounding={settings.rounding}
+      today={today}
+      onOpen={() => navigate(href.session(s.id))}
+      onActions={() => navigate(href.session(s.id))}
+    />
+  );
+
   return (
     <div class="stack">
-      <h2 style={{ margin: 0, textTransform: 'capitalize' }}>{dateFormat.format(new Date())}</h2>
-      <p class="card">{S.today.noSession}</p>
-      <p class="muted">{S.today.comingSoon}</p>
+      <h2>{formatDayLong(today)}</h2>
+      {data.today.map(card)}
+      {data.today.length === 0 && (
+        <>
+          <p class="card">{S.today.noSession}</p>
+          {data.upcoming && (
+            <>
+              <p class="muted">{S.today.next(formatDayLong(data.upcoming.date).toLowerCase())}</p>
+              {card(data.upcoming)}
+            </>
+          )}
+          <a class="btn" href={href.calendar()}>
+            {S.today.toCalendar}
+          </a>
+        </>
+      )}
     </div>
   );
 }

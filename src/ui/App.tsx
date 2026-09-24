@@ -18,6 +18,7 @@ import { NewCycleScreen } from './screens/NewCycleScreen';
 import { SessionScreen } from './screens/SessionScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
 import { StatsScreen } from './screens/StatsScreen';
+import { TemplateEditorScreen } from './screens/TemplateEditorScreen';
 import { TemplatesScreen } from './screens/TemplatesScreen';
 import { TodayScreen } from './screens/TodayScreen';
 
@@ -39,6 +40,7 @@ const TITLES: Record<Route['name'], string> = {
   cycle: S.cycle.title,
   duplicateCycle: S.duplicateCycle.title,
   duplicateWeek: S.duplicateWeek.title,
+  template: S.templateEditor.title,
 };
 
 function Screen({ route }: { route: Route }) {
@@ -63,6 +65,8 @@ function Screen({ route }: { route: Route }) {
       return <DuplicateCycleScreen id={route.id} />;
     case 'duplicateWeek':
       return <DuplicateWeekScreen from={route.from} />;
+    case 'template':
+      return <TemplateEditorScreen id={route.id} />;
   }
 }
 

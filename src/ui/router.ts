@@ -13,7 +13,8 @@ export type Route =
   | { name: 'newCycle' }
   | { name: 'cycle'; id: string }
   | { name: 'duplicateCycle'; id: string }
-  | { name: 'duplicateWeek'; from: IsoDate | null };
+  | { name: 'duplicateWeek'; from: IsoDate | null }
+  | { name: 'template'; id: string };
 
 export const href = {
   calendar: () => '#/calendrier',
@@ -26,6 +27,7 @@ export const href = {
   cycle: (id: string) => `#/cycle/${id}`,
   duplicateCycle: (id: string) => `#/cycle/${id}/dupliquer`,
   duplicateWeek: (from?: IsoDate) => `#/semaine/dupliquer${from ? `/${from}` : ''}`,
+  template: (id: string) => `#/modele/${encodeURIComponent(id)}`,
 };
 
 export function parseRoute(hash: string): Route {
@@ -47,6 +49,8 @@ export function parseRoute(hash: string): Route {
       return a ? { name: 'cycle', id: a } : { name: 'calendar' };
     case 'semaine':
       return { name: 'duplicateWeek', from: b ?? null };
+    case 'modele':
+      return a ? { name: 'template', id: a } : { name: 'templates' };
     default:
       return { name: 'calendar' };
   }
@@ -62,6 +66,8 @@ export function tabOf(route: Route): Tab | null {
       return route.name;
     case 'settings':
       return null;
+    case 'template':
+      return 'templates';
     default:
       return 'calendar';
   }

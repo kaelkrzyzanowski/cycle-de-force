@@ -84,6 +84,7 @@ test('dupliquer le cycle avec Deadlift +5 kg', async ({ page }) => {
 
   await expect(page.getByLabel('Nom du nouveau cycle')).toHaveValue('Bloc 0 (suite)');
   await expect(page.getByLabel('Date de début')).toHaveValue(addDays(monday, 49));
+  await expect(page.getByRole('radio', { name: 'Régénérer depuis les modèles' })).toBeChecked();
   await page.getByRole('button', { name: 'Deadlift +5 kg' }).click();
   await expect(page.getByRole('textbox', { name: 'Deadlift', exact: true })).toHaveValue('215');
   await expect(page.getByText('28 séances seront créées.')).toBeVisible();

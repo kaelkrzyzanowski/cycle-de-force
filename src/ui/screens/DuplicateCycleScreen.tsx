@@ -42,7 +42,7 @@ function Form({ source, sessions, templates }: { source: Cycle; sessions: Sessio
   const [name, setName] = useState(S.duplicateCycle.defaultName(source.name));
   const [startDate, setStartDate] = useState(addDays(cycleEndDate(source), 1));
   const [max, setMax] = useState<Maxes>({ ...source.max });
-  const [mode, setMode] = useState<CopyMode>('AS_IS');
+  const [mode, setMode] = useState<CopyMode>('TEMPLATE');
   const [choices, setChoices] = useState<Choices>({});
 
   const result = duplicateCycle(source, sessions, { name: name.trim(), startDate, max, mode }, templatesById(templates), newId);
@@ -116,8 +116,8 @@ function Form({ source, sessions, templates }: { source: Cycle; sessions: Sessio
           value={mode}
           onChange={setMode}
           options={[
-            { value: 'AS_IS', label: S.duplicateCycle.modeAsIs },
             { value: 'TEMPLATE', label: S.duplicateCycle.modeTemplate },
+            { value: 'AS_IS', label: S.duplicateCycle.modeAsIs },
           ]}
         />
         <p class="muted">{S.copyMode.note}</p>

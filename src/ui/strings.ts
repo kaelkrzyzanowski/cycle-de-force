@@ -1,8 +1,26 @@
 /** Tous les textes de l'interface (français uniquement). */
+
+const plural = (n: number, one: string, many: string): string => `${n} ${n > 1 ? many : one}`;
+
 export const S = {
   appName: 'Cycle de force',
   loading: 'Chargement…',
   loadError: 'Impossible d’ouvrir la base de données locale.',
+  saveError: 'L’enregistrement a échoué, rien n’a été modifié.',
+
+  common: {
+    cancel: 'Annuler',
+    close: 'Fermer',
+    next: 'Suivant',
+    previous: 'Précédent',
+    create: 'Créer',
+    confirm: 'Confirmer',
+    none: 'Aucun',
+  },
+
+  weekdays: ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'],
+  weekdaysShort: ['L', 'M', 'M', 'J', 'V', 'S', 'D'],
+  lifts: { S: 'Squat', B: 'Bench', D: 'Deadlift' },
 
   nav: {
     label: 'Navigation principale',
@@ -12,26 +30,179 @@ export const S = {
     stats: 'Stats',
   },
   menu: {
-    open: 'Ouvrir le menu',
     settings: 'Réglages',
     back: 'Retour',
   },
 
+  sessionStatus: {
+    PLANNED: 'Planifiée',
+    MISSED: 'Manquée',
+    IN_PROGRESS: 'En cours',
+    FAILED: 'Échec',
+    INCOMPLETE: 'Incomplète',
+    VALIDATED: 'Validée',
+  },
+
   calendar: {
     title: 'Calendrier',
-    comingSoon: 'Vues mois et semaine, cycles et duplication : phase 2.',
+    viewLabel: 'Affichage',
+    month: 'Mois',
+    week: 'Semaine',
+    previous: 'Période précédente',
+    next: 'Période suivante',
+    today: 'Aujourd’hui',
+    noSessions: 'Aucune séance',
+    addSession: 'Ajouter une séance',
+    addSessionOn: (day: string) => `Ajouter une séance le ${day}`,
+    cycleBanner: (name: string, week: number, total: number) => `${name} · semaine ${week}/${total}`,
+    noCycle: 'Aucun cycle en cours',
+    actions: 'Actions du calendrier',
+    daySessions: (n: number) => plural(n, 'séance', 'séances'),
   },
+
+  example: {
+    title: 'Bienvenue',
+    text: 'Créer le cycle d’exemple « Bloc 0 » à partir de cette semaine ? 7 semaines, max S 170 / B 115 / D 210, Mar Deadlift · Jeu SBD · Sam Bench · Dim Squat.',
+    create: 'Créer le Bloc 0',
+    later: 'Plus tard',
+  },
+
+  sessionCard: {
+    actions: (name: string) => `Actions sur la séance ${name}`,
+    tonnage: 'Tonnage',
+    empty: 'Aucun exercice',
+  },
+
+  sessionActions: {
+    open: 'Ouvrir',
+    move: 'Déplacer à une autre date',
+    duplicate: 'Dupliquer à une autre date',
+    delete: 'Supprimer',
+    targetDate: 'Nouvelle date',
+    confirmMove: 'Déplacer',
+    confirmDuplicate: 'Dupliquer',
+    confirmDelete: 'Des séries de cette séance sont déjà réalisées. Supprimer quand même ?',
+    confirmDeleteButton: 'Supprimer définitivement',
+    deleted: 'Séance supprimée',
+    moved: (day: string) => `Séance déplacée au ${day}`,
+    duplicated: (day: string) => `Séance dupliquée au ${day}`,
+  },
+
+  addSession: {
+    title: (day: string) => `Ajouter une séance · ${day}`,
+    template: 'Modèle',
+    week: 'Semaine du modèle',
+    weekShort: (n: number) => `S${n}`,
+    inCycle: (name: string, week: number) => `Dans ${name}, semaine ${week}`,
+    outOfCycle: 'Hors cycle',
+    empty: 'Séance vide',
+    emptyName: 'Séance libre',
+    added: 'Séance ajoutée',
+  },
+
+  cycleForm: {
+    newTitle: 'Nouveau cycle',
+    steps: ['Cycle', 'Max', 'Planning', 'Aperçu'],
+    stepOf: (i: number, n: number, label: string) => `Étape ${i}/${n} · ${label}`,
+    name: 'Nom du cycle',
+    defaultName: (n: number) => `Bloc ${n}`,
+    startDate: 'Date de début',
+    startsOn: (day: string) => `Le cycle commence le ${day}.`,
+    weeks: 'Nombre de semaines',
+    max: 'Max théoriques',
+    maxHint: 'Base de tous les pourcentages du cycle.',
+    planning: 'Planning hebdomadaire',
+    noTemplate: '—',
+    total: (n: number) => `${plural(n, 'séance sera créée', 'séances seront créées')}.`,
+    weekLabel: (n: number) => `S${n}`,
+    invalid: 'Vérifie le nom, la date et les max.',
+    created: (name: string, n: number) => `${name} créé : ${plural(n, 'séance', 'séances')}`,
+  },
+
+  conflicts: {
+    title: 'Jours déjà occupés',
+    intro: 'Ces jours contiennent déjà une séance. Que faire ?',
+    replace: 'Remplacer',
+    add: 'Ajouter à côté',
+    skip: 'Ignorer ce jour',
+    all: 'Pour tous les jours',
+    existing: (names: string) => `Déjà : ${names}`,
+    unresolved: 'Choisis une option pour chaque jour.',
+  },
+
+  copyMode: {
+    label: 'Contenu des séances',
+    template: 'Reprendre la prescription du modèle',
+    templateWeek: 'Semaine du modèle',
+    asIs: 'Copier les séances telles quelles (avec mes modifications)',
+    note: 'Les statuts et valeurs réalisées ne sont jamais copiés : tout repart en « prévu ».',
+  },
+
+  duplicateWeek: {
+    title: 'Dupliquer une semaine',
+    source: 'Semaine source',
+    target: 'Semaine cible',
+    weekOf: (range: string) => `Semaine du ${range}`,
+    cycleWeek: (name: string, week: number) => `${name} · S${week}`,
+    outOfCycle: 'Hors cycle',
+    found: (n: number) => plural(n, 'séance', 'séances'),
+    none: 'Aucune séance dans cette semaine.',
+    sameWeek: 'Choisis une semaine cible différente.',
+    submit: 'Dupliquer la semaine',
+    done: (n: number) => `${plural(n, 'séance créée', 'séances créées')}`,
+  },
+
+  duplicateCycle: {
+    title: 'Dupliquer le cycle',
+    name: 'Nom du nouveau cycle',
+    defaultName: (name: string) => `${name} (suite)`,
+    startDate: 'Date de début',
+    max: 'Nouveaux max',
+    bump: (kg: string) => `+${kg}`,
+    reset: 'Max actuels',
+    modeTemplate: 'Régénérer depuis les modèles',
+    modeAsIs: 'Copier les séances telles quelles (avec mes modifications)',
+    submit: 'Créer le cycle',
+    notFound: 'Cycle introuvable.',
+  },
+
+  cycle: {
+    title: 'Cycle',
+    dates: (from: string, to: string) => `Du ${from} au ${to}`,
+    currentWeek: (w: number, n: number) => `Semaine ${w}/${n}`,
+    max: 'Max théoriques',
+    planning: 'Planning',
+    weeks: 'Semaines',
+    weekRow: (w: number, range: string) => `S${w} · ${range}`,
+    weekProgress: (done: number, total: number) => `${done}/${total} faites`,
+    duplicate: 'Dupliquer le cycle',
+    duplicateWeek: 'Dupliquer une semaine',
+    duplicateThisWeek: (w: number) => `Dupliquer la semaine ${w}`,
+    notFound: 'Cycle introuvable.',
+  },
+
+  session: {
+    title: 'Séance',
+    inCycle: (name: string, week: number) => `${name} · semaine ${week}`,
+    outOfCycle: 'Hors cycle',
+    empty: 'Aucun exercice dans cette séance.',
+    toEnter: 'à saisir',
+    notFound: 'Séance introuvable.',
+    comingSoon: 'La saisie des séries arrive en phase 3.',
+  },
+
   today: {
     title: 'Aujourd’hui',
-    noSession: 'Aucune séance prévue.',
-    comingSoon: 'Saisie des séries, max et sauvegarde : phase 3.',
+    noSession: 'Aucune séance aujourd’hui.',
+    next: (day: string) => `Prochaine séance : ${day}`,
+    toCalendar: 'Voir le calendrier',
   },
   templates: {
     title: 'Modèles de séance',
     native: 'Natif',
     custom: 'Perso',
-    weeks: (n: number) => `${n} semaine${n > 1 ? 's' : ''}`,
-    exercisesWeek1: (n: number) => `${n} exercice${n > 1 ? 's' : ''} en S1`,
+    weeks: (n: number) => plural(n, 'semaine', 'semaines'),
+    exercisesWeek1: (n: number) => `${plural(n, 'exercice', 'exercices')} en S1`,
     comingSoon: 'Éditeur de modèles : phase 4.',
   },
   stats: {
@@ -44,19 +215,10 @@ export const S = {
     themes: { dark: 'Sombre', light: 'Clair', system: 'Système' },
     rounding: 'Arrondi des charges',
     roundingNone: 'Aucun',
-    roundingValue: (kg: string) => `${kg} kg`,
     storage: 'Stockage',
     storagePersisted: 'Stockage persistant accordé par le navigateur.',
     storageNotPersisted: 'Stockage non garanti : le navigateur peut effacer les données. Pense à sauvegarder.',
     storageUnknown: 'Statut du stockage inconnu.',
     version: (v: string) => `Version ${v}`,
-  },
-
-  status: {
-    PLANNED: 'Prévue',
-    VALIDATED: 'Validé',
-    FAILED: 'Échec',
-    NOT_DONE: 'Non réalisé',
-    CLUSTER: 'Cluster',
   },
 } as const;

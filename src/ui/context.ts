@@ -3,14 +3,21 @@ import { useContext, useEffect, useState } from 'preact/hooks';
 import type { Repository } from '../data/repository';
 import type { Settings } from '../domain/types';
 
+export interface ToastAction {
+  label: string;
+  run: () => void;
+}
+
 export interface AppContextValue {
   repo: Repository;
   settings: Settings;
   updateSettings(patch: Partial<Settings>): Promise<void>;
+  /** Relit les réglages depuis la base (après une restauration). */
+  reloadSettings(): Promise<void>;
   /** Incrémenté à chaque écriture : les écrans rechargent leurs données. */
   dataVersion: number;
   refresh(): void;
-  toast(message: string): void;
+  toast(message: string, action?: ToastAction): void;
 }
 
 export const AppContext = createContext<AppContextValue | null>(null);

@@ -3,6 +3,7 @@ import { getRepository } from '../data/repository';
 import type { Repository } from '../data/repository';
 import type { Settings } from '../domain/types';
 import { AppContext } from './context';
+import type { ToastAction } from './context';
 import { Icon } from './Icon';
 import type { IconName } from './Icon';
 import { goBack, href, tabOf, useRoute } from './router';
@@ -71,7 +72,7 @@ export function App() {
   const route = useRoute();
   const [boot, setBoot] = useState<Boot>({ state: 'loading' });
   const [dataVersion, setDataVersion] = useState(0);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toastState, setToastState] = useState<{ message: string; action?: ToastAction } | null>(null);
   const toastTimer = useRef<number | undefined>(undefined);
 
   useEffect(() => {
@@ -89,10 +90,10 @@ export function App() {
   useEffect(() => applyTheme(theme), [theme]);
 
   const refresh = useCallback(() => setDataVersion((v) => v + 1), []);
-  const toast = useCallback((message: string) => {
-    setToastMessage(message);
+  const toast = useCallback((message: string, action?: ToastAction) => {
+    setToastState({ message, action });
     window.clearTimeout(toastTimer.current);
-    toastTimer.current = window.setTimeout(() => setToastMessage(null), 3500);
+    toastTimer.current = window.setTimeout(() => setToastState(null), action ? 6000 : 3500);
   }, []);
 
   if (boot.state !== 'ready') {
@@ -104,12 +105,17 @@ export function App() {
     await boot.repo.saveSettings(settings);
     setBoot({ ...boot, settings });
   };
+  const reloadSettings = async () => {
+    setBoot({ ...boot, settings: await boot.repo.getSettings() });
+  };
 
   const tab = tabOf(route);
   const isTabRoot = route.name === tab;
 
   return (
-    <AppContext.Provider value={{ repo: boot.repo, settings: boot.settings, updateSettings, dataVersion, refresh, toast }}>
+    <AppContext.Provider
+      value={{ repo: boot.repo, settings: boot.settings, updateSettings, reloadSettings, dataVersion, refresh, toast }}
+    >
       <div class="app">
         <header class="topbar">
           {!isTabRoot && (
@@ -127,8 +133,20 @@ export function App() {
         <main>
           <Screen route={route} />
         </main>
-        <div class="toast" role="status">
-          {toastMessage}
+        <div class={`toast${toastState ? '' : ' is-hidden'}`} role="status">
+          {toastState && <span>{toastState.message}</span>}
+          {toastState?.action && (
+            <button
+              type="button"
+              class="toast-action"
+              onClick={() => {
+                toastState.action?.run();
+                setToastState(null);
+              }}
+            >
+              {toastState.action.label}
+            </button>
+          )}
         </div>
         <nav class="bottom-nav" aria-label={S.nav.label}>
           {TABS.map((t) => (

@@ -100,8 +100,16 @@ export function App() {
     toastTimer.current = window.setTimeout(() => setToastState(null), action ? 6000 : 3500);
   }, []);
 
-  if (boot.state !== 'ready') {
-    return <p class="card" style={{ margin: 16 }}>{boot.state === 'loading' ? S.loading : S.loadError}</p>;
+  if (boot.state === 'loading') {
+    return (
+      <div class="splash" role="status">
+        <img src="icons/favicon.svg" alt="" />
+        <span>{S.appName}</span>
+      </div>
+    );
+  }
+  if (boot.state === 'error') {
+    return <p class="card" style={{ margin: 16 }}>{S.loadError}</p>;
   }
 
   const updateSettings = async (patch: Partial<Settings>) => {

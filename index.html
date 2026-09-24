@@ -5,12 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#0e1013" />
     <meta name="description" content="Planification et suivi de cycles de force athlétique (SBD), 100 % hors ligne." />
-    <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml" />
-    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Cycle de force" />
+    <link rel="icon" href="icons/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
     <title>Cycle de force</title>
+    <style>
+      /* Écran de démarrage : affiché avant même le chargement du JavaScript. */
+      html { background: #0e1013; }
+      .splash {
+        min-height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        gap: 16px; margin: 0; color: #eef0f3; font: 600 1.25rem system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      }
+      .splash img { width: 96px; height: 96px; border-radius: 22px; }
+    </style>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <div class="splash" role="status">
+        <img src="icons/favicon.svg" alt="" />
+        <span>Cycle de force</span>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

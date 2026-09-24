@@ -9,4 +9,8 @@ registerSW({ immediate: true });
 navigator.storage?.persist?.().catch(() => undefined);
 
 const root = document.getElementById('app');
-if (root) render(<App />, root);
+if (root) {
+  // L'écran de démarrage statique d'index.html est remplacé par le même rendu côté Preact.
+  root.replaceChildren();
+  render(<App />, root);
+}

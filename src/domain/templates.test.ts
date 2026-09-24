@@ -109,18 +109,23 @@ describe('progression', () => {
     expect(kg(4)).toEqual([92, 92, 92, 92]);
   });
 
-  it('ignore les semaines où l’exercice est absent', () => {
+  it('une semaine sans l’exercice (deload) ne fait pas avancer la progression', () => {
+    // Développé couché du modèle Bench : absent en S3.
     const { template, skipped } = applyProgression(bench(), {
-      exerciseId: 'dips-lestes',
+      exerciseId: 'developpe-couche',
       lift: 'B',
-      from: 0.5,
-      to: 0.6,
+      from: 0.7,
+      to: 0.9,
       step: 0.05,
-      weeks: [2, 3],
+      weeks: [2, 3, 4, 5],
     });
-    expect(skipped).toEqual([2]);
-    // Chaque semaine choisie garde sa valeur de l'aperçu (S2 = 50 %, S3 = 55 %), même si S2 est ignorée.
-    expect(template.weeks[3]?.find((e) => e.exerciseId === 'dips-lestes')?.sets[0]?.load).toEqual({ kind: 'PERCENT', lift: 'B', pct: 0.55 });
+    expect(skipped).toEqual([3]);
+    const pct = (w: number) => {
+      const load = template.weeks[w]?.find((e) => e.exerciseId === 'developpe-couche')?.sets[0]?.load;
+      return load?.kind === 'PERCENT' ? load.pct : null;
+    };
+    expect([pct(2), pct(4), pct(5)]).toEqual([0.7, 0.75, 0.8]);
+    expect(template.weeks[3]).toEqual(bench().weeks[3]);
   });
 });
 

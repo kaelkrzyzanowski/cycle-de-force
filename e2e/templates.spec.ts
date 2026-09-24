@@ -67,6 +67,16 @@ test('créer « Bench volume » sur 4 semaines, progression 65 → 80 %, et l’
   await page.screenshot({ path: 'test-results/screens/bench-volume.png' });
 });
 
+test('progression : la semaine de deload ne fait pas avancer le pourcentage', async ({ page }) => {
+  await page.goto('/#/modeles');
+  await page.getByRole('link', { name: /^Bench/ }).click();
+  await page.getByRole('button', { name: /Appliquer une progression/ }).click();
+  const prog = page.getByRole('dialog');
+  await prog.getByRole('combobox').selectOption({ label: 'Développé couché' });
+  await prog.getByLabel('Toutes').check();
+  await expect(prog).toContainText(/S1 65 % · S2 70 % · S3 deload · S4 75 % · S5 80 % · S6 85 % · S7 85 %/);
+});
+
 test('modifier un modèle natif, mettre à jour les séances futures, puis le réinitialiser', async ({ page }) => {
   await page.goto('/#/calendrier');
   await page.getByRole('button', { name: 'Créer le Bloc 0' }).click();

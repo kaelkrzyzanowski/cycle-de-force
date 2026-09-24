@@ -56,18 +56,24 @@ export function progressionValues(p: Pick<Progression, 'from' | 'to' | 'step' | 
 }
 
 /**
- * « Appliquer une progression » : sur chaque semaine choisie où l'exercice est présent,
- * toutes ses séries passent à X % du max du mouvement choisi.
+ * Semaines choisies où l'exercice est pratiqué, et celles où il est absent (deload) :
+ * une semaine absente ne fait pas avancer la progression.
+ */
+export function progressionWeeks(template: SessionTemplate, exerciseId: string, weeks: readonly number[]) {
+  const has = (w: number) => (template.weeks[w] ?? []).some((e) => e.exerciseId === exerciseId);
+  const sorted = [...weeks].sort((a, b) => a - b);
+  return { present: sorted.filter(has), skipped: sorted.filter((w) => !has(w)) };
+}
+
+/**
+ * « Appliquer une progression » : sur les semaines choisies où l'exercice est pratiqué,
+ * toutes ses séries passent à X % du max du mouvement choisi, X avançant d'un pas par semaine pratiquée.
  */
 export function applyProgression(template: SessionTemplate, p: Progression): { template: SessionTemplate; skipped: number[] } {
   const weeks = { ...template.weeks };
-  const skipped: number[] = [];
-  for (const { week, pct } of progressionValues(p)) {
+  const { present, skipped } = progressionWeeks(template, p.exerciseId, p.weeks);
+  for (const { week, pct } of progressionValues({ ...p, weeks: present })) {
     const list = weeks[week] ?? [];
-    if (!list.some((e) => e.exerciseId === p.exerciseId)) {
-      skipped.push(week);
-      continue;
-    }
     weeks[week] = list.map((e) =>
       e.exerciseId !== p.exerciseId ? e : { ...e, sets: e.sets.map((s) => ({ ...s, load: { kind: 'PERCENT', lift: p.lift, pct } })) },
     );

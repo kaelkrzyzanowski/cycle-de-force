@@ -8,6 +8,7 @@ import {
   copyWeek,
   duplicateTemplate,
   progressionValues,
+  progressionWeeks,
   refreshFromTemplate,
   sessionAsWeek,
   setWeeksCount,
@@ -372,7 +373,8 @@ function ProgressionSheet({
   }
 
   const params = { from: from / 100, to: to / 100, step: step / 100, weeks };
-  const preview = progressionValues(params);
+  const { present, skipped: skippedWeeks } = progressionWeeks(template, exerciseId, weeks);
+  const preview = progressionValues({ ...params, weeks: present });
   const all = Array.from({ length: template.weeksCount }, (_, i) => i + 1);
 
   return (
@@ -411,7 +413,13 @@ function ProgressionSheet({
       <NumberField label={S.templateEditor.progStep} value={step} onChange={setStep} min={0.5} max={50} step={0.5} />
       <WeekChecks label={S.templateEditor.progWeeks} weeks={all} selected={weeks} onChange={setWeeks} />
       <p class="num" aria-live="polite">
-        {preview.map((v) => `S${v.week} ${formatKg(Math.round(v.pct * 1000) / 10)} %`).join(' · ')}
+        {[
+          ...preview.map((v) => ({ week: v.week, text: `S${v.week} ${formatKg(Math.round(v.pct * 1000) / 10)} %` })),
+          ...skippedWeeks.map((w) => ({ week: w, text: S.templateEditor.progAbsent(w) })),
+        ]
+          .sort((a, b) => a.week - b.week)
+          .map((v) => v.text)
+          .join(' · ')}
       </p>
       <p class="muted">{S.templateEditor.progNote}</p>
       <button

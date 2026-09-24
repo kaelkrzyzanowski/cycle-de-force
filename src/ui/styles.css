@@ -342,6 +342,10 @@ legend {
   text-align: center;
   font-size: 1.15rem;
 }
+.number-controls input.wide {
+  width: 7em;
+  font-size: 1.3rem;
+}
 .step-btn {
   min-width: var(--tap);
   min-height: var(--tap);

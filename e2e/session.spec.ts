@@ -39,11 +39,13 @@ test('valider en un tap, saisir un échec, annuler, changer le max D', async ({ 
   await expect(sheet).toContainText('Prévu : 5 × 168 kg');
   await sheet.getByRole('textbox', { name: 'Reps réalisées' }).fill('3');
   await sheet.getByRole('textbox', { name: 'Reps réalisées' }).press('Enter');
+  await expect(sheet.getByRole('button', { name: /Charge réalisée/ })).toHaveCount(0); // pas de ± sur la charge
+  await sheet.getByRole('textbox', { name: 'Charge réalisée' }).fill('165,5'); // saisie directe, sans quitter le champ
   await sheet.getByRole('button', { name: /Échec/ }).click();
   await expect(heavy).toHaveClass(/st-FAILED/);
-  await expect(heavy.locator('.set-main')).toHaveText('3 × 168 kg');
+  await expect(heavy.locator('.set-main')).toHaveText('3 × 165,5 kg');
   await expect(heavy.locator('.set-planned')).toHaveText('5 × 168 kg');
-  await expect(page.locator('.totals-bar')).toContainText(/1\s?092\skg/); // 588 + 3 × 168
+  await expect(page.locator('.totals-bar')).toContainText(/1\s?085\skg/); // 588 + 3 × 165,5 = 1 084,5, affiché arrondi
 
   // Re-tap sur validé = retour à prévu, puis « Annuler ».
   await first.click();
@@ -71,7 +73,7 @@ test('valider en un tap, saisir un échec, annuler, changer le max D', async ({ 
   await openDeadliftS1(page);
   await expect(first.locator('.set-main')).toHaveText('4 × 147 kg'); // validée : figée
   await expect(pill(page, "Deadlift Sumo 2''+ iso", 1).locator('.set-main')).toHaveText('4 × 151 kg');
-  await expect(heavy.locator('.set-main')).toHaveText('3 × 168 kg'); // échec : figé
+  await expect(heavy.locator('.set-main')).toHaveText('3 × 165,5 kg'); // échec : figé
   await expect(pill(page, 'Deadlift Sumo + Inche mur', 1).locator('.set-main')).toHaveText('5 × 172 kg');
 });
 

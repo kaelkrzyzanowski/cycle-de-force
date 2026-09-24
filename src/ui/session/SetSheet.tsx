@@ -32,7 +32,7 @@ export function SetSheet({ set, exerciseName, max, rounding, onDecide, onClose }
     <Sheet title={S.setSheet.title(set.index + 1, exerciseName)} onClose={onClose}>
       <p class="muted num">{S.setSheet.plannedWas(setText(set.plannedReps, planned))}</p>
       <NumberField label={S.setSheet.reps} value={reps} onChange={setReps} min={0} max={100} />
-      <NumberField label={S.setSheet.kg} value={kg} onChange={setKg} step={2.5} max={500} suffix="kg" />
+      <NumberField label={S.setSheet.kg} value={kg} onChange={setKg} max={500} suffix="kg" buttons={false} />
       <div class="status-grid">
         <button type="button" class="status-btn st-FAILED" onClick={() => onDecide({ status: 'FAILED', ...actual })}>
           <span aria-hidden="true">{SET_GLYPH.FAILED}</span> {S.setSheet.failed}

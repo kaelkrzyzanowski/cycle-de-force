@@ -1,6 +1,9 @@
+import { findCycleForDate } from '../../domain/cycles';
 import { addDays, todayIso } from '../../domain/dates';
 import type { Cycle, Session, SessionTemplate } from '../../domain/types';
 import { templatesById } from '../actions';
+import { BackupReminder } from '../components/BackupReminder';
+import { MaxCard } from '../components/MaxCard';
 import { NEUTRAL_COLOR, SessionCard } from '../components/SessionCard';
 import { useApp, useData } from '../context';
 import { formatDayLong } from '../format';
@@ -28,6 +31,7 @@ export function TodayScreen() {
   if (!data) return <p class="muted">{S.loading}</p>;
 
   const templates = templatesById(data.templates);
+  const cycle = findCycleForDate(data.cycles, today) ?? data.cycles.find((c) => c.id === data.upcoming?.cycleId);
   const card = (s: Session) => (
     <SessionCard
       key={s.id}
@@ -43,6 +47,7 @@ export function TodayScreen() {
 
   return (
     <div class="stack">
+      <BackupReminder hasData={data.cycles.length > 0} />
       <h2>{formatDayLong(today)}</h2>
       {data.today.map(card)}
       {data.today.length === 0 && (
@@ -59,6 +64,7 @@ export function TodayScreen() {
           </a>
         </>
       )}
+      {cycle && <MaxCard cycle={cycle} />}
     </div>
   );
 }

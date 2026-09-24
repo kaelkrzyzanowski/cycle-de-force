@@ -2,12 +2,12 @@ import { cycleEndDate, cycleWeekOf } from '../../domain/cycles';
 import { addDays, todayIso } from '../../domain/dates';
 import { deriveSessionStatus } from '../../domain/sessionStatus';
 import { sessionTotals } from '../../domain/totals';
-import { LIFTS } from '../../domain/types';
-import type { Cycle, Session, SessionTemplate } from '../../domain/types';
+import type { Cycle, MaxChange, Session, SessionTemplate } from '../../domain/types';
 import { templatesById } from '../actions';
+import { MaxCard } from '../components/MaxCard';
 import { NEUTRAL_COLOR, SessionDot } from '../components/SessionCard';
 import { useApp, useData } from '../context';
-import { formatDayLong, formatKg, formatRange, formatTonnage } from '../format';
+import { formatDayLong, formatDayShort, formatKg, formatRange, formatTonnage } from '../format';
 import { href } from '../router';
 import { S } from '../strings';
 
@@ -15,6 +15,7 @@ interface Data {
   cycle: Cycle | undefined;
   sessions: Session[];
   templates: SessionTemplate[];
+  maxChanges: MaxChange[];
 }
 
 export function CycleScreen({ id }: { id: string }) {
@@ -24,6 +25,7 @@ export function CycleScreen({ id }: { id: string }) {
       cycle: await repo.getCycle(id),
       sessions: await repo.listSessionsByCycle(id),
       templates: await repo.listTemplates(),
+      maxChanges: await repo.listMaxChanges(id),
     }),
     [id],
   );
@@ -46,17 +48,19 @@ export function CycleScreen({ id }: { id: string }) {
         {currentWeek && <p>{S.cycle.currentWeek(currentWeek, cycle.weeksCount)}</p>}
       </section>
 
-      <section class="card stack">
-        <h3>{S.cycle.max}</h3>
-        <dl class="max-grid">
-          {LIFTS.map((lift) => (
-            <div key={lift}>
-              <dt>{S.lifts[lift]}</dt>
-              <dd class="num">{formatKg(cycle.max[lift])} kg</dd>
-            </div>
-          ))}
-        </dl>
-      </section>
+      <MaxCard cycle={cycle} />
+      {data.maxChanges.length > 0 && (
+        <details class="card">
+          <summary>{S.max.history}</summary>
+          <ul class="plain-list">
+            {data.maxChanges.map((m) => (
+              <li key={m.id} class="num">
+                {S.max.change(S.lifts[m.lift], formatKg(m.from), formatKg(m.to), formatDayShort(m.at.slice(0, 10)))}
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
 
       <section class="card stack">
         <h3>{S.cycle.planning}</h3>

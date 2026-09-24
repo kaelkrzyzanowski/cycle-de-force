@@ -48,6 +48,30 @@ describe('repository IndexedDB', () => {
     expect(await r.getSession('a')).toBeUndefined();
   });
 
+  it('écritures groupées atomiques : une erreur annule tout', async () => {
+    const r = await fresh();
+    const a = session('2026-09-22', [set(0, 5, fixed(100))], 'a');
+    await r.saveSessions([a]);
+    await r.applyChanges({
+      saveCycles: [{ id: 'c1', name: 'Bloc', startDate: '2026-09-21', weeksCount: 7, max: { S: 1, B: 1, D: 1 }, weeklyPlan: [] }],
+      saveSessions: [session('2026-09-23', [], 'b')],
+      deleteSessionIds: ['a'],
+    });
+    expect((await r.listSessionsByCycle('c1')).map((s) => s.id)).toEqual(['b']);
+    expect(await r.getCycle('c1')).toBeDefined();
+
+    const invalid = { ...session('2026-09-24', [], 'c'), id: undefined } as unknown as ReturnType<typeof session>;
+    await expect(r.applyChanges({ deleteSessionIds: ['b'], saveSessions: [invalid] })).rejects.toThrow();
+    expect(await r.getSession('b')).toBeDefined();
+  });
+
+  it('drapeaux', async () => {
+    const r = await fresh();
+    expect(await r.getFlag('exampleOffer')).toBeUndefined();
+    await r.setFlag('exampleOffer', 'dismissed');
+    expect(await r.getFlag('exampleOffer')).toBe('dismissed');
+  });
+
   it('journal des max trié par date', async () => {
     const r = await fresh();
     await r.addMaxChanges([

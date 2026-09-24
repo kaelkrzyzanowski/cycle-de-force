@@ -35,9 +35,22 @@ export interface Repository {
   listMaxChanges(cycleId?: string): Promise<MaxChange[]>;
   addMaxChanges(changes: readonly MaxChange[]): Promise<void>;
 
+  /** Applique plusieurs écritures en une seule transaction : tout ou rien. */
+  applyChanges(changes: Changes): Promise<void>;
+
+  getFlag(key: string): Promise<string | undefined>;
+  setFlag(key: string, value: string): Promise<void>;
+
   /** Charge les modèles natifs et le catalogue au premier lancement. */
   ensureSeeded(): Promise<{ seeded: boolean }>;
   close(): void;
+}
+
+export interface Changes {
+  saveCycles?: readonly Cycle[];
+  saveSessions?: readonly Session[];
+  deleteSessionIds?: readonly string[];
+  addMaxChanges?: readonly MaxChange[];
 }
 
 const SETTINGS_KEY = 'current';
@@ -116,6 +129,37 @@ class IdbRepository implements Repository {
   async addMaxChanges(changes: readonly MaxChange[]): Promise<void> {
     const tx = this.db.transaction('maxChanges', 'readwrite');
     await Promise.all([...changes.map((c) => tx.store.put(c)), tx.done]);
+  }
+
+  async applyChanges(changes: Changes): Promise<void> {
+    const tx = this.db.transaction(['cycles', 'sessions', 'maxChanges'], 'readwrite');
+    const sessions = tx.objectStore('sessions');
+    const requests: Promise<unknown>[] = [];
+    try {
+      for (const c of changes.saveCycles ?? []) requests.push(tx.objectStore('cycles').put(c));
+      for (const id of changes.deleteSessionIds ?? []) requests.push(sessions.delete(id));
+      for (const s of changes.saveSessions ?? []) requests.push(sessions.put(s));
+      for (const m of changes.addMaxChanges ?? []) requests.push(tx.objectStore('maxChanges').put(m));
+      await Promise.all([...requests, tx.done]);
+    } catch (err) {
+      // Une erreur synchrone (clé invalide…) n'annule pas la transaction d'elle-même.
+      for (const r of requests) r.catch(() => undefined);
+      tx.done.catch(() => undefined);
+      try {
+        tx.abort();
+      } catch {
+        // déjà annulée
+      }
+      throw err;
+    }
+  }
+
+  async getFlag(key: string): Promise<string | undefined> {
+    const record = await this.db.get('meta', `flag:${key}`);
+    return record === undefined ? undefined : String(record.value);
+  }
+  async setFlag(key: string, value: string): Promise<void> {
+    await this.db.put('meta', { key: `flag:${key}`, value });
   }
 
   async ensureSeeded(): Promise<{ seeded: boolean }> {

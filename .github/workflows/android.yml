@@ -28,7 +28,7 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
-      - uses: android-actions/setup-android@v3
+      # Le SDK Android est préinstallé sur les machines ubuntu de GitHub (ANDROID_HOME, licences acceptées).
 
       - name: Clé de signature (secrets du dépôt)
         env:

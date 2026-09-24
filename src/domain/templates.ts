@@ -1,4 +1,5 @@
 import { sessionFromTemplate } from './cycles';
+import { LIFTS } from './types';
 import type { ExercisePrescription, IsoDate, Lift, Session, SessionTemplate } from './types';
 
 type NewId = () => string;
@@ -13,14 +14,51 @@ export function waveWeek(template: Pick<SessionTemplate, 'deloadWeek' | 'weeksCo
   return (((cycleWeek - template.deloadWeek) % n) + n) % n;
 }
 
-/** Nom affiché d'une séance : « Deadlift S3 » si son modèle a une vague numérotée. */
+const DELOAD_MAX_PCT = 0.65;
+const RM_MIN_PCT = 0.95;
+const RM_MAX_REPS = 2;
+
+/** Mouvement principal d'un modèle : le lift (S/B/D) dont le % apparaît sur le plus de semaines. */
+function mainLiftOf(template: Pick<SessionTemplate, 'weeks'>): Lift | null {
+  const weeksWith: Record<Lift, number> = { S: 0, B: 0, D: 0 };
+  for (const week of Object.values(template.weeks)) {
+    const present = new Set<Lift>();
+    for (const exercise of week) for (const set of exercise.sets) if (set.load.kind === 'PERCENT') present.add(set.load.lift);
+    for (const lift of present) weeksWith[lift]++;
+  }
+  return [...LIFTS].filter((l) => weeksWith[l] > 0).sort((a, b) => weeksWith[b] - weeksWith[a])[0] ?? null;
+}
+
+/** Plus haut % du mouvement principal utilisé dans la séance, avec les reps de cette série. */
+function topPercentOf(session: Pick<Session, 'exercises'>, lift: Lift): { pct: number; reps: number } | null {
+  let best: { pct: number; reps: number } | null = null;
+  for (const exercise of session.exercises) {
+    for (const set of exercise.sets) {
+      if (set.load.kind === 'PERCENT' && set.load.lift === lift && (!best || set.load.pct > best.pct)) {
+        best = { pct: set.load.pct, reps: set.plannedReps };
+      }
+    }
+  }
+  return best;
+}
+
+/**
+ * Nom affiché d'une séance de vague, d'après le % le plus haut du mouvement principal ce jour-là :
+ * « Squat deload » (semaine de repos), « Bench RM » (test au RM) ou « Deadlift 80 % ». Repli sur le
+ * nom brut si le modèle n'a pas de vague numérotée ou qu'aucune donnée en % n'est disponible.
+ */
 export function sessionLabel(
-  session: Pick<Session, 'name' | 'cycleWeek' | 'templateId'>,
-  template: Pick<SessionTemplate, 'id' | 'deloadWeek' | 'weeksCount'> | undefined,
+  session: Pick<Session, 'name' | 'cycleWeek' | 'templateId' | 'exercises'>,
+  template: Pick<SessionTemplate, 'id' | 'deloadWeek' | 'weeksCount' | 'weeks'> | undefined,
 ): string {
-  if (!template || session.templateId !== template.id || session.cycleWeek === null) return session.name;
-  const week = waveWeek(template, session.cycleWeek);
-  return week === null ? session.name : `${session.name} S${week}`;
+  if (!template?.deloadWeek || session.templateId !== template.id || session.cycleWeek === null) return session.name;
+  if (waveWeek(template, session.cycleWeek) === 0) return `${session.name} deload`;
+  const lift = mainLiftOf(template);
+  const top = lift && topPercentOf(session, lift);
+  if (!top) return session.name;
+  if (top.pct >= RM_MIN_PCT && (top.reps === 0 || top.reps <= RM_MAX_REPS)) return `${session.name} RM`;
+  if (top.pct <= DELOAD_MAX_PCT) return `${session.name} deload`;
+  return `${session.name} ${Math.round(top.pct * 100)}%`;
 }
 
 export const TEMPLATE_COLORS =['#b5452f', '#c9a227', '#3d6fd1', '#2a9d8f', '#c2417a', '#6b8e23', '#8d6e63', '#6b7280'];

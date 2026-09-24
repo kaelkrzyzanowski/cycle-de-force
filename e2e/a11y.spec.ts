@@ -14,7 +14,7 @@ async function seed(page: Page) {
   await page.goto('/#/calendrier');
   await page.getByRole('button', { name: 'Créer le Bloc 0' }).click();
   await page.getByRole('button', { name: 'Semaine', exact: true }).click();
-  await page.locator('.session-card-main', { has: page.locator('.session-name', { hasText: /^Deadlift S\d$/ }) }).click();
+  await page.locator('.session-card-main', { has: page.locator('.session-name', { hasText: /^Deadlift (deload|RM|\d+%)$/ }) }).click();
   const pills = page.locator('.set-pill');
   await pills.nth(0).click();
   await pills.nth(1).click();
@@ -47,7 +47,7 @@ async function auditAllScreens(page: Page, theme: string): Promise<string[]> {
   await page.keyboard.press('Escape');
 
   await page.goto('/#/calendrier');
-  await page.locator('.session-card-main', { has: page.locator('.session-name', { hasText: /^Deadlift S\d$/ }) }).first().click();
+  await page.locator('.session-card-main', { has: page.locator('.session-name', { hasText: /^Deadlift (deload|RM|\d+%)$/ }) }).first().click();
   await page.locator('.set-pill').first().waitFor();
   found.push(...(await audit(page, `${theme} séance`)));
   await page.locator('.set-pill').nth(6).click({ delay: 700 });

@@ -28,7 +28,7 @@ export function SessionDot({ color, status, name }: { color: string; status: Ses
 
 interface CardProps {
   session: Session;
-  /** Nom affiché (« Deadlift S3 »). */
+  /** Nom affiché (« Deadlift 80 % »). */
   label: string;
   color: string;
   max: Maxes;
@@ -36,17 +36,42 @@ interface CardProps {
   today: string;
   onOpen: () => void;
   onActions: () => void;
+  /** Sélection multiple (suppression groupée) : appui long entre en sélection, tap coche/décoche. */
+  selectionMode?: boolean;
+  selected?: boolean;
+  onToggleSelect?: () => void;
+  onEnterSelection?: () => void;
 }
 
-export function SessionCard({ session, label, color, max, rounding, today, onOpen, onActions }: CardProps) {
+export function SessionCard({
+  session,
+  label,
+  color,
+  max,
+  rounding,
+  today,
+  onOpen,
+  onActions,
+  selectionMode = false,
+  selected = false,
+  onToggleSelect,
+  onEnterSelection,
+}: CardProps) {
   const status = deriveSessionStatus(session, today);
-  const press = useLongPress(onOpen, onActions);
+  const tap = () => (selectionMode ? onToggleSelect?.() : onOpen());
+  const longPress = () => (selectionMode ? onToggleSelect?.() : (onEnterSelection ?? onActions)());
+  const press = useLongPress(tap, longPress);
   const totals = sessionTotals(session, max, rounding);
   const main = session.exercises.slice(0, 3).map((e) => e.name);
   const more = session.exercises.length - main.length;
 
   return (
-    <article class={`session-card st-${status}`} style={{ '--tpl': color }}>
+    <article class={`session-card st-${status}${selected ? ' is-selected' : ''}`} style={{ '--tpl': color }}>
+      {selectionMode && (
+        <span class="session-select" aria-hidden="true">
+          <input type="checkbox" checked={selected} readOnly tabIndex={-1} />
+        </span>
+      )}
       <button type="button" class="session-card-main" {...press}>
         <span class="session-card-title">
           <span class="session-name">{label}</span>
@@ -64,9 +89,11 @@ export function SessionCard({ session, label, color, max, rounding, today, onOpe
           </span>
         )}
       </button>
-      <button type="button" class="icon-btn session-more" aria-label={S.sessionCard.actions(label)} onClick={onActions}>
-        ⋯
-      </button>
+      {!selectionMode && (
+        <button type="button" class="icon-btn session-more" aria-label={S.sessionCard.actions(label)} onClick={onActions}>
+          ⋯
+        </button>
+      )}
     </article>
   );
 }

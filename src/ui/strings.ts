@@ -75,6 +75,16 @@ export const S = {
     empty: 'Aucun exercice',
   },
 
+  sessionSelection: {
+    count: (n: number) => plural(n, 'séance sélectionnée', 'séances sélectionnées'),
+    delete: 'Supprimer la sélection',
+    cancel: 'Annuler la sélection',
+    confirmTitle: (n: number) => (n > 1 ? `Supprimer ces ${n} séances ?` : 'Supprimer cette séance ?'),
+    confirmText: 'Les exercices et séries saisis pour ces séances seront définitivement supprimés.',
+    confirmButton: 'Supprimer définitivement',
+    deleted: (n: number) => `${plural(n, 'séance supprimée', 'séances supprimées')}`,
+  },
+
   sessionActions: {
     open: 'Ouvrir',
     move: 'Déplacer à une autre date',

@@ -102,12 +102,39 @@ describe('numéro de semaine de la vague (S0 = deload)', () => {
     }
   });
 
-  it('nom affiché des séances', () => {
-    const base = { templateId: TEMPLATE_IDS.deadlift, name: 'Deadlift' };
-    expect(sessionLabel({ ...base, cycleWeek: 1 }, t(TEMPLATE_IDS.deadlift))).toBe('Deadlift S3');
-    expect(sessionLabel({ ...base, cycleWeek: 5 }, t(TEMPLATE_IDS.deadlift))).toBe('Deadlift S0');
+  it('nom affiché des séances : deload / RM / % du mouvement principal, jamais de numéro de semaine', () => {
+    const label = (id: string, week: number) => sessionLabel(weekAsSession(t(id), week), t(id));
+    expect([1, 2, 3, 4, 5, 6, 7].map((w) => label(TEMPLATE_IDS.squat, w))).toEqual([
+      'Squat deload',
+      'Squat deload',
+      'Squat 75%',
+      'Squat 80%',
+      'Squat 85%',
+      'Squat 90%',
+      'Squat RM',
+    ]);
+    expect([1, 2, 3, 4, 5, 6, 7].map((w) => label(TEMPLATE_IDS.bench, w))).toEqual([
+      'Bench 90%',
+      'Bench RM',
+      'Bench deload',
+      'Bench 70%',
+      'Bench 75%',
+      'Bench 80%',
+      'Bench 85%',
+    ]);
+    expect([1, 2, 3, 4, 5, 6, 7].map((w) => label(TEMPLATE_IDS.deadlift, w))).toEqual([
+      'Deadlift 80%',
+      'Deadlift 85%',
+      'Deadlift 90%',
+      'Deadlift RM',
+      'Deadlift deload',
+      'Deadlift 70%',
+      'Deadlift 75%',
+    ]);
+
+    const base = { templateId: TEMPLATE_IDS.deadlift, name: 'Deadlift', exercises: [] };
     expect(sessionLabel({ ...base, cycleWeek: null }, t(TEMPLATE_IDS.deadlift))).toBe('Deadlift');
-    expect(sessionLabel({ templateId: TEMPLATE_IDS.sbd, name: 'SBD', cycleWeek: 2 }, t(TEMPLATE_IDS.sbd))).toBe('SBD');
+    expect(sessionLabel({ templateId: TEMPLATE_IDS.sbd, name: 'SBD', cycleWeek: 2, exercises: [] }, t(TEMPLATE_IDS.sbd))).toBe('SBD');
     expect(sessionLabel({ ...base, cycleWeek: 1 }, undefined)).toBe('Deadlift');
   });
 });

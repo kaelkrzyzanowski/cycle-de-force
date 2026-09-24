@@ -89,7 +89,7 @@ function Stats({ sessions, cycles, templates, changes }: Data) {
   const progress = exerciseId ? exerciseProgress(sessions, exerciseId, maxOf, rounding) : [];
   const history = maxHistory(cycles, changes);
   const volume = volumeByTemplate(inCycle, maxOf, rounding);
-  const labelOf = (s: { name: string; cycleWeek: number | null; templateId: string | null }) =>
+  const labelOf = (s: { name: string; cycleWeek: number | null; templateId: string | null; exercises: Session['exercises'] }) =>
     sessionLabel(s, templates.find((t) => t.id === s.templateId));
   const templateName = (id: string | null) => templates.find((t) => t.id === id)?.name ?? S.stats.noTemplate;
   const templateColor = (id: string | null) => templates.find((t) => t.id === id)?.color ?? '#6b7280';

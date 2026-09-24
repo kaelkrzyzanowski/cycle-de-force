@@ -53,6 +53,24 @@ export function CalendarScreen() {
   const [sheet, setSheet] = useState<{ kind: 'add'; date: IsoDate } | { kind: 'session'; session: Session } | { kind: 'menu' } | null>(
     null,
   );
+  const [selection, setSelection] = useState<Set<string> | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const startSelection = (id: string) => setSelection(new Set([id]));
+  const toggleSelect = (id: string) =>
+    setSelection((prev) => {
+      const next = new Set(prev ?? []);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next.size === 0 ? null : next;
+    });
+  const cancelSelection = () => setSelection(null);
+  const deleteSelection = async () => {
+    if (!selection) return;
+    const ids = [...selection];
+    if (await commit(app, { deleteSessionIds: ids }, S.sessionSelection.deleted(ids.length))) setSelection(null);
+    setConfirmDelete(false);
+  };
 
   const setView = (v: View) => {
     memory.view = v;
@@ -114,6 +132,10 @@ export function CalendarScreen() {
         today={today}
         onOpen={() => navigate(href.session(s.id))}
         onActions={() => setSheet({ kind: 'session', session: s })}
+        selectionMode={selection !== null}
+        selected={selection?.has(s.id) ?? false}
+        onToggleSelect={() => toggleSelect(s.id)}
+        onEnterSelection={() => startSelection(s.id)}
       />
     ));
 
@@ -130,6 +152,17 @@ export function CalendarScreen() {
 
   return (
     <div class="stack calendar">
+      {selection && (
+        <div class="selection-bar">
+          <span class="selection-count">{S.sessionSelection.count(selection.size)}</span>
+          <button type="button" class="icon-btn" aria-label={S.sessionSelection.delete} onClick={() => setConfirmDelete(true)}>
+            🗑
+          </button>
+          <button type="button" class="icon-btn" aria-label={S.sessionSelection.cancel} onClick={cancelSelection}>
+            ✕
+          </button>
+        </div>
+      )}
       <div class="cal-toolbar">
         <div class="segmented" role="group" aria-label={S.calendar.viewLabel}>
           <button type="button" aria-pressed={view === 'month'} onClick={() => setView('month')}>
@@ -217,9 +250,27 @@ export function CalendarScreen() {
         </section>
       )}
 
-      <button type="button" class="fab" aria-label={S.calendar.actions} onClick={() => setSheet({ kind: 'menu' })}>
-        +
-      </button>
+      {!selection && (
+        <button type="button" class="fab" aria-label={S.calendar.actions} onClick={() => setSheet({ kind: 'menu' })}>
+          +
+        </button>
+      )}
+
+      {confirmDelete && selection && (
+        <Sheet title={S.sessionSelection.confirmTitle(selection.size)} onClose={() => setConfirmDelete(false)}>
+          <div class="stack">
+            <p>{S.sessionSelection.confirmText}</p>
+            <div class="button-row">
+              <button type="button" class="btn" onClick={() => setConfirmDelete(false)}>
+                {S.common.cancel}
+              </button>
+              <button type="button" class="btn danger" onClick={deleteSelection}>
+                {S.sessionSelection.confirmButton}
+              </button>
+            </div>
+          </div>
+        </Sheet>
+      )}
 
       {sheet?.kind === 'add' && (
         <AddSessionSheet date={sheet.date} cycles={data.cycles} templates={data.templates} onClose={() => setSheet(null)} />

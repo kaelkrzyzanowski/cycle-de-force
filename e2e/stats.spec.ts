@@ -16,15 +16,15 @@ test('stats : tonnage par semaine, charge max et e1RM, max S/B/D', async ({ page
   await page.getByRole('button', { name: 'Créer le Bloc 0' }).click();
   await page.getByRole('button', { name: 'Semaine', exact: true }).click();
 
-  // S1 : Deadlift entièrement validé.
-  await page.locator('.session-card-main', { has: page.locator('.session-name', { hasText: /^Deadlift S\d$/ }) }).click();
+  // Semaine 1 : Deadlift entièrement validé.
+  await page.locator('.session-card-main', { has: page.locator('.session-name', { hasText: /^Deadlift (deload|RM|\d+%)$/ }) }).click();
   await validateAll(page);
   await expect(page.locator('.totals-bar')).toContainText(/11\s?592\skg/);
 
-  // S2 : Deadlift validé, dernière série lourde en échec (2 × 179).
+  // Semaine 2 : Deadlift validé, dernière série lourde en échec (2 × 179).
   await page.goto('/#/calendrier');
   await page.getByRole('button', { name: 'Période suivante' }).click();
-  await page.locator('.session-card-main', { has: page.locator('.session-name', { hasText: /^Deadlift S\d$/ }) }).click();
+  await page.locator('.session-card-main', { has: page.locator('.session-name', { hasText: /^Deadlift (deload|RM|\d+%)$/ }) }).click();
   await validateAll(page);
   const last = page.locator('.exercise-card', { has: page.getByRole('heading', { name: 'Deadlift Sumo + Inche mur' }) }).locator('.set-pill').nth(3);
   await last.click({ delay: 700 });

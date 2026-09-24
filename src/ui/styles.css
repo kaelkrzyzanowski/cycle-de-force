@@ -553,6 +553,29 @@ legend {
 }
 
 /* Calendrier */
+.selection-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: var(--tap);
+  padding: 0 4px;
+}
+.selection-count {
+  flex: 1;
+  font-weight: 650;
+}
+.session-select {
+  display: grid;
+  place-items: center;
+  padding: 0 4px 0 12px;
+}
+.session-select input {
+  width: 22px;
+  height: 22px;
+}
+.session-card.is-selected {
+  background: var(--surface-2);
+}
 .cal-toolbar {
   display: flex;
   flex-direction: column;

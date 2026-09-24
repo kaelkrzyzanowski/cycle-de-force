@@ -34,11 +34,11 @@ test('créer un cycle de 7 semaines avec l’assistant et le voir dans le calend
 
   await page.getByRole('button', { name: 'Semaine', exact: true }).click();
   await expect(page.getByText('Bloc test · semaine 1/7')).toBeVisible();
-  // Chaque mouvement numérote sa vague depuis son deload (S0).
-  await expect(cards(page)).toHaveText(['Deadlift S3', 'SBD', 'Bench S5', 'Squat S0']);
+  // Nom calculé depuis le % du mouvement principal (deload / RM / % du max), jamais un numéro de semaine.
+  await expect(cards(page)).toHaveText(['Deadlift 80%', 'SBD', 'Bench 90%', 'Squat deload']);
   await nextWeeks(page, 6);
   await expect(page.getByText('Bloc test · semaine 7/7')).toBeVisible();
-  await expect(cards(page)).toHaveText(['Deadlift S2', 'SBD', 'Bench S4', 'Squat S6']);
+  await expect(cards(page)).toHaveText(['Deadlift 75%', 'SBD', 'Bench 85%', 'Squat RM']);
   await nextWeeks(page, 1);
   await expect(cards(page)).toHaveCount(0);
 });
@@ -74,7 +74,7 @@ test('dupliquer une semaine vers une date libre, puis sur une semaine occupée',
 
   await showWeekView(page);
   await nextWeeks(page, 2);
-  await expect(cards(page)).toHaveText(['Deadlift S5', 'SBD', 'Bench S0', 'Squat S2']);
+  await expect(cards(page)).toHaveText(['Deadlift 85%', 'SBD', 'Bench deload', 'Squat deload']);
 });
 
 test('dupliquer le cycle avec Deadlift +5 kg', async ({ page }) => {
@@ -113,5 +113,5 @@ test('menu d’une séance : déplacer puis supprimer', async ({ page }) => {
   await page.getByRole('button', { name: 'Actions sur la séance SBD' }).click();
   await page.getByRole('button', { name: 'Supprimer' }).click();
   await expect(page.getByRole('status')).toHaveText('Séance supprimée');
-  await expect(cards(page)).toHaveText(['Deadlift S4', 'Bench S6', 'Squat S1']);
+  await expect(cards(page)).toHaveText(['Deadlift 85%', 'Bench RM', 'Squat deload']);
 });

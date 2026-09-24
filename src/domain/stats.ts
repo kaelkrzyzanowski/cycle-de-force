@@ -34,13 +34,22 @@ export interface SessionTonnage {
   name: string;
   templateId: string | null;
   cycleWeek: number | null;
+  exercises: Session['exercises'];
   tonnage: number;
 }
 
 export function tonnageBySession(sessions: readonly Session[], maxOf: MaxOf, rounding: Rounding): SessionTonnage[] {
   return [...sessions]
     .sort((a, b) => a.date.localeCompare(b.date))
-    .map((s) => ({ sessionId: s.id, date: s.date, name: s.name, templateId: s.templateId, cycleWeek: s.cycleWeek, tonnage: sessionTonnage(s, maxOf, rounding) }));
+    .map((s) => ({
+      sessionId: s.id,
+      date: s.date,
+      name: s.name,
+      templateId: s.templateId,
+      cycleWeek: s.cycleWeek,
+      exercises: s.exercises,
+      tonnage: sessionTonnage(s, maxOf, rounding),
+    }));
 }
 
 /** Tonnage de chaque semaine du cycle (1..N), semaines vides comprises. */

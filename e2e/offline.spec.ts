@@ -16,7 +16,7 @@ test('séance complète en mode avion', async ({ page, context }) => {
   await page.getByRole('button', { name: 'Créer le Bloc 0' }).click();
   await expect(page.getByRole('status')).toHaveText('Bloc 0 créé : 28 séances');
   await page.getByRole('button', { name: 'Semaine', exact: true }).click();
-  await page.locator('.session-card-main', { has: page.locator('.session-name', { hasText: /^Deadlift S\d$/ }) }).click();
+  await page.locator('.session-card-main', { has: page.locator('.session-name', { hasText: /^Deadlift (deload|RM|\d+%)$/ }) }).click();
 
   // Tout valider, sauf une série lourde en échec, avec RIR et notes.
   const validateAll = page.getByRole('button', { name: /Tout valider/ });
@@ -44,7 +44,7 @@ test('séance complète en mode avion', async ({ page, context }) => {
   await expect(page.getByRole('textbox', { name: 'Note de séance' })).toHaveValue('Séance en mode avion');
   await page.goto('/#/calendrier');
   await page.getByRole('button', { name: 'Semaine', exact: true }).click();
-  const card = page.locator('.session-card', { has: page.locator('.session-name', { hasText: /^Deadlift S\d$/ }) });
+  const card = page.locator('.session-card', { has: page.locator('.session-name', { hasText: /^Deadlift (deload|RM|\d+%)$/ }) });
   await expect(card).toHaveClass(/st-FAILED/);
 });
 

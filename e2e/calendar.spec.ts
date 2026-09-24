@@ -91,9 +91,8 @@ test('dupliquer le cycle avec Deadlift +5 kg', async ({ page }) => {
   await page.getByRole('button', { name: 'Créer le cycle' }).click();
 
   await expect(page.getByRole('status')).toHaveText('Bloc 0 (suite) créé : 28 séances');
-  await expect(page.getByRole('heading', { name: 'Bloc 0 (suite)' })).toBeVisible();
-  await expect(page.locator('.max-grid')).toContainText('215 kg');
-  await expect(page.locator('.max-grid')).toContainText('170 kg');
+  await expect(page.getByRole('heading', { name: 'Bloc 0 (suite)', level: 2 })).toBeVisible();
+  await expect(page.locator('.max-grid')).toHaveText(/Squat\s*170\s*Bench\s*115\s*Deadlift\s*215/);
 });
 
 test('menu d’une séance : déplacer puis supprimer', async ({ page }) => {

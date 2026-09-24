@@ -300,6 +300,14 @@ export const S = {
     reminder: (days: number | null) =>
       days === null ? 'Aucune sauvegarde de tes données pour l’instant.' : `Pas de sauvegarde depuis ${plural(days, 'jour', 'jours')}.`,
     saveNow: 'Sauvegarder maintenant',
+    shareTitle: 'Enregistrer la sauvegarde',
+    autoTitle: 'Sauvegarde automatique sur le téléphone',
+    autoText:
+      'Une copie est écrite chaque jour dans Documents/CycleDeForce (14 jours gardés). Elle reste sur le téléphone même si l’app est désinstallée. Pour changer de téléphone, utilise « Exporter une sauvegarde » vers Drive.',
+    autoLast: (when: string, path: string) => `Dernière copie : ${when}${path ? ` · ${path}` : ''}`,
+    autoNever: 'Pas encore de copie automatique.',
+    autoError: (message: string) => `La dernière copie automatique a échoué : ${message}`,
+    autoNow: 'Faire une copie maintenant',
   },
 
   today: {

@@ -1,9 +1,15 @@
 import { useEffect } from 'preact/hooks';
+import { isNative, loadNative } from '../platform';
 
-/** Garde l'écran allumé pendant une séance, si l'API existe ; silencieux sinon. */
+/** Garde l'écran allumé pendant une séance : plugin natif dans l'app, API Wake Lock dans le navigateur. */
 export function useWakeLock(active: boolean): void {
   useEffect(() => {
-    if (!active || !('wakeLock' in navigator)) return;
+    if (!active) return;
+    if (isNative) {
+      void loadNative().then((native) => native.keepAwake(true));
+      return () => void loadNative().then((native) => native.keepAwake(false));
+    }
+    if (!('wakeLock' in navigator)) return;
     let lock: WakeLockSentinel | null = null;
     let released = false;
     const request = () => {

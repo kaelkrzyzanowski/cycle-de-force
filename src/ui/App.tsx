@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
 import { getRepository } from '../data/repository';
 import type { Repository } from '../data/repository';
 import type { Settings } from '../domain/types';
+import { isNative, loadNative } from '../platform';
+import { runAutoBackup } from './backupIO';
 import { AppContext } from './context';
 import type { ToastAction } from './context';
 import { Icon } from './Icon';
@@ -84,6 +86,11 @@ export function App() {
       const repo = await getRepository();
       await repo.ensureSeeded();
       setBoot({ state: 'ready', repo, settings: await repo.getSettings() });
+      if (isNative) {
+        // Copie automatique au lancement, puis à chaque passage en arrière-plan (fin de séance, verrouillage…).
+        void runAutoBackup(repo);
+        void loadNative().then((native) => native.onAppStateChange((active) => !active && void runAutoBackup(repo)));
+      }
     })().catch((err: unknown) => {
       console.error(err);
       setBoot({ state: 'error' });

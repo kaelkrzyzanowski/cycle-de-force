@@ -1,4 +1,5 @@
 import type { ThemePref } from '../domain/types';
+import { isNative, loadNative } from '../platform';
 
 const query = (): MediaQueryList => matchMedia('(prefers-color-scheme: light)');
 
@@ -14,6 +15,7 @@ export function applyTheme(pref: ThemePref): () => void {
     document.documentElement.dataset['theme'] = theme;
     const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', bg);
+    if (isNative) void loadNative().then((native) => native.setSystemBarsTheme(theme));
   };
   set();
   if (pref !== 'system') return () => {};

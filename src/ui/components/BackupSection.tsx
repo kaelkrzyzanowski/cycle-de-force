@@ -2,7 +2,8 @@ import { useRef, useState } from 'preact/hooks';
 import { parseBackup } from '../../domain/backup';
 import type { BackupFile, BackupError } from '../../domain/backup';
 import { todayIso } from '../../domain/dates';
-import { backupJson, downloadText } from '../backupIO';
+import { isNative } from '../../platform';
+import { AUTO_BACKUP_AT, AUTO_BACKUP_ERROR, AUTO_BACKUP_PATH, backupJson, runAutoBackup, saveJsonFile } from '../backupIO';
 import { useApp, useData } from '../context';
 import { S } from '../strings';
 import { runExport } from './BackupReminder';
@@ -21,6 +22,18 @@ export function BackupSection() {
   const [preview, setPreview] = useState<Preview | null>(null);
   const [busy, setBusy] = useState(false);
   const preRestore = useData((repo) => repo.getPreRestoreBackup(), []);
+  const auto = useData(
+    async (repo) => ({
+      at: await repo.getFlag(AUTO_BACKUP_AT),
+      path: await repo.getFlag(AUTO_BACKUP_PATH),
+      error: await repo.getFlag(AUTO_BACKUP_ERROR),
+    }),
+    [],
+  );
+  const autoNow = async () => {
+    await runAutoBackup(app.repo, true);
+    app.refresh();
+  };
 
   const pick = async (file: File | undefined) => {
     if (!file) return;
@@ -36,6 +49,7 @@ export function BackupSection() {
       const previous = await backupJson(app.repo);
       await app.repo.replaceAll(backup.data, previous);
       await app.reloadSettings();
+      await runAutoBackup(app.repo, true);
       app.refresh();
       setPreview(null);
       app.toast(S.backup.restored);
@@ -62,16 +76,28 @@ export function BackupSection() {
       <input
         ref={input}
         type="file"
-        accept="application/json,.json"
+        // Dans l'app Android, pas de filtre : Drive présente souvent le JSON comme un fichier générique.
+        accept={isNative ? undefined : 'application/json,.json'}
         class="sr-only"
         aria-label={S.backup.restore}
         tabIndex={-1}
         onChange={(e) => void pick(e.currentTarget.files?.[0])}
       />
       {preRestore && (
-        <button type="button" class="btn small" onClick={() => downloadText(preRestore, `cycle-de-force-avant-restauration-${todayIso()}.json`)}>
+        <button type="button" class="btn small" onClick={() => void saveJsonFile(preRestore, `cycle-de-force-avant-restauration-${todayIso()}.json`)}>
           {S.backup.preRestore}
         </button>
+      )}
+      {isNative && (
+        <div class="stack tight">
+          <strong>{S.backup.autoTitle}</strong>
+          <p class="muted">{S.backup.autoText}</p>
+          <p>{auto?.at ? S.backup.autoLast(when(auto.at), auto.path ?? '') : S.backup.autoNever}</p>
+          {auto?.error && <p class="warning">{S.backup.autoError(auto.error)}</p>}
+          <button type="button" class="btn small" onClick={() => void autoNow()}>
+            {S.backup.autoNow}
+          </button>
+        </div>
       )}
       <NumberField
         label={S.backup.reminderDays}

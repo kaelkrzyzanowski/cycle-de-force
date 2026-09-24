@@ -1,5 +1,37 @@
 import { plannedKg } from './load';
-import type { Maxes, Rounding, SessionSet } from './types';
+import type { Maxes, Rounding, Session, SessionExercise, SessionSet } from './types';
+
+/** Validable d'un tap : charge et reps connues à l'avance. */
+export function canQuickValidate(set: SessionSet): boolean {
+  return set.load.kind !== 'NONE' && set.plannedReps > 0;
+}
+
+/** Remplace une série d'un exercice (identifié par SessionExercise.id). */
+export function mapSet(
+  session: Session,
+  exerciseRowId: string,
+  index: number,
+  fn: (set: SessionSet) => SessionSet,
+): Session {
+  return {
+    ...session,
+    exercises: session.exercises.map((e) =>
+      e.id !== exerciseRowId ? e : { ...e, sets: e.sets.map((s) => (s.index === index ? fn(s) : s)) },
+    ),
+  };
+}
+
+export function mapExercise(session: Session, exerciseRowId: string, fn: (e: SessionExercise) => SessionExercise): Session {
+  return { ...session, exercises: session.exercises.map((e) => (e.id === exerciseRowId ? fn(e) : e)) };
+}
+
+/** « Tout valider » : valide les séries encore prévues dont la charge est connue. */
+export function validateExercise(exercise: SessionExercise, max: Maxes, rounding: Rounding): SessionExercise {
+  return {
+    ...exercise,
+    sets: exercise.sets.map((s) => (s.status === 'PLANNED' && canQuickValidate(s) ? validateSet(s, max, rounding) : s)),
+  };
+}
 
 function withoutActuals(set: SessionSet): SessionSet {
   const copy = { ...set };

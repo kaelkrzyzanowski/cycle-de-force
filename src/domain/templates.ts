@@ -115,10 +115,14 @@ export function untouchedFutureSessions(template: SessionTemplate, sessions: rea
   );
 }
 
-/** Reprend la prescription du modèle (semaine de cycle de chaque séance) ; garde date, cycle et identifiant. */
+/**
+ * Reprend la prescription du modèle (semaine de cycle de chaque séance) ; garde date, cycle et identifiant.
+ * Ne renvoie que les séances dont le contenu change réellement.
+ */
 export function refreshFromTemplate(template: SessionTemplate, sessions: readonly Session[], newId: NewId): Session[] {
-  return sessions.map((s) => {
+  const content = (s: Session) => JSON.stringify([s.name, sessionAsWeek(s)]);
+  return sessions.flatMap((s) => {
     const fresh = sessionFromTemplate(template, s.cycleWeek ?? 1, { date: s.date, cycleId: s.cycleId, cycleWeek: s.cycleWeek }, newId);
-    return { ...fresh, id: s.id };
+    return content(fresh) === content(s) ? [] : [{ ...fresh, id: s.id }];
   });
 }

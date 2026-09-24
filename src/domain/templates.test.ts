@@ -143,4 +143,10 @@ describe('mise à jour des séances futures', () => {
     expect(s5).toMatchObject({ id: sessions[4]!.id, date: sessions[4]!.date, cycleId: 'c0', cycleWeek: 5 });
     expect(s5!.exercises.map((e) => e.name)).toEqual(bench().weeks[1]!.map((e) => e.name));
   });
+
+  it('ignore les séances dont la prescription ne change pas', () => {
+    const edited = copyWeek(bench(), 1, [5]);
+    expect(refreshFromTemplate(edited, sessions, newId).map((s) => s.cycleWeek)).toEqual([5]);
+    expect(refreshFromTemplate(bench(), sessions, newId)).toEqual([]);
+  });
 });

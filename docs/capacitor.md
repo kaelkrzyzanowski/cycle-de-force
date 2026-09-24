@@ -1,180 +1,88 @@
-# Emballer « Cycle de force » en application Android avec Capacitor
+# Application Android « Cycle de force »
 
-Ce document décrit les étapes **exactes** pour transformer la PWA en application Android.
-Rien de ce qui suit n'a encore été exécuté : c'est la marche à suivre.
+L'application Android est la même app que la version web, emballée avec **Capacitor 8** (dossier `android/`).
+L'APK est construit et signé par GitHub Actions (`.github/workflows/android.yml`) et publié dans les
+**Releases** du dépôt.
 
-L'app a été construite pour ce passage :
+## Installer l'APK sur le téléphone
 
-- build statique dans `dist/`, **chemins relatifs** (`base: './'` dans `vite.config.ts`) ;
-- routage par hash (`#/calendrier`…), qui fonctionne sans serveur ;
-- données dans IndexedDB, derrière `src/data/repository.ts` (seul fichier à toucher pour changer de stockage) ;
-- zones sûres (`env(safe-area-inset-*)`) déjà prises en compte ;
-- aucune dépendance à un serveur ni à une API de bureau.
+1. Sur le téléphone, ouvrir la page **Releases** du dépôt et télécharger `cycle-de-force-X.Y.Z.apk`.
+2. Ouvrir le fichier téléchargé. Android demande d'autoriser l'installation depuis le navigateur ou
+   l'app Fichiers : l'autoriser (on peut retirer l'autorisation ensuite).
+3. Installer, puis ouvrir **Cycle de force**.
 
----
+**Mises à jour** : installer le nouvel APK par-dessus. Les données sont conservées, à condition que l'APK soit
+signé avec la même clé (c'est le cas de tous les APK publiés par le dépôt).
 
-## 1. Prérequis (une seule fois)
+## Ne pas perdre ses données
 
-1. **Node.js LTS** : déjà installé sur ce poste.
-2. **Android Studio** (version stable) : <https://developer.android.com/studio>.
-   Au premier lancement, laisser l'assistant installer le **SDK Android**, les **Platform-Tools** et un **émulateur**.
-3. **JDK** : utiliser celui fourni par Android Studio (JBR). Capacitor 7 et suivants demandent le **JDK 21** ;
-   vérifier la version exigée dans la doc Capacitor du moment.
-4. Sur le téléphone : **Options pour les développeurs → Débogage USB** activé (pour installer depuis le PC).
+L'app garde tout sur le téléphone. Trois protections, de la plus automatique à la plus sûre :
 
-## 2. Ajouter Capacitor au projet
+| Protection | Quand | Protège contre |
+|---|---|---|
+| **Copie automatique** dans `Documents/CycleDeForce/` | Au lancement et à chaque passage en arrière-plan (au plus toutes les 2 min) ; un fichier par jour, 14 jours gardés | Effacement des données de l'app, désinstallation, bug |
+| **Export manuel** (Réglages → Sauvegarde → Exporter) | Quand tu veux ; rappel au bout de 7 jours | **Changement ou perte du téléphone** : envoyer le fichier vers Google Drive, Gmail… |
+| Sauvegarde Google d'Android (`allowBackup`) | Automatique si activée sur le téléphone | Bonus : non garanti pour une app installée hors Play Store |
 
-Depuis la racine du dépôt :
+Tous ces fichiers ont le même format (`cycle-de-force-AAAA-MM-JJ.json`) et se restaurent de la même façon :
+Réglages → Sauvegarde → **Restaurer une sauvegarde…** → choisir le fichier → vérifier l'aperçu →
+**Remplacer toutes mes données**.
+
+### Changer de téléphone
+
+1. Ancien téléphone : Réglages → Sauvegarde → **Exporter une sauvegarde** → Google Drive.
+2. Nouveau téléphone : installer l'APK (voir plus haut), ouvrir l'app, répondre **Plus tard** au Bloc 0.
+3. Réglages → Sauvegarde → **Restaurer une sauvegarde…** → le fichier sur Drive → **Remplacer toutes mes données**.
+
+### Passer de la version web (navigateur) à l'app
+
+Même procédure : exporter depuis la version web, restaurer dans l'app. Les deux ont des stockages séparés ;
+rien n'est copié automatiquement de l'une à l'autre.
+
+## Clé de signature
+
+- Créée une seule fois, **hors du dépôt**, dans `C:\Outil Claude\cycle-de-force-signature\`
+  (`cycle-de-force.p12` + `MOT-DE-PASSE.txt`). À copier en lieu sûr (clé USB, gestionnaire de mots de passe).
+- Une copie est stockée dans les **secrets GitHub** du dépôt : `ANDROID_KEYSTORE_BASE64` (le fichier `.p12` en
+  base64) et `ANDROID_KEYSTORE_PASSWORD`.
+- **Si la clé est perdue**, les APK suivants ne pourront plus mettre à jour l'app installée : il faudra exporter
+  ses données, désinstaller, installer le nouvel APK et restaurer.
+
+## Publier une nouvelle version
 
 ```bash
-npm install @capacitor/core @capacitor/android
-npm install -D @capacitor/cli
-npx cap init "Cycle de force" fr.cycledeforce.app --web-dir dist
+npm version 1.1.0 --no-git-tag-version
+git commit -am "Version 1.1.0"
+git tag v1.1.0
+git push origin main --tags
 ```
 
-- `fr.cycledeforce.app` est l'**identifiant d'application**. Il est **définitif** une fois l'app installée
-  (changer d'identifiant = nouvelle app, données séparées). Le choisir avant la première installation.
-- La commande crée `capacitor.config.ts`. Vérifier son contenu :
+GitHub Actions lance alors les tests, construit l'APK signé (numéro de version = `package.json`,
+`versionCode` = numéro de build) et crée la release `v1.1.0` avec l'APK en pièce jointe.
+Le workflow peut aussi être lancé à la main (onglet Actions) : l'APK est alors dans les « artifacts » du build.
 
-```ts
-import type { CapacitorConfig } from '@capacitor/cli';
+## Développer en local (facultatif)
 
-const config: CapacitorConfig = {
-  appId: 'fr.cycledeforce.app',
-  appName: 'Cycle de force',
-  webDir: 'dist',
-  android: { backgroundColor: '#0e1013' },
-};
-
-export default config;
-```
-
-## 3. Plugins natifs à ajouter
-
-```bash
-npm install @capacitor/app @capacitor/filesystem @capacitor/share @capacitor/status-bar @capacitor/haptics
-npm install @capacitor-community/keep-awake
-```
-
-| Plugin | Pourquoi |
-|---|---|
-| `@capacitor/app` | Bouton retour Android (fermer une feuille, revenir en arrière, quitter) |
-| `@capacitor/filesystem` + `@capacitor/share` | Export de la sauvegarde : le partage de fichiers du Web Share API n'est pas fiable dans une WebView |
-| `@capacitor/status-bar` | Barre d'état sombre, contenu sous la barre (bord à bord, Android 15+) |
-| `@capacitor/haptics` | Retour haptique (remplace `navigator.vibrate`, qui demande une permission dans la WebView) |
-| `@capacitor-community/keep-awake` | Écran allumé pendant une séance si l'API Wake Lock est absente de la WebView |
-
-## 4. Adaptations du code (petites, localisées)
-
-À faire dans une branche dédiée. Chaque point touche un seul fichier.
-
-1. **Service worker** : inutile dans l'app (les fichiers sont déjà locaux). Dans `src/main.tsx`,
-   n'appeler `registerSW` que si `!Capacitor.isNativePlatform()` (import depuis `@capacitor/core`).
-2. **Export de la sauvegarde** (`src/ui/backupIO.ts`, fonction `exportBackup`) : en natif, écrire le JSON avec
-   `Filesystem.writeFile({ path: nomDuFichier, data: json, directory: Directory.Cache, encoding: Encoding.UTF8 })`,
-   puis `Share.share({ title: nomDuFichier, files: [uri] })`. **Le nom et le contenu du fichier ne changent pas.**
-3. **Restauration** : rien à changer. Le champ `<input type="file">` ouvre le sélecteur de fichiers Android
-   (Drive, Téléchargements…) dans la WebView de Capacitor.
-4. **Bouton retour** (`src/ui/App.tsx`) : `App.addListener('backButton', ({ canGoBack }) => …)`.
-   Ordre : fermer la feuille basse ouverte s'il y en a une (émettre `Escape`), sinon `history.back()` si
-   `canGoBack`, sinon `App.exitApp()`.
-5. **Écran allumé** (`src/ui/useWakeLock.ts`) : si `navigator.wakeLock` est absent, appeler
-   `KeepAwake.keepAwake()` / `KeepAwake.allowSleep()`.
-6. **Haptique** : remplacer `navigator.vibrate?.(…)` par `Haptics.impact({ style: ImpactStyle.Light })` en natif
-   (appels dans `src/ui/actions.ts`, `src/ui/components/useLongPress.ts`, `src/ui/screens/SessionScreen.tsx`).
-7. **Barre d'état** : au démarrage, `StatusBar.setStyle({ style: Style.Dark })` et
-   `StatusBar.setOverlaysWebView({ overlay: true })`. Les marges `safe-area` existantes font le reste.
-
-Après ces changements : `npm test` et `npm run e2e` doivent rester verts (la version navigateur ne change pas).
-
-## 5. Créer le projet Android
+Construire l'APK en local demande **Android Studio** (SDK Android) et un **JDK 21**, qui ne sont pas installés sur
+ce PC : la CI s'en charge. Si besoin :
 
 ```bash
 npm run build
-npx cap add android
 npx cap sync android
-```
-
-- `npx cap add android` crée le dossier `android/` (à committer).
-- **À chaque modification du code web** : `npm run build` puis `npx cap sync android`.
-
-## 6. Icônes et écran de démarrage
-
-```bash
-npm install -D @capacitor/assets
-```
-
-Placer dans un dossier `assets/` à la racine :
-
-- `icon-only.png` (1024 × 1024) ;
-- `icon-foreground.png` et `icon-background.png` (1024 × 1024, pour l'icône adaptative Android) ;
-- `splash.png` et `splash-dark.png` (2732 × 2732, logo centré sur `#0e1013`).
-
-`scripts/gen-icons.mjs` peut produire ces fichiers : ajouter les tailles 1024 et 2732 au script
-(même dessin, fond `#0e1013`, logo réduit à ~60 % pour le premier plan adaptatif). Puis :
-
-```bash
-npx capacitor-assets generate --android
-```
-
-## 7. Lancer sur le téléphone
-
-```bash
 npx cap open android
 ```
 
-Dans Android Studio : brancher le téléphone en USB, le choisir dans la liste des appareils, cliquer **Run ▶**.
-Alternative sans ouvrir l'IDE : `npx cap run android`.
+Après toute modification du code web : `npm run build` puis `npx cap sync android`.
+Les icônes et l'écran de démarrage viennent de `assets/` (générés par `npm run icons`) :
+`npx capacitor-assets generate --android`.
 
-## 8. APK signé (installation durable, sans le PC)
+## Ce qui diffère de la version web
 
-1. Créer une clé de signature (**une seule fois, à sauvegarder précieusement** : sans elle, impossible de
-   mettre à jour l'app installée) :
+Tout le code propre à Android est dans `src/platform/native.ts`, chargé seulement dans l'app :
 
-   ```bash
-   keytool -genkey -v -keystore cycle-de-force.keystore -alias cycle-de-force -keyalg RSA -keysize 2048 -validity 10000
-   ```
-
-   Ne **jamais** committer le fichier `.keystore` ni ses mots de passe.
-2. Android Studio → **Build → Generate Signed App Bundle / APK → APK**, choisir la clé, variante `release`.
-3. Copier l'APK sur le téléphone et l'ouvrir (autoriser « Installer des applis inconnues » pour le gestionnaire
-   de fichiers, uniquement le temps de l'installation).
-
-Pour une mise à jour : incrémenter `versionCode` et `versionName` dans `android/app/build.gradle`
-(et `version` dans `package.json`), rebuild, re-signer **avec la même clé**, réinstaller par-dessus :
-les données sont conservées.
-
-## 9. Transférer mes données du navigateur vers l'app
-
-La PWA (navigateur) et l'app Android ont **des stockages séparés** : rien n'est copié automatiquement.
-Le pont, c'est la **sauvegarde JSON**, dont le format est identique des deux côtés
-(`{ app: "cycle-de-force", schemaVersion, exportedAt, counts, data }`).
-
-1. **Dans la PWA** (navigateur du téléphone) : Réglages → Sauvegarde → **Exporter une sauvegarde**.
-   Partager le fichier `cycle-de-force-AAAA-MM-JJ.json` vers Google Drive (ou l'enregistrer dans Téléchargements).
-2. Vérifier que le fichier est bien là et n'est pas vide.
-3. **Installer l'app Android** et l'ouvrir. Elle démarre avec les 5 modèles natifs. À la proposition
-   « Créer le Bloc 0 », répondre **Plus tard**.
-4. Dans l'app : Réglages → Sauvegarde → **Restaurer une sauvegarde…** → choisir le fichier.
-5. Contrôler l'**aperçu** (date d'export, nombre de cycles, de séances, de séries réalisées), puis
-   **Remplacer toutes mes données**.
-6. Vérifier le calendrier, une séance réalisée et les Stats, puis **exporter une première sauvegarde depuis l'app**.
-7. Continuer uniquement dans l'app. Garder la PWA quelques semaines sans l'utiliser (filet de sécurité),
-   puis la désinstaller.
-
-Cas particuliers :
-
-- « Cette sauvegarde vient d'une version plus récente de l'app » : mettre l'app à jour, puis recommencer.
-- Un fichier d'une version plus ancienne est converti automatiquement (migrations de `src/domain/backup.ts`).
-- En cas d'erreur pendant la restauration, **rien n'est modifié** ; l'état d'avant restauration est de toute façon
-  gardé et téléchargeable dans Réglages.
-
-## 10. Vérifications après emballage
-
-- [ ] Mode avion : ouvrir l'app, valider une séance entière, fermer, rouvrir : tout est là.
-- [ ] Bouton retour : ferme les feuilles, revient en arrière, quitte depuis un onglet principal.
-- [ ] Export : la feuille de partage Android s'ouvre avec le fichier JSON.
-- [ ] Restauration depuis Drive et depuis Téléchargements.
-- [ ] Écran qui reste allumé pendant une séance.
-- [ ] Barre d'état et encoche : rien de masqué en haut ni en bas.
-- [ ] Thèmes sombre et clair.
+- pas de service worker (les fichiers sont déjà sur le téléphone) ;
+- export : feuille de partage Android (plugins Filesystem + Share) ;
+- copie automatique dans `Documents/CycleDeForce/` ;
+- bouton retour : ferme la feuille ouverte, sinon revient en arrière, sinon quitte ;
+- écran maintenu allumé pendant une séance (plugin keep-awake) ;
+- icônes de la barre d'état adaptées au thème ; zones sûres gérées par Capacitor (`env(safe-area-inset-*)`).

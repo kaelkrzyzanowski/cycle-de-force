@@ -20,12 +20,9 @@ interface Props {
 
 /** Édition de la prescription ; chaque geste devient une opération rejouable sur les semaines suivantes. */
 export function EditSession({ initial, catalogue, onDone, onCancel }: Props) {
-  const app = useApp();
   const [draft, setDraft] = useState(initial);
   const [edits, setEdits] = useState<SessionEdit[]>([]);
-  const [newExercises, setNewExercises] = useState<Exercise[]>([]);
-  const [newName, setNewName] = useState('');
-  const known = [...catalogue, ...newExercises];
+  const { known, resolve, newExercises } = useCatalogue(catalogue);
 
   const dispatch = (edit: SessionEdit) => {
     const next = applyEdit(draft, edit, newId);
@@ -34,11 +31,57 @@ export function EditSession({ initial, catalogue, onDone, onCancel }: Props) {
     setEdits((list) => pushEdit(list, edit));
   };
 
+  return (
+    <div class="stack">
+      <label class="field">
+        <span>{S.edit.sessionName}</span>
+        <input
+          class="text-input"
+          value={draft.name}
+          onChange={(e) => {
+            const name = e.currentTarget.value.trim();
+            if (name) dispatch({ kind: 'renameSession', name });
+          }}
+        />
+      </label>
+
+      <PrescriptionEditor draft={draft} known={known} dispatch={dispatch} resolve={resolve} />
+
+      <div class="button-row sticky-actions">
+        <button type="button" class="btn" onClick={onCancel}>
+          {S.edit.cancel}
+        </button>
+        <button type="button" class="btn primary" onClick={() => onDone(draft, edits, newExercises)}>
+          {S.edit.done}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/** Catalogue d'exercices + ceux créés pendant l'édition (enregistrés à la fin). */
+export function useCatalogue(catalogue: readonly Exercise[]) {
+  const [newExercises, setNewExercises] = useState<Exercise[]>([]);
+  const known = [...catalogue, ...newExercises];
   const resolve = (name: string): Exercise => {
     const { exercise, isNew } = resolveExercise(name, known);
     if (isNew) setNewExercises((list) => [...list, exercise]);
     return exercise;
   };
+  return { known, resolve, newExercises };
+}
+
+interface PrescriptionEditorProps {
+  draft: Session;
+  known: readonly Exercise[];
+  dispatch: (edit: SessionEdit) => void;
+  resolve: (name: string) => Exercise;
+}
+
+/** Liste d'exercices éditable (séance ou semaine de modèle) + ajout avec autocomplétion. */
+export function PrescriptionEditor({ draft, known, dispatch, resolve }: PrescriptionEditorProps) {
+  const app = useApp();
+  const [newName, setNewName] = useState('');
 
   const addExercise = () => {
     if (newName.trim() === '') return;
@@ -53,24 +96,12 @@ export function EditSession({ initial, catalogue, onDone, onCancel }: Props) {
   };
 
   return (
-    <div class="stack">
+    <>
       <datalist id={CATALOGUE_LIST_ID}>
         {known.map((e) => (
           <option key={e.id} value={e.name} />
         ))}
       </datalist>
-
-      <label class="field">
-        <span>{S.edit.sessionName}</span>
-        <input
-          class="text-input"
-          value={draft.name}
-          onChange={(e) => {
-            const name = e.currentTarget.value.trim();
-            if (name) dispatch({ kind: 'renameSession', name });
-          }}
-        />
-      </label>
 
       {draft.exercises.map((ex, i) => (
         <ExerciseEditor
@@ -99,16 +130,7 @@ export function EditSession({ initial, catalogue, onDone, onCancel }: Props) {
           + {S.edit.addExercise}
         </button>
       </section>
-
-      <div class="button-row sticky-actions">
-        <button type="button" class="btn" onClick={onCancel}>
-          {S.edit.cancel}
-        </button>
-        <button type="button" class="btn primary" onClick={() => onDone(draft, edits, newExercises)}>
-          {S.edit.done}
-        </button>
-      </div>
-    </div>
+    </>
   );
 }
 
@@ -255,7 +277,6 @@ function SetEditor({
           if (reps !== null && reps >= 0) update(Math.round(reps), set.load);
         }}
       />
-      <span aria-hidden="true">×</span>
       <select
         class="text-input"
         aria-label={S.edit.setLoadKind(n)}
@@ -268,7 +289,9 @@ function SetEditor({
           </option>
         ))}
       </select>
-      {set.load.kind !== 'NONE' && (
+      {set.load.kind === 'NONE' ? (
+        <span />
+      ) : (
         <input
           class="text-input num small-input"
           inputMode="decimal"
@@ -280,7 +303,7 @@ function SetEditor({
           }}
         />
       )}
-      {set.load.kind === 'PERCENT' && (
+      {set.load.kind === 'PERCENT' ? (
         <select
           class="text-input"
           aria-label={S.edit.setLift(n)}
@@ -293,6 +316,8 @@ function SetEditor({
             </option>
           ))}
         </select>
+      ) : (
+        <span />
       )}
       <button
         type="button"

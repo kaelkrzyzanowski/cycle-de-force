@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'preact/hooks';
 import type { Rounding, ThemePref } from '../../domain/types';
+import { BackupSection } from '../components/BackupSection';
 import { useApp } from '../context';
 import { formatKg } from '../format';
 import { S } from '../strings';
@@ -22,6 +23,8 @@ export function SettingsScreen() {
 
   return (
     <div class="stack">
+      <BackupSection />
+
       <section class="card field">
         <span id="theme-label">{S.settings.theme}</span>
         <div class="segmented" role="group" aria-labelledby="theme-label">

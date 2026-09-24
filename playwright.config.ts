@@ -10,9 +10,17 @@ export default defineConfig({
     baseURL: `http://localhost:${PORT}`,
     ...devices['Pixel 7'],
   },
-  webServer: {
-    command: `npm run preview -- --port ${PORT} --strictPort`,
-    port: PORT,
-    reuseExistingServer: false,
-  },
+  webServer: [
+    {
+      command: `npm run preview -- --port ${PORT} --strictPort`,
+      port: PORT,
+      reuseExistingServer: false,
+    },
+    {
+      // La même build dans un sous-dossier, comme sur GitHub Pages.
+      command: 'npm run preview -- --port 4175 --strictPort --base /cycle-de-force/',
+      url: 'http://localhost:4175/cycle-de-force/',
+      reuseExistingServer: false,
+    },
+  ],
 });

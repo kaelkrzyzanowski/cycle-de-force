@@ -134,7 +134,7 @@ function Editor({ saved, catalogue }: { saved: SessionTemplate; catalogue: Exerc
 
       <div class="segmented scroll week-tabs" role="tablist" aria-label={S.templateEditor.weekTabs}>
         {weeks.map((w) => (
-          <button key={w} type="button" role="tab" class="num" aria-selected={w === week} aria-pressed={w === week} onClick={() => setWeek(w)}>
+          <button key={w} type="button" role="tab" class="num" aria-selected={w === week} onClick={() => setWeek(w)}>
             {S.templateEditor.weekTab(w)}
           </button>
         ))}

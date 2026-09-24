@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'preact/hooks';
 import { S } from '../strings';
 
 let sheetCount = 0;
+const FOCUSABLE = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
 
 /** Panneau bas modal : actions à portée du pouce. Échap ou tap sur le fond pour fermer. */
 export function Sheet({ title, onClose, children }: { title: string; onClose: () => void; children: ComponentChildren }) {
@@ -16,6 +17,21 @@ export function Sheet({ title, onClose, children }: { title: string; onClose: ()
     panel.current?.focus();
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') close.current();
+      // Le focus clavier reste dans la feuille tant qu'elle est ouverte.
+      if (e.key === 'Tab' && panel.current) {
+        const focusable = [...panel.current.querySelectorAll<HTMLElement>(FOCUSABLE)].filter((el) => !el.hasAttribute('disabled'));
+        const first = focusable[0];
+        const last = focusable.at(-1);
+        if (!first || !last) return;
+        const active = document.activeElement;
+        if (e.shiftKey && (active === first || active === panel.current)) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && active === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
     };
     addEventListener('keydown', onKey);
     document.body.style.overflow = 'hidden';

@@ -14,6 +14,8 @@
   --st-not-done: #f59e0b;
   --st-cluster: #8b7fd6;
   --st-planned: #6b7280;
+  /* Texte posé sur une couleur de statut : ≥ 4,5:1 sur toutes les teintes du thème */
+  --on-status: #0b0d10;
 
   /* Graphiques : palette validée (CVD, contraste) contre --surface sombre #171a1f */
   --series-1: #3987e5;
@@ -48,6 +50,7 @@
   --st-failed: #c81e1e;
   --st-not-done: #b45309;
   --st-cluster: #5b4fb0;
+  --on-status: #ffffff;
   /* validée contre --surface clair #ffffff */
   --series-1: #2a78d6;
   --series-2: #eb6834;
@@ -286,7 +289,7 @@ p {
   cursor: pointer;
 }
 .btn.small {
-  min-height: 40px;
+  min-height: var(--tap);
   padding: 0 12px;
   font-size: 0.9rem;
 }
@@ -298,7 +301,7 @@ p {
 .btn.danger {
   background: var(--st-failed);
   border-color: var(--st-failed);
-  color: #fff;
+  color: var(--on-status);
 }
 .btn:disabled {
   opacity: 0.45;
@@ -406,7 +409,7 @@ legend {
   flex: none;
 }
 .segmented.small button {
-  min-height: 40px;
+  min-height: var(--tap);
   font-size: 0.85rem;
 }
 .segmented.scroll {
@@ -507,7 +510,7 @@ legend {
   display: none;
 }
 .toast-action {
-  min-height: 40px;
+  min-height: var(--tap);
   padding: 0 12px;
   border: 0;
   border-radius: 8px;
@@ -532,20 +535,20 @@ legend {
 }
 .st-FAILED {
   --st: var(--st-failed);
-  --st-text: #fff;
+  --st-text: var(--on-status);
 }
 .st-INCOMPLETE,
 .st-NOT_DONE {
   --st: var(--st-not-done);
-  --st-text: #111;
+  --st-text: var(--on-status);
 }
 .st-VALIDATED {
   --st: var(--st-validated);
-  --st-text: #fff;
+  --st-text: var(--on-status);
 }
 .st-CLUSTER {
   --st: var(--st-cluster);
-  --st-text: #fff;
+  --st-text: var(--on-status);
 }
 
 /* Calendrier */
@@ -791,7 +794,6 @@ legend {
 }
 .set-index {
   font-size: 0.75rem;
-  opacity: 0.85;
 }
 .set-glyph {
   font-weight: 900;
@@ -802,11 +804,14 @@ legend {
 }
 .set-planned {
   font-size: 0.75rem;
-  opacity: 0.8;
 }
 .set-rule {
   font-size: 0.8rem;
-  opacity: 0.9;
+}
+/* Série prévue : texte secondaire en gris ; série réalisée : tout le texte sur la couleur du statut. */
+.set-pill.st-PLANNED .set-index,
+.set-pill.st-PLANNED .set-rule {
+  color: var(--text-muted);
 }
 .rir-row {
   display: grid;
@@ -1083,7 +1088,7 @@ legend {
   width: 18px;
   height: 18px;
   border-radius: 5px;
-  color: #fff;
+  color: var(--on-status);
   font-size: 10px;
   font-weight: 900;
 }
@@ -1113,7 +1118,7 @@ legend {
   min-width: 4px;
   border: 0;
   padding: 0;
-  color: #fff;
+  color: var(--on-status);
   font-size: 0.75rem;
   font-weight: 700;
   cursor: pointer;

@@ -14,7 +14,7 @@ export default defineConfig({
     preact(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icons/favicon.svg', 'icons/apple-touch-icon.png'],
+      includeAssets: ['icons/favicon.png', 'icons/apple-touch-icon.png'],
       manifest: {
         id: './',
         name: 'Cycle de force',
@@ -33,7 +33,6 @@ export default defineConfig({
           { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' },
           { src: 'icons/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
-          { src: 'icons/favicon.svg', sizes: 'any', type: 'image/svg+xml' },
         ],
         shortcuts: [
           { name: 'Aujourd’hui', short_name: 'Séance', url: './#/aujourdhui', icons: [{ src: 'icons/icon-192.png', sizes: '192x192' }] },

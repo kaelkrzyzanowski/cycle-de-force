@@ -110,7 +110,7 @@ export function App() {
   if (boot.state === 'loading') {
     return (
       <div class="splash" role="status">
-        <img src="icons/favicon.svg" alt="" />
+        <img src="icons/favicon.png" alt="" />
         <span>{S.appName}</span>
       </div>
     );

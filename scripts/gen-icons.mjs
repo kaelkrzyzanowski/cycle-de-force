@@ -1,108 +1,41 @@
-// Génère les icônes PNG de l'application (barre olympique stylisée), sans dépendance.
-import { mkdirSync, writeFileSync } from 'node:fs';
-import { deflateSync } from 'node:zlib';
+// Génère les icônes de l'application depuis la photo source (assets/icon-source.webp).
+import { mkdirSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import sharp from 'sharp';
 
-const BG = [0x0e, 0x10, 0x13];
-const ACCENT = [0x4c, 0xc2, 0xff];
-const PLATE = [0xee, 0xf0, 0xf3];
+const SOURCE = fileURLToPath(new URL('../assets/icon-source.webp', import.meta.url));
+const BG = '#0e1013';
+const PNG = { compressionLevel: 9 };
 
-const CRC_TABLE = Array.from({ length: 256 }, (_, n) => {
-  let c = n;
-  for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
-  return c >>> 0;
-});
-function crc32(buf) {
-  let c = 0xffffffff;
-  for (const b of buf) c = CRC_TABLE[(c ^ b) & 0xff] ^ (c >>> 8);
-  return (c ^ 0xffffffff) >>> 0;
-}
-function chunk(type, data) {
-  const len = Buffer.alloc(4);
-  len.writeUInt32BE(data.length);
-  const body = Buffer.concat([Buffer.from(type, 'ascii'), data]);
-  const crc = Buffer.alloc(4);
-  crc.writeUInt32BE(crc32(body));
-  return Buffer.concat([len, body, crc]);
-}
-function png(size, pixels) {
-  const ihdr = Buffer.alloc(13);
-  ihdr.writeUInt32BE(size, 0);
-  ihdr.writeUInt32BE(size, 4);
-  ihdr[8] = 8; // profondeur
-  ihdr[9] = 6; // RGBA
-  const row = size * 4;
-  const raw = Buffer.alloc(size * (row + 1));
-  for (let y = 0; y < size; y++) {
-    raw[y * (row + 1)] = 0;
-    pixels.copy(raw, y * (row + 1) + 1, y * row, (y + 1) * row);
-  }
-  return Buffer.concat([
-    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
-    chunk('IHDR', ihdr),
-    chunk('IDAT', deflateSync(raw)),
-    chunk('IEND', Buffer.alloc(0)),
-  ]);
+const square = (size) => sharp(SOURCE).resize(size, size, { fit: 'cover' }).png(PNG);
+
+/** Photo réduite à `inset` (0..1) et centrée sur un fond uni carré : zone sûre des icônes adaptatives/maskable. */
+async function onBackground(size, inset) {
+  const photo = await square(Math.round(size * inset)).toBuffer();
+  return sharp({ create: { width: size, height: size, channels: 4, background: BG } }).composite([{ input: photo, gravity: 'center' }]).png(PNG);
 }
 
-/** Rectangles en coordonnées relatives (0..1) centrés verticalement : [x0, x1, hauteur, couleur]. */
-function shapes(scale) {
-  const c = (v) => 0.5 + (v - 0.5) * scale;
-  const h = (v) => v * scale;
-  return [
-    [c(0.14), c(0.86), h(0.05), ACCENT], // barre
-    [c(0.2), c(0.26), h(0.3), PLATE], // disques extérieurs
-    [c(0.74), c(0.8), h(0.3), PLATE],
-    [c(0.27), c(0.34), h(0.44), PLATE], // disques intérieurs
-    [c(0.66), c(0.73), h(0.44), PLATE],
-    [c(0.35), c(0.37), h(0.12), ACCENT], // colliers
-    [c(0.63), c(0.65), h(0.12), ACCENT],
-  ];
+async function main() {
+  const iconsDir = new URL('../public/icons/', import.meta.url);
+  const assetsDir = new URL('../assets/', import.meta.url);
+  mkdirSync(iconsDir, { recursive: true });
+  const at = (rel, base) => fileURLToPath(new URL(rel, base));
+
+  // PWA
+  await square(192).toFile(at('icon-192.png', iconsDir));
+  await square(512).toFile(at('icon-512.png', iconsDir));
+  await (await onBackground(512, 0.8)).toFile(at('icon-maskable-512.png', iconsDir)); // zone sûre de 80 %
+  await square(180).toFile(at('apple-touch-icon.png', iconsDir));
+  await square(192).toFile(at('favicon.png', iconsDir)); // onglet du navigateur + écran de démarrage
+  console.log('Icônes générées dans public/icons/');
+
+  // Sources pour l'application Android (`npx capacitor-assets generate --android`).
+  await square(1024).toFile(at('icon-only.png', assetsDir));
+  await (await onBackground(1024, 0.66)).toFile(at('icon-foreground.png', assetsDir)); // zone sûre adaptative (~66 %)
+  await sharp({ create: { width: 1024, height: 1024, channels: 4, background: BG } }).png(PNG).toFile(at('icon-background.png', assetsDir));
+  await (await onBackground(2732, 0.3)).toFile(at('splash.png', assetsDir));
+  await (await onBackground(2732, 0.3)).toFile(at('splash-dark.png', assetsDir));
+  console.log('Sources Android générées dans assets/');
 }
 
-/** `background` : fond plein (icônes, écran de démarrage) ou transparent (premier plan de l'icône adaptative). */
-function draw(size, scale, { background = true, glyph = true } = {}) {
-  const px = Buffer.alloc(size * size * 4);
-  const rects = glyph ? shapes(scale) : [];
-  for (let y = 0; y < size; y++) {
-    for (let x = 0; x < size; x++) {
-      const u = (x + 0.5) / size;
-      const v = (y + 0.5) / size;
-      let color = background ? [...BG, 255] : [0, 0, 0, 0];
-      for (const [x0, x1, hh, col] of rects) {
-        if (u >= x0 && u <= x1 && Math.abs(v - 0.5) <= hh / 2) color = [...col, 255];
-      }
-      px.set(color, (y * size + x) * 4);
-    }
-  }
-  return png(size, px);
-}
-
-function svg() {
-  const rects = shapes(1)
-    .map(([x0, x1, hh, col]) => {
-      const f = (n) => Math.round(n * 1000) / 10;
-      const hex = '#' + col.map((c) => c.toString(16).padStart(2, '0')).join('');
-      return `<rect x="${f(x0)}" y="${f(0.5 - hh / 2)}" width="${f(x1 - x0)}" height="${f(hh)}" rx="1.5" fill="${hex}"/>`;
-    })
-    .join('');
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="#0e1013"/>${rects}</svg>\n`;
-}
-
-const out = new URL('../public/icons/', import.meta.url);
-mkdirSync(out, { recursive: true });
-writeFileSync(new URL('icon-192.png', out), draw(192, 1));
-writeFileSync(new URL('icon-512.png', out), draw(512, 1));
-writeFileSync(new URL('icon-maskable-512.png', out), draw(512, 0.72)); // zone sûre de 80 %
-writeFileSync(new URL('apple-touch-icon.png', out), draw(180, 0.85));
-writeFileSync(new URL('favicon.svg', out), svg());
-console.log('Icônes générées dans public/icons/');
-
-// Sources pour l'application Android (`npx capacitor-assets generate --android`).
-const assets = new URL('../assets/', import.meta.url);
-mkdirSync(assets, { recursive: true });
-writeFileSync(new URL('icon-only.png', assets), draw(1024, 0.85));
-writeFileSync(new URL('icon-foreground.png', assets), draw(1024, 0.6, { background: false })); // zone sûre adaptative
-writeFileSync(new URL('icon-background.png', assets), draw(1024, 1, { glyph: false }));
-writeFileSync(new URL('splash.png', assets), draw(2732, 0.3));
-writeFileSync(new URL('splash-dark.png', assets), draw(2732, 0.3));
-console.log('Sources Android générées dans assets/');
+main();

@@ -17,7 +17,7 @@ import { SetPill } from '../session/SetPill';
 import { SetSheet } from '../session/SetSheet';
 import type { SetDecision } from '../session/SetSheet';
 
-const NO_MAX: Maxes = { S: 0, B: 0, D: 0 };
+const NO_MAX: Maxes = {};
 const RIR_VALUES = [0, 1, 2, 3, 4, 5];
 
 interface Data {

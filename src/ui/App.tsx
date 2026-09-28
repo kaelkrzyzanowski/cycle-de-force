@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks';
 import { getRepository } from '../data/repository';
 import type { Repository } from '../data/repository';
-import type { Settings } from '../domain/types';
+import type { Exercise, Settings } from '../domain/types';
 import { isNative, loadNative } from '../platform';
 import { runAutoBackup } from './backupIO';
 import { AppContext } from './context';
@@ -78,6 +78,7 @@ export function App() {
   const route = useRoute();
   const [boot, setBoot] = useState<Boot>({ state: 'loading' });
   const [dataVersion, setDataVersion] = useState(0);
+  const [exercises, setExercises] = useState<ReadonlyMap<string, Exercise>>(new Map());
   const [toastState, setToastState] = useState<{ message: string; action?: ToastAction } | null>(null);
   const toastTimer = useRef<number | undefined>(undefined);
 
@@ -85,6 +86,7 @@ export function App() {
     (async () => {
       const repo = await getRepository();
       await repo.ensureSeeded();
+      setExercises(new Map((await repo.listExercises()).map((e) => [e.id, e])));
       setBoot({ state: 'ready', repo, settings: await repo.getSettings() });
       if (isNative) {
         // Copie automatique au lancement, puis à chaque passage en arrière-plan (fin de séance, verrouillage…).
@@ -96,6 +98,15 @@ export function App() {
       setBoot({ state: 'error' });
     });
   }, []);
+
+  const repo = boot.state === 'ready' ? boot.repo : undefined;
+  useEffect(() => {
+    if (!repo || dataVersion === 0) return;
+    repo
+      .listExercises()
+      .then((list) => setExercises(new Map(list.map((e) => [e.id, e]))))
+      .catch((err: unknown) => console.error(err));
+  }, [repo, dataVersion]);
 
   const theme = boot.state === 'ready' ? boot.settings.theme : 'dark';
   useEffect(() => applyTheme(theme), [theme]);
@@ -133,7 +144,7 @@ export function App() {
 
   return (
     <AppContext.Provider
-      value={{ repo: boot.repo, settings: boot.settings, updateSettings, reloadSettings, dataVersion, refresh, toast }}
+      value={{ repo: boot.repo, settings: boot.settings, exercises, updateSettings, reloadSettings, dataVersion, refresh, toast }}
     >
       <div class="app">
         <header class="topbar">

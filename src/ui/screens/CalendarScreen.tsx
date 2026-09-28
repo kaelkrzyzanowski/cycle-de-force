@@ -103,7 +103,7 @@ export function CalendarScreen() {
   const templates = templatesById(data.templates);
   const colorOf = (s: Session) => (s.templateId ? templates.get(s.templateId)?.color : undefined) ?? NEUTRAL_COLOR;
   const labelOf = (s: Session) => sessionLabel(s, s.templateId ? templates.get(s.templateId) : undefined);
-  const maxOf = (s: Session) => data.cycles.find((c) => c.id === s.cycleId)?.max ?? { S: 0, B: 0, D: 0 };
+  const maxOf = (s: Session) => data.cycles.find((c) => c.id === s.cycleId)?.max ?? {};
   const byDay = new Map<IsoDate, Session[]>();
   for (const s of data.sessions) byDay.set(s.date, [...(byDay.get(s.date) ?? []), s]);
 

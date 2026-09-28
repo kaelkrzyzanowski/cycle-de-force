@@ -39,7 +39,7 @@ export function TodayScreen() {
       session={s}
       label={sessionLabel(s, s.templateId ? templates.get(s.templateId) : undefined)}
       color={(s.templateId ? templates.get(s.templateId)?.color : undefined) ?? NEUTRAL_COLOR}
-      max={data.cycles.find((c) => c.id === s.cycleId)?.max ?? { S: 0, B: 0, D: 0 }}
+      max={data.cycles.find((c) => c.id === s.cycleId)?.max ?? {}}
       rounding={settings.rounding}
       today={today}
       onOpen={() => navigate(href.session(s.id))}

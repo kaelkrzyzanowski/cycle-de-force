@@ -2,12 +2,11 @@ import { useState } from 'preact/hooks';
 import { newId } from '../../domain/ids';
 import { applyEdit, pushEdit } from '../../domain/sessionEdit';
 import type { SessionEdit } from '../../domain/sessionEdit';
-import { LIFTS } from '../../domain/types';
-import type { Exercise, Lift, LoadRule, Session, SessionExercise, SessionSet } from '../../domain/types';
-import { useApp } from '../context';
-import { formatKg, parseDecimal } from '../format';
+import type { Exercise, LoadRule, MaxId, Session, SessionExercise, SessionSet } from '../../domain/types';
+import { useApp, useMaxNames } from '../context';
+import { formatKg, formatPct, parseDecimal } from '../format';
 import { S } from '../strings';
-import { resolveExercise } from './catalog';
+import { defaultMaxFor, resolveExercise } from './catalog';
 
 export const CATALOGUE_LIST_ID = 'exercise-catalogue';
 
@@ -109,7 +108,7 @@ export function PrescriptionEditor({ draft, known, dispatch, resolve }: Prescrip
           ex={ex}
           position={i}
           last={i === draft.exercises.length - 1}
-          defaultLift={known.find((k) => k.id === ex.exerciseId)?.defaultLift ?? 'S'}
+          maxChoices={maxChoicesFor(ex.exerciseId, known)}
           dispatch={dispatch}
           resolve={resolve}
         />
@@ -138,12 +137,21 @@ interface ExerciseEditorProps {
   ex: SessionExercise;
   position: number;
   last: boolean;
-  defaultLift: Lift;
+  maxChoices: MaxId[];
   dispatch: (edit: SessionEdit) => void;
   resolve: (name: string) => Exercise;
 }
 
-function ExerciseEditor({ ex, position, last, defaultLift, dispatch, resolve }: ExerciseEditorProps) {
+/**
+ * RM proposés pour les séries en % d'un exercice : le RM par défaut en premier, puis tous les
+ * exercices avec RM, puis l'exercice lui-même (on peut ainsi suivre le RM de n'importe quel exercice).
+ */
+export function maxChoicesFor(exerciseId: string, known: readonly Exercise[]): MaxId[] {
+  const first = defaultMaxFor(exerciseId, known);
+  return [...new Set([...(first ? [first] : []), ...known.filter((e) => e.hasMax).map((e) => e.id), exerciseId])];
+}
+
+function ExerciseEditor({ ex, position, last, maxChoices, dispatch, resolve }: ExerciseEditorProps) {
   const locked = ex.sets.some((s) => s.status !== 'PLANNED');
   const lastSet = ex.sets.at(-1);
   return (
@@ -192,7 +200,7 @@ function ExerciseEditor({ ex, position, last, defaultLift, dispatch, resolve }: 
       </div>
 
       {ex.sets.map((set) => (
-        <SetEditor key={set.index} set={set} exerciseId={ex.exerciseId} defaultLift={defaultLift} dispatch={dispatch} />
+        <SetEditor key={set.index} set={set} exerciseId={ex.exerciseId} maxChoices={maxChoices} dispatch={dispatch} />
       ))}
 
       <button
@@ -219,7 +227,7 @@ function ruleValue(rule: LoadRule): string {
     case 'FIXED':
       return formatKg(rule.kg);
     case 'PERCENT':
-      return formatKg(Math.round(rule.pct * 1000) / 10);
+      return formatPct(rule.pct);
     case 'BODYWEIGHT':
       return formatKg(rule.extraKg ?? 0);
     case 'NONE':
@@ -227,12 +235,12 @@ function ruleValue(rule: LoadRule): string {
   }
 }
 
-function buildRule(kind: Kind, value: number, lift: Lift): LoadRule {
+function buildRule(kind: Kind, value: number, of: MaxId): LoadRule {
   switch (kind) {
     case 'FIXED':
       return { kind, kg: value };
     case 'PERCENT':
-      return { kind, lift, pct: Math.round(value * 10) / 1000 };
+      return { kind, of, pct: Math.round(value * 10) / 1000 };
     case 'BODYWEIGHT':
       return value > 0 ? { kind, extraKg: value } : { kind };
     case 'NONE':
@@ -243,12 +251,12 @@ function buildRule(kind: Kind, value: number, lift: Lift): LoadRule {
 function SetEditor({
   set,
   exerciseId,
-  defaultLift,
+  maxChoices,
   dispatch,
 }: {
   set: SessionSet;
   exerciseId: string;
-  defaultLift: Lift;
+  maxChoices: MaxId[];
   dispatch: (edit: SessionEdit) => void;
 }) {
   const n = set.index + 1;
@@ -260,7 +268,9 @@ function SetEditor({
       </div>
     );
   }
-  const lift = set.load.kind === 'PERCENT' ? set.load.lift : defaultLift;
+  const { short } = useMaxNames();
+  const lift = set.load.kind === 'PERCENT' ? set.load.of : (maxChoices[0] ?? exerciseId);
+  const choices = maxChoices.includes(lift) ? maxChoices : [lift, ...maxChoices];
   const value = parseDecimal(ruleValue(set.load)) ?? 0;
   const update = (reps: number, load: LoadRule) => dispatch({ kind: 'updateSet', exerciseId, index: set.index, reps, load });
 
@@ -308,11 +318,11 @@ function SetEditor({
           class="text-input"
           aria-label={S.edit.setLift(n)}
           value={lift}
-          onChange={(e) => update(set.plannedReps, buildRule('PERCENT', value, e.currentTarget.value as Lift))}
+          onChange={(e) => update(set.plannedReps, buildRule('PERCENT', value, e.currentTarget.value))}
         >
-          {LIFTS.map((l) => (
-            <option key={l} value={l}>
-              {l}
+          {choices.map((id) => (
+            <option key={id} value={id}>
+              {short(id)}
             </option>
           ))}
         </select>

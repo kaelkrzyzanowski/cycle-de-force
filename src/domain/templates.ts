@@ -1,6 +1,5 @@
 import { sessionFromTemplate } from './cycles';
-import { LIFTS } from './types';
-import type { ExercisePrescription, IsoDate, Lift, Session, SessionTemplate } from './types';
+import type { ExercisePrescription, IsoDate, MaxId, Session, SessionTemplate } from './types';
 
 type NewId = () => string;
 
@@ -18,23 +17,23 @@ const DELOAD_MAX_PCT = 0.65;
 const RM_MIN_PCT = 0.95;
 const RM_MAX_REPS = 2;
 
-/** Mouvement principal d'un modèle : le lift (S/B/D) dont le % apparaît sur le plus de semaines. */
-function mainLiftOf(template: Pick<SessionTemplate, 'weeks'>): Lift | null {
-  const weeksWith: Record<Lift, number> = { S: 0, B: 0, D: 0 };
+/** Mouvement principal d'un modèle : le RM dont le % apparaît sur le plus de semaines (le premier rencontré en cas d'égalité). */
+function mainLiftOf(template: Pick<SessionTemplate, 'weeks'>): MaxId | null {
+  const weeksWith = new Map<MaxId, number>();
   for (const week of Object.values(template.weeks)) {
-    const present = new Set<Lift>();
-    for (const exercise of week) for (const set of exercise.sets) if (set.load.kind === 'PERCENT') present.add(set.load.lift);
-    for (const lift of present) weeksWith[lift]++;
+    const present = new Set<MaxId>();
+    for (const exercise of week) for (const set of exercise.sets) if (set.load.kind === 'PERCENT') present.add(set.load.of);
+    for (const id of present) weeksWith.set(id, (weeksWith.get(id) ?? 0) + 1);
   }
-  return [...LIFTS].filter((l) => weeksWith[l] > 0).sort((a, b) => weeksWith[b] - weeksWith[a])[0] ?? null;
+  return [...weeksWith].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
 }
 
 /** Plus haut % du mouvement principal utilisé dans la séance, avec les reps de cette série. */
-function topPercentOf(session: Pick<Session, 'exercises'>, lift: Lift): { pct: number; reps: number } | null {
+function topPercentOf(session: Pick<Session, 'exercises'>, lift: MaxId): { pct: number; reps: number } | null {
   let best: { pct: number; reps: number } | null = null;
   for (const exercise of session.exercises) {
     for (const set of exercise.sets) {
-      if (set.load.kind === 'PERCENT' && set.load.lift === lift && (!best || set.load.pct > best.pct)) {
+      if (set.load.kind === 'PERCENT' && set.load.of === lift && (!best || set.load.pct > best.pct)) {
         best = { pct: set.load.pct, reps: set.plannedReps };
       }
     }
@@ -92,7 +91,8 @@ export function copyWeek(template: SessionTemplate, from: number, targets: reado
 
 export interface Progression {
   exerciseId: string;
-  lift: Lift;
+  /** RM de référence des pourcentages. */
+  of: MaxId;
   /** Pourcentages en fraction : 0.65 pour 65 %. */
   from: number;
   to: number;
@@ -133,7 +133,7 @@ export function applyProgression(template: SessionTemplate, p: Progression): { t
   for (const { week, pct } of progressionValues({ ...p, weeks: present })) {
     const list = weeks[week] ?? [];
     weeks[week] = list.map((e) =>
-      e.exerciseId !== p.exerciseId ? e : { ...e, sets: e.sets.map((s) => ({ ...s, load: { kind: 'PERCENT', lift: p.lift, pct } })) },
+      e.exerciseId !== p.exerciseId ? e : { ...e, sets: e.sets.map((s) => ({ ...s, load: { kind: 'PERCENT', of: p.of, pct } })) },
     );
   }
   return { template: { ...template, weeks }, skipped };

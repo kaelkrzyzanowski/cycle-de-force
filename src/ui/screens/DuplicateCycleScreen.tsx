@@ -3,13 +3,13 @@ import { conflictDates, cycleEndDate, duplicateCycle, resolveConflicts } from '.
 import type { CopyMode } from '../../domain/cycles';
 import { addDays } from '../../domain/dates';
 import { newId } from '../../domain/ids';
-import { LIFTS } from '../../domain/types';
+import { cycleMaxIds } from '../../domain/max';
 import type { Cycle, Maxes, Session, SessionTemplate } from '../../domain/types';
 import { commit, templatesById } from '../actions';
 import { allResolved, ConflictResolver } from '../components/ConflictResolver';
 import type { Choices } from '../components/ConflictResolver';
 import { DateField, RadioList, TextField } from '../components/fields';
-import { NumberField } from '../components/NumberField';
+import { MaxFields } from '../components/MaxCard';
 import { useApp, useData } from '../context';
 import { formatDayLong, formatKg, formatRange } from '../format';
 import { href, navigate } from '../router';
@@ -41,7 +41,8 @@ function Form({ source, sessions, templates }: { source: Cycle; sessions: Sessio
   const app = useApp();
   const [name, setName] = useState(S.duplicateCycle.defaultName(source.name));
   const [startDate, setStartDate] = useState(addDays(cycleEndDate(source), 1));
-  const [max, setMax] = useState<Maxes>({ ...source.max });
+  const maxIds = cycleMaxIds(source, sessions);
+  const [max, setMax] = useState<Maxes>(Object.fromEntries(maxIds.map((id) => [id, source.max[id] ?? 0])));
   const [mode, setMode] = useState<CopyMode>('TEMPLATE');
   const [choices, setChoices] = useState<Choices>({});
 
@@ -79,35 +80,30 @@ function Form({ source, sessions, templates }: { source: Cycle; sessions: Sessio
       <section class="card stack">
         <div class="section-header">
           <h2 class="card-title">{S.duplicateCycle.max}</h2>
-          <button type="button" class="btn small" onClick={() => setMax({ ...source.max })}>
+          <button type="button" class="btn small" onClick={() => setMax(Object.fromEntries(maxIds.map((id) => [id, source.max[id] ?? 0])))}>
             {S.duplicateCycle.reset}
           </button>
         </div>
-        {LIFTS.map((lift) => (
-          <div key={lift} class="stack tight">
-            <NumberField
-              label={S.lifts[lift]}
-              value={max[lift]}
-              step={2.5}
-              max={500}
-              suffix="kg"
-              onChange={(v) => setMax({ ...max, [lift]: v })}
-            />
+        <MaxFields
+          ids={maxIds}
+          max={max}
+          onChange={setMax}
+          extra={(id, label) => (
             <div class="button-row start">
               {BUMPS.map((kg) => (
                 <button
                   key={kg}
                   type="button"
                   class="btn small"
-                  aria-label={`${S.lifts[lift]} ${S.duplicateCycle.bump(formatKg(kg))} kg`}
-                  onClick={() => setMax({ ...max, [lift]: source.max[lift] + kg })}
+                  aria-label={`${label} ${S.duplicateCycle.bump(formatKg(kg))} kg`}
+                  onClick={() => setMax({ ...max, [id]: (source.max[id] ?? 0) + kg })}
                 >
                   {S.duplicateCycle.bump(formatKg(kg))}
                 </button>
               ))}
             </div>
-          </div>
-        ))}
+          )}
+        />
       </section>
 
       <section class="card stack">

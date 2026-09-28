@@ -1,10 +1,11 @@
+import { migrateLegacyLifts } from './legacyLifts';
 import { isRealized } from './load';
 import { DEFAULT_SETTINGS } from './types';
 import type { Cycle, Exercise, IsoDate, MaxChange, Session, SessionTemplate, Settings } from './types';
 
 export const BACKUP_APP = 'cycle-de-force';
 /** Version du format de fichier. À incrémenter avec une migration dans BACKUP_MIGRATIONS. */
-export const BACKUP_SCHEMA_VERSION = 1;
+export const BACKUP_SCHEMA_VERSION = 2;
 
 export interface BackupData {
   settings: Settings;
@@ -60,7 +61,10 @@ type Json = Record<string, unknown>;
 export type Migration = (file: Json) => Json;
 
 /** Migrations du format : l'entrée N transforme un fichier de version N-1 en version N. */
-export const BACKUP_MIGRATIONS: Record<number, Migration> = {};
+export const BACKUP_MIGRATIONS: Record<number, Migration> = {
+  // 2 : RM par exercice (les % et les max ne sont plus limités à S/B/D).
+  2: (file) => ({ ...file, data: isRecord(file['data']) ? migrateLegacyLifts(file['data']) : file['data'] }),
+};
 
 export type BackupError = 'NOT_JSON' | 'WRONG_APP' | 'TOO_NEW' | 'INVALID';
 
@@ -72,7 +76,6 @@ class Invalid extends Error {}
 
 const isRecord = (v: unknown): v is Json => typeof v === 'object' && v !== null && !Array.isArray(v);
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
-const LIFT = new Set(['S', 'B', 'D']);
 const STATUS = new Set(['PLANNED', 'VALIDATED', 'FAILED', 'NOT_DONE', 'CLUSTER']);
 
 function check(cond: boolean, what: string): asserts cond {
@@ -90,7 +93,7 @@ function checkLoad(v: unknown, where: string): void {
       check(isNum(v['kg']), `${where} : charge fixe`);
       return;
     case 'PERCENT':
-      check(LIFT.has(String(v['lift'])) && isNum(v['pct']), `${where} : pourcentage`);
+      check(isStr(v['of']) && v['of'] !== '' && isNum(v['pct']), `${where} : pourcentage`);
       return;
     case 'BODYWEIGHT':
       check(optNum(v['extraKg']), `${where} : lest`);
@@ -113,7 +116,7 @@ function checkArray(data: Json, key: string, item: (v: Json, where: string) => v
 }
 
 function checkMaxes(v: unknown, where: string): void {
-  check(isRecord(v) && isNum(v['S']) && isNum(v['B']) && isNum(v['D']), `${where} : max`);
+  check(isRecord(v) && Object.values(v).every(isNum), `${where} : max`);
 }
 
 function checkData(data: unknown): asserts data is BackupData {
@@ -133,7 +136,10 @@ function checkData(data: unknown): asserts data is BackupData {
       }
     }
   });
-  checkArray(data, 'exercises', (e, w) => check(isStr(e['name']) && Array.isArray(e['aliases']), w));
+  checkArray(data, 'exercises', (e, w) => {
+    check(isStr(e['name']) && Array.isArray(e['aliases']), w);
+    check((e['hasMax'] === undefined || typeof e['hasMax'] === 'boolean') && optStr(e['short']) && optStr(e['defaultMax']), `${w} : RM`);
+  });
   checkArray(data, 'cycles', (c, w) => {
     check(isStr(c['name']) && isStr(c['startDate']) && ISO_DATE.test(c['startDate']) && isNum(c['weeksCount']), w);
     checkMaxes(c['max'], w);
@@ -153,7 +159,7 @@ function checkData(data: unknown): asserts data is BackupData {
     }
   });
   checkArray(data, 'maxChanges', (m, w) => {
-    check(isStr(m['cycleId']) && LIFT.has(String(m['lift'])) && isNum(m['from']) && isNum(m['to']) && isStr(m['at']), w);
+    check(isStr(m['cycleId']) && isStr(m['exerciseId']) && isNum(m['from']) && isNum(m['to']) && isStr(m['at']), w);
   });
 }
 

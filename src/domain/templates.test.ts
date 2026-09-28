@@ -156,7 +156,7 @@ describe('progression', () => {
   it('Bench volume : 65 → 80 % du Bench sur 4 semaines', () => {
     const { template, skipped } = applyProgression(benchVolume(), {
       exerciseId: 'developpe-couche',
-      lift: 'B',
+      of: 'B',
       from: 0.65,
       to: 0.8,
       step: 0.05,
@@ -174,7 +174,7 @@ describe('progression', () => {
     // Développé couché du modèle Bench : absent en S3.
     const { template, skipped } = applyProgression(bench(), {
       exerciseId: 'developpe-couche',
-      lift: 'B',
+      of: 'B',
       from: 0.7,
       to: 0.9,
       step: 0.05,

@@ -13,8 +13,11 @@ export function plannedKg(rule: LoadRule, max: Maxes, rounding: Rounding): numbe
   switch (rule.kind) {
     case 'FIXED':
       return rule.kg;
-    case 'PERCENT':
-      return roundTo(max[rule.lift] * rule.pct, rounding);
+    case 'PERCENT': {
+      // RM inconnu pour ce cycle : la charge est à saisir.
+      const rm = max[rule.of];
+      return rm ? roundTo(rm * rule.pct, rounding) : null;
+    }
     case 'BODYWEIGHT':
       // Tonnage : seul le lest est compté (poids du corps non suivi).
       return rule.extraKg ?? 0;

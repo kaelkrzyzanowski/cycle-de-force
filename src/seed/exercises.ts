@@ -1,28 +1,27 @@
-import type { Exercise, ExercisePrescription, Lift, SessionTemplate } from '../domain/types';
+import { LEGACY_LIFTS } from '../domain/legacyLifts';
+import type { Exercise, ExercisePrescription, MaxId, SessionTemplate } from '../domain/types';
 
-const ALIASES: Record<string, string[]> = {
-  'developpe-couche': ['DC', 'Bench'],
-  'souleve-de-terre': ['Deadlift', 'SDT'],
-};
-
-function percentLift(ex: ExercisePrescription): Lift | undefined {
-  for (const set of ex.sets) if (set.load.kind === 'PERCENT') return set.load.lift;
+function percentOf(ex: ExercisePrescription): MaxId | undefined {
+  for (const set of ex.sets) if (set.load.kind === 'PERCENT') return set.load.of;
   return undefined;
 }
 
-/** Catalogue d'exercices déduit des modèles ; le mouvement par défaut est celui des % prescrits. */
+/**
+ * Catalogue d'exercices : les trois mouvements avec RM (Squat, Développé couché, Soulevé de terre),
+ * puis ceux des modèles ; le RM par défaut d'un exercice est celui de ses % prescrits.
+ */
 export function exercisesFromTemplates(templates: readonly SessionTemplate[]): Exercise[] {
-  const byId = new Map<string, Exercise>();
+  const byId = new Map<string, Exercise>(Object.values(LEGACY_LIFTS).map((e) => [e.id, { ...e, aliases: [...e.aliases] }]));
   for (const template of templates) {
     for (const week of Object.values(template.weeks)) {
       for (const ex of week) {
         let entry = byId.get(ex.exerciseId);
         if (!entry) {
-          entry = { id: ex.exerciseId, name: ex.name, aliases: ALIASES[ex.exerciseId] ?? [] };
+          entry = { id: ex.exerciseId, name: ex.name, aliases: [] };
           byId.set(ex.exerciseId, entry);
         }
-        const lift = percentLift(ex);
-        if (entry.defaultLift === undefined && lift) entry.defaultLift = lift;
+        const of = percentOf(ex);
+        if (entry.defaultMax === undefined && of && of !== entry.id) entry.defaultMax = of;
       }
     }
   }

@@ -3,7 +3,7 @@
 const plural = (n: number, one: string, many: string): string => `${n} ${n > 1 ? many : one}`;
 
 export const S = {
-  appName: 'Cycle de force',
+  appName: 'Cycle de force β',
   loading: 'Chargement…',
   loadError: 'Impossible d’ouvrir la base de données locale.',
   saveError: 'L’enregistrement a échoué, rien n’a été modifié.',
@@ -22,7 +22,6 @@ export const S = {
 
   weekdays: ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'],
   weekdaysShort: ['L', 'M', 'M', 'J', 'V', 'S', 'D'],
-  lifts: { S: 'Squat', B: 'Bench', D: 'Deadlift' },
 
   nav: {
     label: 'Navigation principale',
@@ -114,7 +113,7 @@ export const S = {
 
   cycleForm: {
     newTitle: 'Nouveau cycle',
-    steps: ['Cycle', 'Max', 'Planning', 'Aperçu'],
+    steps: ['Cycle', 'Planning', 'Max', 'Aperçu'],
     stepOf: (i: number, n: number, label: string) => `Étape ${i}/${n} · ${label}`,
     name: 'Nom du cycle',
     defaultName: (n: number) => `Bloc ${n}`,
@@ -122,7 +121,8 @@ export const S = {
     startsOn: (day: string) => `Le cycle commence le ${day}.`,
     weeks: 'Nombre de semaines',
     max: 'Max théoriques',
-    maxHint: 'Base de tous les pourcentages du cycle.',
+    maxHint: 'RM utilisés par les modèles du planning : base de tous les pourcentages du cycle.',
+    noMax: 'Aucun modèle du planning n’utilise de pourcentage : pas de RM à renseigner.',
     planning: 'Planning hebdomadaire',
     noTemplate: '—',
     total: (n: number) => `${plural(n, 'séance sera créée', 'séances seront créées')}.`,
@@ -280,6 +280,7 @@ export const S = {
     save: 'Enregistrer les max',
     saved: 'Max enregistrés',
     history: 'Historique',
+    none: 'Aucun RM utilisé dans ce cycle.',
     change: (lift: string, from: string, to: string, when: string) => `${when} · ${lift} ${from} → ${to} kg`,
   },
 
@@ -313,7 +314,7 @@ export const S = {
     shareTitle: 'Enregistrer la sauvegarde',
     autoTitle: 'Sauvegarde automatique sur le téléphone',
     autoText:
-      'Une copie est écrite chaque jour dans Documents/CycleDeForce (14 jours gardés). Elle reste sur le téléphone même si l’app est désinstallée. Pour changer de téléphone, utilise « Exporter une sauvegarde » vers Drive.',
+      'Une copie est écrite chaque jour dans Documents/CycleDeForceBeta (14 jours gardés). Elle reste sur le téléphone même si l’app est désinstallée. Pour changer de téléphone, utilise « Exporter une sauvegarde » vers Drive.',
     autoLast: (when: string, path: string) => `Dernière copie : ${when}${path ? ` · ${path}` : ''}`,
     autoNever: 'Pas encore de copie automatique.',
     autoError: (message: string) => `La dernière copie automatique a échoué : ${message}`,
@@ -410,6 +411,7 @@ export const S = {
     maxKg: 'Charge max',
     e1rm: 'e1RM',
     maxes: 'Max théoriques',
+    maxShown: 'RM affiché',
     maxesSub: 'Max de départ de chaque cycle, puis chaque changement',
     statuses: 'Statuts des séries',
     statusesSub: 'Séries réalisées, par cycle',

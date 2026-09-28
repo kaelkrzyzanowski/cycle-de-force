@@ -115,13 +115,20 @@ describe('évolution des max théoriques', () => {
     const c1 = { ...exampleCycle('c1', '2026-11-09'), name: 'Bloc 1', max: { S: 175, B: 117.5, D: 220 } };
     const history = maxHistory(
       [c1, c0],
-      [{ id: 'm1', cycleId: 'c0', lift: 'D', from: 210, to: 215, at: '2026-10-01T09:00:00Z' }],
+      [{ id: 'm1', cycleId: 'c0', exerciseId: 'D', from: 210, to: 215, at: '2026-10-01T09:00:00Z' }],
     );
-    expect(history.D).toEqual([
+    expect(history.get('D')).toEqual([
       { date: '2026-09-21', value: 210, cycleName: 'Bloc 0' },
       { date: '2026-10-01', value: 215, cycleName: 'Bloc 0' },
       { date: '2026-11-09', value: 220, cycleName: 'Bloc 1' },
     ]);
-    expect(history.S.map((p) => p.value)).toEqual([170, 175]);
+    expect(history.get('S')?.map((p) => p.value)).toEqual([170, 175]);
+  });
+
+  it('suit un RM ajouté en cours de route, sans point pour un RM non renseigné', () => {
+    const c0 = { ...exampleCycle('c0', '2026-09-21'), max: { S: 170, X: 0 } };
+    const c1 = { ...exampleCycle('c1', '2026-11-09'), max: { S: 175, X: 60 } };
+    const history = maxHistory([c0, c1], []);
+    expect(history.get('X')).toEqual([{ date: '2026-11-09', value: 60, cycleName: 'Bloc 0' }]);
   });
 });

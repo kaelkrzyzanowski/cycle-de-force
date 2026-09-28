@@ -1,7 +1,7 @@
 import { createContext } from 'preact';
 import { useContext, useEffect, useState } from 'preact/hooks';
 import type { Repository } from '../data/repository';
-import type { Settings } from '../domain/types';
+import type { Exercise, MaxId, Settings } from '../domain/types';
 
 export interface ToastAction {
   label: string;
@@ -11,6 +11,8 @@ export interface ToastAction {
 export interface AppContextValue {
   repo: Repository;
   settings: Settings;
+  /** Catalogue d'exercices, rechargé après chaque écriture. */
+  exercises: ReadonlyMap<string, Exercise>;
   updateSettings(patch: Partial<Settings>): Promise<void>;
   /** Relit les réglages depuis la base (après une restauration). */
   reloadSettings(): Promise<void>;
@@ -26,6 +28,15 @@ export function useApp(): AppContextValue {
   const ctx = useContext(AppContext);
   if (!ctx) throw new Error('AppContext manquant');
   return ctx;
+}
+
+/** Noms des RM : complet (« Squat ») ou abrégé après un % (« S »), et liste des exercices avec RM. */
+export function useMaxNames() {
+  const { exercises } = useApp();
+  const name = (id: MaxId): string => exercises.get(id)?.name ?? id;
+  const short = (id: MaxId): string => exercises.get(id)?.short?.trim() || name(id);
+  const withMax = [...exercises.values()].filter((e) => e.hasMax);
+  return { name, short, withMax };
 }
 
 /** Charge des données depuis le repository ; recharge après chaque écriture. */

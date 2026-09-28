@@ -7,7 +7,7 @@ import type { Cycle, MaxChange, Session, SessionTemplate } from '../../domain/ty
 import { templatesById } from '../actions';
 import { MaxCard } from '../components/MaxCard';
 import { NEUTRAL_COLOR, SessionDot } from '../components/SessionCard';
-import { useApp, useData } from '../context';
+import { useApp, useData, useMaxNames } from '../context';
 import { formatDayLong, formatDayShort, formatKg, formatRange, formatTonnage } from '../format';
 import { href } from '../router';
 import { S } from '../strings';
@@ -21,6 +21,7 @@ interface Data {
 
 export function CycleScreen({ id }: { id: string }) {
   const { settings } = useApp();
+  const { name: maxName } = useMaxNames();
   const data = useData<Data>(
     async (repo) => ({
       cycle: await repo.getCycle(id),
@@ -56,7 +57,7 @@ export function CycleScreen({ id }: { id: string }) {
           <ul class="plain-list">
             {data.maxChanges.map((m) => (
               <li key={m.id} class="num">
-                {S.max.change(S.lifts[m.lift], formatKg(m.from), formatKg(m.to), formatDayShort(m.at.slice(0, 10)))}
+                {S.max.change(maxName(m.exerciseId), formatKg(m.from), formatKg(m.to), formatDayShort(m.at.slice(0, 10)))}
               </li>
             ))}
           </ul>

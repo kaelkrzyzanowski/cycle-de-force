@@ -1,13 +1,12 @@
 import { plannedKg } from './load';
-import { LIFTS } from './types';
-import type { Cycle, Lift, MaxChange, Maxes, Rounding, Session } from './types';
+import type { Cycle, LoadRule, MaxChange, MaxId, Maxes, Rounding, Session, SessionTemplate } from './types';
 
 export interface PlannedLoadChange {
   sessionId: string;
   date: string;
   exerciseName: string;
   setIndex: number;
-  lift: Lift;
+  maxId: MaxId;
   fromKg: number;
   toKg: number;
 }
@@ -35,7 +34,7 @@ export function previewMaxChange(
           date: session.date,
           exerciseName: exercise.name,
           setIndex: set.index,
-          lift: set.load.lift,
+          maxId: set.load.of,
           fromKg,
           toKg,
         });
@@ -52,13 +51,28 @@ export function applyMaxChange(
   at: string,
   newId: () => string,
 ): { cycle: Cycle; log: MaxChange[] } {
-  const log: MaxChange[] = LIFTS.filter((lift) => cycle.max[lift] !== newMax[lift]).map((lift) => ({
-    id: newId(),
-    cycleId: cycle.id,
-    lift,
-    from: cycle.max[lift],
-    to: newMax[lift],
-    at,
-  }));
+  const ids = [...new Set([...Object.keys(cycle.max), ...Object.keys(newMax)])];
+  const log: MaxChange[] = ids
+    .filter((id) => (cycle.max[id] ?? 0) !== (newMax[id] ?? 0))
+    .map((id) => ({ id: newId(), cycleId: cycle.id, exerciseId: id, from: cycle.max[id] ?? 0, to: newMax[id] ?? 0, at }));
   return { cycle: { ...cycle, max: { ...newMax } }, log };
+}
+
+type WithExercises = { exercises: readonly { sets: readonly { load: LoadRule }[] }[] };
+
+/** RM utilisés par des séries en %, dans l'ordre de première apparition. */
+export function maxIdsUsedBy(items: readonly WithExercises[]): MaxId[] {
+  const ids = new Set<MaxId>();
+  for (const item of items) for (const e of item.exercises) for (const s of e.sets) if (s.load.kind === 'PERCENT') ids.add(s.load.of);
+  return [...ids];
+}
+
+/** Toutes les semaines des modèles, vues comme des listes d'exercices. */
+export function templateWeeks(templates: readonly Pick<SessionTemplate, 'weeks'>[]): WithExercises[] {
+  return templates.flatMap((t) => Object.values(t.weeks).map((exercises) => ({ exercises })));
+}
+
+/** RM à renseigner pour un cycle : ceux déjà connus, puis ceux utilisés par ses séances. */
+export function cycleMaxIds(cycle: Pick<Cycle, 'max'>, sessions: readonly WithExercises[]): MaxId[] {
+  return [...new Set([...Object.keys(cycle.max), ...maxIdsUsedBy(sessions)])];
 }

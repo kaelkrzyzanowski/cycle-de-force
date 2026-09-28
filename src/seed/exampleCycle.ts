@@ -1,7 +1,7 @@
 import type { Cycle, IsoDate, Maxes, Weekday } from '../domain/types';
 import { TEMPLATE_IDS } from './templates';
 
-export const DEFAULT_MAX: Maxes = { S: 170, B: 115, D: 210 };
+export const DEFAULT_MAX: Maxes = { squat: 170, 'developpe-couche': 115, 'souleve-de-terre': 210 };
 
 /** Planning par défaut : Mar Deadlift · Jeu SBD · Sam Bench · Dim Squat. */
 export const DEFAULT_WEEKLY_PLAN: { weekday: Weekday; templateId: string }[] = [

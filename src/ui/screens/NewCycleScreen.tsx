@@ -2,14 +2,15 @@ import { useEffect, useMemo, useState } from 'preact/hooks';
 import { conflictDates, cycleEndDate, generateCycleSessions, resolveConflicts } from '../../domain/cycles';
 import { addDays, isoWeekday, mondayOf, todayIso } from '../../domain/dates';
 import { newId } from '../../domain/ids';
+import { maxIdsUsedBy, templateWeeks } from '../../domain/max';
 import { sessionLabel } from '../../domain/templates';
-import { LIFTS } from '../../domain/types';
 import type { Cycle, Maxes, Session, SessionTemplate, Weekday } from '../../domain/types';
 import { DEFAULT_MAX, DEFAULT_WEEKLY_PLAN } from '../../seed';
 import { commit, templatesById } from '../actions';
 import { allResolved, ConflictResolver } from '../components/ConflictResolver';
 import type { Choices } from '../components/ConflictResolver';
 import { DateField, TextField } from '../components/fields';
+import { MaxFields } from '../components/MaxCard';
 import { NumberField } from '../components/NumberField';
 import { useApp, useData } from '../context';
 import { formatDayLong, formatRange } from '../format';
@@ -46,19 +47,27 @@ function Wizard({ cycles, templates }: Setup) {
   const [choices, setChoices] = useState<Choices>({});
 
   const byId = templatesById(templates);
+  const planned = [...new Set(Object.values(plan))].flatMap((id) => {
+    const t = id ? byId.get(id) : undefined;
+    return t ? [t] : [];
+  });
+  // Seuls les RM utilisés par les modèles du planning sont demandés (et gardés dans le cycle).
+  const maxIds = maxIdsUsedBy(templateWeeks(planned));
+  const cycleMax: Maxes = Object.fromEntries(maxIds.map((id) => [id, max[id] ?? 0]));
+  const maxKey = JSON.stringify(cycleMax);
   const cycle: Cycle = useMemo(
     () => ({
       id: newId(),
       name: name.trim(),
       startDate,
       weeksCount,
-      max,
+      max: cycleMax,
       weeklyPlan: WEEKDAYS.flatMap((weekday) => {
         const templateId = plan[weekday];
         return templateId ? [{ weekday, templateId }] : [];
       }),
     }),
-    [name, startDate, weeksCount, max, plan],
+    [name, startDate, weeksCount, maxKey, plan],
   );
   const sessions = useMemo(() => generateCycleSessions(cycle, byId, newId), [cycle, templates]);
   const conflicts = conflictDates(sessions, existing);
@@ -67,7 +76,9 @@ function Wizard({ cycles, templates }: Setup) {
     app.repo.listSessionsBetween(cycle.startDate, cycleEndDate(cycle)).then(setExisting);
   }, [cycle.startDate, cycle.weeksCount]);
 
-  const valid = cycle.name !== '' && LIFTS.every((l) => max[l] > 0);
+  const maxValid = maxIds.every((id) => (cycleMax[id] ?? 0) > 0);
+  // Étapes : 0 Cycle, 1 Planning, 2 Max, 3 Aperçu.
+  const valid = cycle.name !== '' && (step < 2 || maxValid);
   const steps = S.cycleForm.steps;
 
   const create = async () => {
@@ -98,25 +109,15 @@ function Wizard({ cycles, templates }: Setup) {
         </section>
       )}
 
-      {step === 1 && (
+      {step === 2 && (
         <section class="card stack">
           <h2 class="card-title">{S.cycleForm.max}</h2>
-          <p class="muted">{S.cycleForm.maxHint}</p>
-          {LIFTS.map((lift) => (
-            <NumberField
-              key={lift}
-              label={S.lifts[lift]}
-              value={max[lift]}
-              step={2.5}
-              max={500}
-              suffix="kg"
-              onChange={(v) => setMax({ ...max, [lift]: v })}
-            />
-          ))}
+          <p class="muted">{maxIds.length > 0 ? S.cycleForm.maxHint : S.cycleForm.noMax}</p>
+          <MaxFields ids={maxIds} max={max} onChange={setMax} />
         </section>
       )}
 
-      {step === 2 && (
+      {step === 1 && (
         <section class="card stack">
           <h2 class="card-title">{S.cycleForm.planning}</h2>
           {WEEKDAYS.map((weekday) => (

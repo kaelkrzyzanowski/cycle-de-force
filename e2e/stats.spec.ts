@@ -35,8 +35,8 @@ test('stats : tonnage par semaine, charge max et e1RM, max S/B/D', async ({ page
   // Max D 210 → 215.
   await page.goto('/#/aujourdhui');
   await page.getByRole('button', { name: 'Modifier les max' }).click();
-  await page.getByRole('textbox', { name: 'Deadlift', exact: true }).fill('215');
-  await page.getByRole('textbox', { name: 'Deadlift', exact: true }).press('Enter');
+  await page.getByRole('textbox', { name: 'Soulevé de terre', exact: true }).fill('215');
+  await page.getByRole('textbox', { name: 'Soulevé de terre', exact: true }).press('Enter');
   await page.getByRole('button', { name: 'Enregistrer les max' }).click();
 
   await page.goto('/#/stats');
@@ -63,9 +63,12 @@ test('stats : tonnage par semaine, charge max et e1RM, max S/B/D', async ({ page
 
   // Max théoriques : D passe de 210 à 215.
   const maxCard = page.locator('.chart-card', { has: page.getByRole('heading', { name: 'Max théoriques' }) });
-  await expect(maxCard.locator('.legend')).toContainText(/Squat.*Bench.*Deadlift/);
+  await expect(maxCard.locator('.legend')).toContainText(/Squat.*Développé couché.*Soulevé de terre/);
   await maxCard.getByText('Voir les données').click();
-  await expect(maxCard.locator('tbody tr').first().locator('td')).toHaveText(['Bloc 0', '170', '115', '210']);
+  // Un lundi, le cycle commence le jour même du changement : départ et changement tiennent sur une ligne.
+  if (new Date().getDay() !== 1) {
+    await expect(maxCard.locator('tbody tr').first().locator('td')).toHaveText(['Bloc 0', '170', '115', '210']);
+  }
   await expect(maxCard.locator('tbody tr').last().locator('td')).toHaveText(['Bloc 0', '170', '115', '215']);
 
   // Statuts : 35 validées, 1 échec.

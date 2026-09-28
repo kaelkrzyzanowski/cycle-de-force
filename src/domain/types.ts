@@ -1,17 +1,18 @@
 /** Dates ISO locales sans heure : 'AAAA-MM-JJ'. */
 export type IsoDate = string;
 
-export type Lift = 'S' | 'B' | 'D';
-export const LIFTS: readonly Lift[] = ['S', 'B', 'D'];
+/** Identifiant de l'exercice dont le RM sert de base à un pourcentage (ex. 'squat'). */
+export type MaxId = string;
 
-export type Maxes = Record<Lift, number>;
+/** RM (max théorique) par exercice, en kg. Un exercice absent n'a pas de max connu. */
+export type Maxes = Record<MaxId, number>;
 
 export type SetStatus = 'PLANNED' | 'VALIDATED' | 'FAILED' | 'NOT_DONE' | 'CLUSTER';
 export type RealizedStatus = 'VALIDATED' | 'FAILED' | 'CLUSTER';
 
 export type LoadRule =
   | { kind: 'FIXED'; kg: number }
-  | { kind: 'PERCENT'; lift: Lift; pct: number } // pct = 0.70 pour 70 %
+  | { kind: 'PERCENT'; of: MaxId; pct: number } // pct = 0.70 pour 70 % du RM de `of`
   | { kind: 'BODYWEIGHT'; extraKg?: number } // tractions, dips lestés
   | { kind: 'NONE' }; // charge libre, à saisir (Iso SBD, Joker)
 
@@ -57,7 +58,7 @@ export interface Cycle {
 export interface MaxChange {
   id: string;
   cycleId: string;
-  lift: Lift;
+  exerciseId: MaxId;
   from: number;
   to: number;
   at: string; // horodatage ISO complet
@@ -99,7 +100,12 @@ export interface Exercise {
   id: string;
   name: string;
   aliases: string[];
-  defaultLift?: Lift;
+  /** L'exercice a un RM propre, utilisable comme base de pourcentages. */
+  hasMax?: boolean;
+  /** Abréviation affichée après un % (« 70 % S ») ; à défaut, le nom. */
+  short?: string;
+  /** RM utilisé par défaut quand on passe une série de cet exercice en %. */
+  defaultMax?: MaxId;
 }
 
 export type Rounding = 0 | 0.5 | 1 | 1.25 | 2.5;

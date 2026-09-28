@@ -1,3 +1,4 @@
+import { LEGACY_LIFTS } from '../domain/legacyLifts';
 import type { LoadRule, SetPrescription } from '../domain/types';
 
 const CHUNK_RE = /^(?:(\d+)\s*[x×]\s*)?(\d+)\s*(?:@\s*(.+))?$/;
@@ -12,9 +13,8 @@ function parseLoad(text: string | undefined): LoadRule {
   if (text === undefined) return { kind: 'NONE' };
   const t = text.trim();
   let m = PERCENT_RE.exec(t);
-  if (m?.[1] && m[2]) {
-    return { kind: 'PERCENT', lift: m[2] as 'S' | 'B' | 'D', pct: Math.round(num(m[1]) * 100) / 10_000 };
-  }
+  const of = m?.[2] && LEGACY_LIFTS[m[2]]?.id;
+  if (m?.[1] && of) return { kind: 'PERCENT', of, pct: Math.round(num(m[1]) * 100) / 10_000 };
   m = BODYWEIGHT_RE.exec(t);
   if (m?.[1]) return { kind: 'BODYWEIGHT', extraKg: num(m[1]) };
   m = FIXED_RE.exec(t);
@@ -23,7 +23,7 @@ function parseLoad(text: string | undefined): LoadRule {
 }
 
 /**
- * Notation du cahier : « 3x4@70%D » (3 séries de 4 à 70 % du max D), « 4@85%D, 3x3@90%D »,
+ * Notation du cahier : « 3x4@70%D » (3 séries de 4 à 70 % du RM du soulevé de terre), « 4@85%D, 3x3@90%D »,
  * « 3x8@80 » (charge fixe), « 3x8@+20 » (lest), « 2x1 » (charge à saisir).
  */
 export function parseSets(notation: string): SetPrescription[] {

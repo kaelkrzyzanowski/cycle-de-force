@@ -168,11 +168,11 @@ describe('dupliquer un cycle', () => {
     const { cycle, sessions } = duplicateCycle(
       bloc0,
       source,
-      { name: 'Bloc 1', startDate: '2026-11-09', max: { ...bloc0.max, D: 215 }, mode: 'AS_IS' },
+      { name: 'Bloc 1', startDate: '2026-11-09', max: { ...bloc0.max, 'souleve-de-terre': 215 }, mode: 'AS_IS' },
       templates,
       counter(),
     );
-    expect(cycle).toMatchObject({ name: 'Bloc 1', startDate: '2026-11-09', weeksCount: 7, max: { S: 170, B: 115, D: 215 } });
+    expect(cycle).toMatchObject({ name: 'Bloc 1', startDate: '2026-11-09', weeksCount: 7, max: { squat: 170, 'developpe-couche': 115, 'souleve-de-terre': 215 } });
     expect(cycle.id).not.toBe(bloc0.id);
     expect(cycle.weeklyPlan).toEqual(bloc0.weeklyPlan);
     expect(sessions).toHaveLength(28);

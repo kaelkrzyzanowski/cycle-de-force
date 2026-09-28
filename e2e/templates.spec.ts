@@ -33,8 +33,8 @@ test('créer « Bench volume » sur 4 semaines, progression 65 → 80 %, et l’
   // Progression 65 → 80 % du Bench par pas de 5.
   await page.getByRole('button', { name: /Appliquer une progression/ }).click();
   const prog = page.getByRole('dialog');
-  await expect(prog.getByRole('combobox')).toHaveValue('developpe-couche');
-  await expect(prog.getByRole('button', { name: 'Bench', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(prog.getByLabel('Exercice')).toHaveValue('developpe-couche');
+  await expect(prog.getByLabel('En % du max')).toHaveValue('developpe-couche');
   await setNumber(page, 'À (%)', '80');
   await expect(prog).toContainText(/Sem\. 1 65 % · Sem\. 2 70 % · Sem\. 3 75 % · Sem\. 4 80 %/);
   await prog.getByRole('button', { name: 'Appliquer', exact: true }).click();
@@ -48,9 +48,12 @@ test('créer « Bench volume » sur 4 semaines, progression 65 → 80 %, et l’
   await page.getByLabel('Nom du cycle').fill('Bloc volume');
   await page.getByLabel('Date de début').fill(monday);
   await page.getByRole('button', { name: 'Suivant' }).click();
-  await page.getByRole('button', { name: 'Suivant' }).click();
   await page.getByLabel('Mardi').selectOption({ label: 'Bench volume' });
   for (const day of ['Jeudi', 'Samedi', 'Dimanche']) await page.getByLabel(day).selectOption('');
+  await page.getByRole('button', { name: 'Suivant' }).click();
+  // Seul le RM utilisé par le planning est demandé.
+  await expect(page.getByRole('textbox', { name: 'Développé couché', exact: true })).toBeVisible();
+  await expect(page.getByRole('textbox', { name: 'Squat', exact: true })).toHaveCount(0);
   await page.getByRole('button', { name: 'Suivant' }).click();
   await expect(page.getByText('7 séances seront créées.')).toBeVisible();
   await page.getByRole('button', { name: 'Créer' }).click();
@@ -72,7 +75,7 @@ test('progression : la semaine de deload ne fait pas avancer le pourcentage', as
   await page.getByRole('link', { name: /^Bench/ }).click();
   await page.getByRole('button', { name: /Appliquer une progression/ }).click();
   const prog = page.getByRole('dialog');
-  await prog.getByRole('combobox').selectOption({ label: 'Développé couché' });
+  await prog.getByLabel('Exercice').selectOption({ label: 'Développé couché' });
   await prog.getByLabel('Toutes').check();
   await expect(prog).toContainText(/Sem\. 1 65 % · Sem\. 2 70 % · Sem\. 3 deload · Sem\. 4 75 % · Sem\. 5 80 % · Sem\. 6 85 % · Sem\. 7 85 %/);
 });

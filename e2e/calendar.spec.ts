@@ -24,9 +24,10 @@ test('créer un cycle de 7 semaines avec l’assistant et le voir dans le calend
   await page.getByLabel('Date de début').fill(addDays(monday, 2)); // un mercredi : ramené au lundi
   await expect(page.getByText(/Le cycle commence le lundi/)).toBeVisible();
   await page.getByRole('button', { name: 'Suivant' }).click();
-  await expect(page.getByRole('heading', { name: 'Max théoriques' })).toBeVisible();
-  await page.getByRole('button', { name: 'Suivant' }).click();
   await expect(page.getByLabel('Mardi')).toHaveValue('tpl-deadlift');
+  await page.getByRole('button', { name: 'Suivant' }).click();
+  await expect(page.getByRole('heading', { name: 'Max théoriques' })).toBeVisible();
+  await expect(page.getByRole('textbox', { name: 'Soulevé de terre', exact: true })).toHaveValue('210');
   await page.getByRole('button', { name: 'Suivant' }).click();
   await expect(page.getByText('28 séances seront créées.')).toBeVisible();
   await page.getByRole('button', { name: 'Créer' }).click();
@@ -86,14 +87,14 @@ test('dupliquer le cycle avec Deadlift +5 kg', async ({ page }) => {
   await expect(page.getByLabel('Nom du nouveau cycle')).toHaveValue('Bloc 0 (suite)');
   await expect(page.getByLabel('Date de début')).toHaveValue(addDays(monday, 49));
   await expect(page.getByRole('radio', { name: 'Régénérer depuis les modèles' })).toBeChecked();
-  await page.getByRole('button', { name: 'Deadlift +5 kg' }).click();
-  await expect(page.getByRole('textbox', { name: 'Deadlift', exact: true })).toHaveValue('215');
+  await page.getByRole('button', { name: 'Soulevé de terre +5 kg' }).click();
+  await expect(page.getByRole('textbox', { name: 'Soulevé de terre', exact: true })).toHaveValue('215');
   await expect(page.getByText('28 séances seront créées.')).toBeVisible();
   await page.getByRole('button', { name: 'Créer le cycle' }).click();
 
   await expect(page.getByRole('status')).toHaveText('Bloc 0 (suite) créé : 28 séances');
   await expect(page.getByRole('heading', { name: 'Bloc 0 (suite)', level: 2 })).toBeVisible();
-  await expect(page.locator('.max-grid')).toHaveText(/Squat\s*170\s*Bench\s*115\s*Deadlift\s*215/);
+  await expect(page.locator('.max-grid')).toHaveText(/Squat\s*170\s*Développé couché\s*115\s*Soulevé de terre\s*215/);
 });
 
 test('menu d’une séance : déplacer puis supprimer', async ({ page }) => {

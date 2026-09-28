@@ -1,21 +1,20 @@
 import { describe, expect, it } from 'vitest';
 import { plannedKg } from '../domain/load';
-import { MAX } from '../domain/testUtils';
 import { parseSets } from './notation';
-import { seedData, TEMPLATE_IDS } from '.';
+import { DEFAULT_MAX, seedData, TEMPLATE_IDS } from '.';
 
 describe('parseSets', () => {
   it('lit la notation du cahier', () => {
     expect(parseSets('2x4@70%D')).toEqual([
-      { reps: 4, load: { kind: 'PERCENT', lift: 'D', pct: 0.7 } },
-      { reps: 4, load: { kind: 'PERCENT', lift: 'D', pct: 0.7 } },
+      { reps: 4, load: { kind: 'PERCENT', of: 'souleve-de-terre', pct: 0.7 } },
+      { reps: 4, load: { kind: 'PERCENT', of: 'souleve-de-terre', pct: 0.7 } },
     ]);
     expect(parseSets('4@85%D, 1@95%D, 8@73').map((s) => s.reps)).toEqual([4, 1, 8]);
     expect(parseSets('8@73')[0]?.load).toEqual({ kind: 'FIXED', kg: 73 });
     expect(parseSets('3x8@+7.5')[0]?.load).toEqual({ kind: 'BODYWEIGHT', extraKg: 7.5 });
     expect(parseSets('2x10@22,5')[0]?.load).toEqual({ kind: 'FIXED', kg: 22.5 });
     expect(parseSets('2x1')[0]?.load).toEqual({ kind: 'NONE' });
-    expect(parseSets('3x3@72.5%S')[0]?.load).toEqual({ kind: 'PERCENT', lift: 'S', pct: 0.725 });
+    expect(parseSets('3x3@72.5%S')[0]?.load).toEqual({ kind: 'PERCENT', of: 'squat', pct: 0.725 });
   });
   it('refuse une notation illisible', () => {
     expect(() => parseSets('trois séries')).toThrow();
@@ -44,7 +43,7 @@ describe('modèles natifs', () => {
     const first = byId(TEMPLATE_IDS.deadlift).weeks[1]?.[0];
     expect(first?.name).toBe("Deadlift Sumo 2''+ iso");
     expect(first?.sets).toHaveLength(2);
-    expect(first?.sets.map((s) => [s.reps, plannedKg(s.load, MAX, 1)])).toEqual([
+    expect(first?.sets.map((s) => [s.reps, plannedKg(s.load, DEFAULT_MAX, 1)])).toEqual([
       [4, 147],
       [4, 147],
     ]);
@@ -72,7 +71,7 @@ describe('modèles natifs', () => {
     expect(load(2, 'Rowing barre')).toEqual({ kind: 'FIXED', kg: 85 });
     expect(load(1, 'Reverse fly')).toEqual({ kind: 'FIXED', kg: 10 });
     expect(load(7, 'Reverse fly')).toEqual({ kind: 'FIXED', kg: 12 });
-    expect(load(2, 'Développé couché')).toEqual({ kind: 'PERCENT', lift: 'B', pct: 0.85 });
+    expect(load(2, 'Développé couché')).toEqual({ kind: 'PERCENT', of: 'developpe-couche', pct: 0.85 });
   });
 
   it('Squat : DC Spoto en % du Bench les semaines impaires, abducteurs à 60 kg dès S4', () => {
@@ -81,7 +80,7 @@ describe('modèles natifs', () => {
     expect(names(TEMPLATE_IDS.squat, 2)).toContain('DC Haltère');
     expect(t.weeks[3]?.find((e) => e.name === 'DC Spoto 3"')?.sets[0]?.load).toEqual({
       kind: 'PERCENT',
-      lift: 'B',
+      of: 'developpe-couche',
       pct: 0.7,
     });
     expect(t.weeks[4]?.find((e) => e.name === 'Abductor moyen fessier')?.sets[0]?.load).toEqual({ kind: 'FIXED', kg: 60 });
@@ -101,6 +100,7 @@ describe('modèles natifs', () => {
   it('chaque exercice des modèles existe dans le catalogue', () => {
     const ids = new Set(exercises.map((e) => e.id));
     for (const t of templates) for (const week of Object.values(t.weeks)) for (const e of week) expect(ids).toContain(e.exerciseId);
-    expect(exercises.find((e) => e.id === 'dc-spoto-3')?.defaultLift).toBe('B');
+    expect(exercises.find((e) => e.id === 'dc-spoto-3')?.defaultMax).toBe('developpe-couche');
+    expect(exercises.filter((e) => e.hasMax).map((e) => e.id).sort()).toEqual(['developpe-couche', 'souleve-de-terre', 'squat']);
   });
 });

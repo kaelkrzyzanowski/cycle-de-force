@@ -1,6 +1,7 @@
 import { differsFromPlan, displayKg, displayReps, plannedKg } from '../../domain/load';
 import type { Maxes, Rounding, SessionSet, SetStatus } from '../../domain/types';
 import { useLongPress } from '../components/useLongPress';
+import { useMaxNames } from '../context';
 import { formatKg, formatRule } from '../format';
 import { S } from '../strings';
 
@@ -28,7 +29,7 @@ interface Props {
 export function SetPill({ set, max, rounding, onTap, onLongPress }: Props) {
   const press = useLongPress(onTap, onLongPress);
   const text = setText(displayReps(set), displayKg(set, max, rounding));
-  const rule = formatRule(set.load);
+  const rule = formatRule(set.load, useMaxNames().short);
   const changed = differsFromPlan(set, max, rounding);
 
   return (

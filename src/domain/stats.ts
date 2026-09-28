@@ -1,10 +1,9 @@
 import { cycleWeekOf } from './cycles';
 import { displayKg, displayReps, isRealized } from './load';
 import { setsTotals } from './totals';
-import { LIFTS } from './types';
-import type { Cycle, IsoDate, Lift, MaxChange, Maxes, Rounding, Session, SetStatus } from './types';
+import type { Cycle, IsoDate, MaxChange, MaxId, Maxes, Rounding, Session, SetStatus } from './types';
 
-const NO_MAX: Maxes = { S: 0, B: 0, D: 0 };
+const NO_MAX: Maxes = {};
 const round1 = (n: number): number => Math.round(n * 10) / 10;
 
 /** e1RM d'Epley, seulement pour 1 à 10 reps ; une série de 1 vaut sa charge. */
@@ -129,16 +128,21 @@ export interface MaxPoint {
  * Évolution des max théoriques : pour chaque cycle, le max de départ à sa date de début
  * (reconstitué depuis le journal), puis chaque changement à sa date.
  */
-export function maxHistory(cycles: readonly Cycle[], changes: readonly MaxChange[]): Record<Lift, MaxPoint[]> {
-  const out: Record<Lift, MaxPoint[]> = { S: [], B: [], D: [] };
+export function maxHistory(cycles: readonly Cycle[], changes: readonly MaxChange[]): Map<MaxId, MaxPoint[]> {
+  const out = new Map<MaxId, MaxPoint[]>();
+  const push = (id: MaxId, p: MaxPoint) => {
+    // Un RM à 0 = pas encore renseigné : pas de point.
+    if (p.value > 0) out.set(id, [...(out.get(id) ?? []), p]);
+  };
   for (const c of cycles) {
-    for (const lift of LIFTS) {
-      const log = changes.filter((m) => m.cycleId === c.id && m.lift === lift).sort((a, b) => a.at.localeCompare(b.at));
-      out[lift].push({ date: c.startDate, value: log[0]?.from ?? c.max[lift], cycleName: c.name });
-      for (const m of log) out[lift].push({ date: m.at.slice(0, 10), value: m.to, cycleName: c.name });
+    const ids = new Set([...Object.keys(c.max), ...changes.filter((m) => m.cycleId === c.id).map((m) => m.exerciseId)]);
+    for (const id of ids) {
+      const log = changes.filter((m) => m.cycleId === c.id && m.exerciseId === id).sort((a, b) => a.at.localeCompare(b.at));
+      push(id, { date: c.startDate, value: log[0]?.from ?? c.max[id] ?? 0, cycleName: c.name });
+      for (const m of log) push(id, { date: m.at.slice(0, 10), value: m.to, cycleName: c.name });
     }
   }
-  for (const lift of LIFTS) out[lift].sort((a, b) => a.date.localeCompare(b.date));
+  for (const points of out.values()) points.sort((a, b) => a.date.localeCompare(b.date));
   return out;
 }
 

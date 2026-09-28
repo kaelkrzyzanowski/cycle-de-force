@@ -2,7 +2,7 @@ import type { LoadRule, Maxes, Session, SessionSet, SetStatus } from './types';
 
 export const MAX: Maxes = { S: 170, B: 115, D: 210 };
 
-export const pct = (lift: 'S' | 'B' | 'D', p: number): LoadRule => ({ kind: 'PERCENT', lift, pct: p });
+export const pct = (of: string, p: number): LoadRule => ({ kind: 'PERCENT', of, pct: p });
 export const fixed = (kg: number): LoadRule => ({ kind: 'FIXED', kg });
 
 export function set(index: number, plannedReps: number, load: LoadRule, status: SetStatus = 'PLANNED'): SessionSet {

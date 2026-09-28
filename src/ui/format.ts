@@ -1,4 +1,4 @@
-import type { IsoDate, LoadRule } from '../domain/types';
+import type { IsoDate, LoadRule, MaxId } from '../domain/types';
 
 const NBSP = ' ';
 const kgFormat = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 2 });
@@ -8,15 +8,20 @@ export function formatKg(kg: number): string {
   return kgFormat.format(kg);
 }
 
+/** 0.725 → « 72,5 » */
+export function formatPct(pct: number): string {
+  return formatKg(Math.round(pct * 1000) / 10);
+}
+
 export function formatTonnage(kg: number): string {
   return `${intFormat.format(kg)}${NBSP}kg`;
 }
 
-/** Règle de charge lisible : « 70 % D », « PDC +20 kg », « » pour une charge fixe. */
-export function formatRule(rule: LoadRule): string {
+/** Règle de charge lisible : « 70 % S », « PDC +20 kg », « » pour une charge fixe. */
+export function formatRule(rule: LoadRule, maxName: (id: MaxId) => string): string {
   switch (rule.kind) {
     case 'PERCENT':
-      return `${formatKg(Math.round(rule.pct * 1000) / 10)}${NBSP}%${NBSP}${rule.lift}`;
+      return `${formatPct(rule.pct)}${NBSP}%${NBSP}${maxName(rule.of)}`;
     case 'BODYWEIGHT':
       return rule.extraKg ? `PDC${NBSP}+${formatKg(rule.extraKg)}${NBSP}kg` : 'PDC';
     case 'FIXED':

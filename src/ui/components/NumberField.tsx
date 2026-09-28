@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import { formatKg, parseDecimal } from '../format';
 
 interface Props {
@@ -16,7 +16,12 @@ interface Props {
 /** Nombre avec gros boutons − / + (ou saisie seule) et clavier numérique. */
 export function NumberField({ label, value, onChange, step = 1, min = 0, max = 9999, suffix, buttons = true }: Props) {
   const [text, setText] = useState(formatKg(value));
+  const synced = useRef(value);
   useEffect(() => {
+    // Seulement quand la valeur change vraiment : l'effet du montage arrive après le premier rendu
+    // et écraserait une saisie déjà commencée (panneau ouvert puis frappe immédiate).
+    if (synced.current === value) return;
+    synced.current = value;
     // Ne pas réécrire le champ pendant la frappe si la valeur est la même (« 16, » → 16).
     setText((current) => (parseDecimal(current) === value ? current : formatKg(value)));
   }, [value]);

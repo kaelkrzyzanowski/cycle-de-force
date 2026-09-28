@@ -62,8 +62,8 @@ test('valider en un tap, saisir un échec, annuler, changer le max D', async ({ 
   await page.goto('/#/aujourdhui');
   await page.getByRole('button', { name: 'Modifier les max' }).click();
   const maxSheet = page.getByRole('dialog');
-  await maxSheet.getByRole('textbox', { name: 'Deadlift', exact: true }).fill('215');
-  await maxSheet.getByRole('textbox', { name: 'Deadlift', exact: true }).press('Enter');
+  await maxSheet.getByRole('textbox', { name: 'Soulevé de terre', exact: true }).fill('215');
+  await maxSheet.getByRole('textbox', { name: 'Soulevé de terre', exact: true }).press('Enter');
   await expect(maxSheet).toContainText(/séries planifiées vont changer/);
   await expect(maxSheet).toContainText(/147 → 151 kg/);
   await page.screenshot({ path: 'test-results/screens/max.png' });

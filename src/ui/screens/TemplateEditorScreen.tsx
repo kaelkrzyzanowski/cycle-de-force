@@ -17,17 +17,16 @@ import {
   waveWeek,
   weekAsSession,
 } from '../../domain/templates';
-import { LIFTS } from '../../domain/types';
-import type { Exercise, Lift, Session, SessionTemplate } from '../../domain/types';
+import type { Exercise, Session, SessionTemplate } from '../../domain/types';
 import { nativeTemplates } from '../../seed';
 import { TextField } from '../components/fields';
 import { NumberField } from '../components/NumberField';
 import { Sheet } from '../components/Sheet';
-import { useApp, useData } from '../context';
+import { useApp, useData, useMaxNames } from '../context';
 import { formatKg } from '../format';
 import { href, navigate } from '../router';
 import { S } from '../strings';
-import { PrescriptionEditor, useCatalogue } from '../session/EditSession';
+import { maxChoicesFor, PrescriptionEditor, useCatalogue } from '../session/EditSession';
 
 const FAR_FUTURE = '9999-12-31';
 
@@ -388,12 +387,14 @@ function ProgressionSheet({
       .filter(([, list]) => list.some((e) => e.exerciseId === id))
       .map(([w]) => Number(w))
       .sort((a, b) => a - b);
-  const liftOf = (id: string): Lift => {
+  const { name: maxName } = useMaxNames();
+  const liftOf = (id: string): string => {
     for (const w of Object.values(template.weeks))
-      for (const e of w) if (e.exerciseId === id) for (const s of e.sets) if (s.load.kind === 'PERCENT') return s.load.lift;
-    return known.find((k) => k.id === id)?.defaultLift ?? 'B';
+      for (const e of w) if (e.exerciseId === id) for (const s of e.sets) if (s.load.kind === 'PERCENT') return s.load.of;
+    return maxChoicesFor(id, known)[0] ?? id;
   };
-  const [lift, setLift] = useState<Lift>(liftOf(exerciseId));
+  const [lift, setLift] = useState<string>(liftOf(exerciseId));
+  const liftChoices = [...new Set([lift, ...maxChoicesFor(exerciseId, known)])];
   const [from, setFrom] = useState(65);
   const [to, setTo] = useState(85);
   const [step, setStep] = useState(5);
@@ -433,16 +434,16 @@ function ProgressionSheet({
           ))}
         </select>
       </label>
-      <div class="field">
-        <span id="prog-lift">{S.templateEditor.progLift}</span>
-        <div class="segmented" role="group" aria-labelledby="prog-lift">
-          {LIFTS.map((l) => (
-            <button key={l} type="button" aria-pressed={lift === l} onClick={() => setLift(l)}>
-              {S.lifts[l]}
-            </button>
+      <label class="field">
+        <span>{S.templateEditor.progLift}</span>
+        <select class="text-input" value={lift} onChange={(e) => setLift(e.currentTarget.value)}>
+          {liftChoices.map((id) => (
+            <option key={id} value={id}>
+              {maxName(id)}
+            </option>
           ))}
-        </div>
-      </div>
+        </select>
+      </label>
       <NumberField label={S.templateEditor.progFrom} value={from} onChange={setFrom} min={1} max={120} step={5} />
       <NumberField label={S.templateEditor.progTo} value={to} onChange={setTo} min={1} max={120} step={5} />
       <NumberField label={S.templateEditor.progStep} value={step} onChange={setStep} min={0.5} max={50} step={0.5} />
@@ -462,7 +463,7 @@ function ProgressionSheet({
         class="btn primary"
         disabled={weeks.length === 0}
         onClick={() => {
-          const { template: next, skipped } = applyProgression(template, { exerciseId, lift, ...params });
+          const { template: next, skipped } = applyProgression(template, { exerciseId, of: lift, ...params });
           onApply(next, skipped);
         }}
       >

@@ -25,7 +25,7 @@ describe('changement de max', () => {
 
   it("l'aperçu ne liste que les séries prévues du mouvement modifié", () => {
     expect(previewMaxChange([s], MAX, newMax, 1)).toEqual([
-      { sessionId: 's1', date: '2026-09-22', exerciseName: 'Deadlift Sumo', setIndex: 2, lift: 'D', fromKg: 147, toKg: 151 },
+      { sessionId: 's1', date: '2026-09-22', exerciseName: 'Deadlift Sumo', setIndex: 2, maxId: 'D', fromKg: 147, toKg: 151 },
     ]);
   });
 
@@ -47,8 +47,8 @@ describe('changement de max', () => {
     expect(updated.max).toEqual({ S: 172.5, B: 115, D: 215 });
     expect(cycle.max.D).toBe(210); // pas de mutation
     expect(log).toEqual([
-      { id: 'm1', cycleId: 'c1', lift: 'S', from: 170, to: 172.5, at: '2026-09-24T10:00:00Z' },
-      { id: 'm2', cycleId: 'c1', lift: 'D', from: 210, to: 215, at: '2026-09-24T10:00:00Z' },
+      { id: 'm1', cycleId: 'c1', exerciseId: 'S', from: 170, to: 172.5, at: '2026-09-24T10:00:00Z' },
+      { id: 'm2', cycleId: 'c1', exerciseId: 'D', from: 210, to: 215, at: '2026-09-24T10:00:00Z' },
     ]);
   });
 });

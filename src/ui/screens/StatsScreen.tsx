@@ -15,14 +15,13 @@ import {
   volumeByTemplate,
 } from '../../domain/stats';
 import { sessionLabel } from '../../domain/templates';
-import { LIFTS } from '../../domain/types';
 import type { Cycle, MaxChange, Session, SessionTemplate, SetStatus } from '../../domain/types';
 import { ColumnChart } from '../charts/ColumnChart';
 import { LineChart } from '../charts/LineChart';
 import type { LinePoint } from '../charts/LineChart';
 import { ChartCard, HBars, Legend, StackedBars, StatTile } from '../charts/parts';
 import { SET_GLYPH } from '../session/SetPill';
-import { useApp, useData } from '../context';
+import { useApp, useData, useMaxNames } from '../context';
 import { formatDayMedium, formatDayShort, formatKg, formatTonnage } from '../format';
 import { S } from '../strings';
 
@@ -34,7 +33,8 @@ interface Data {
 }
 
 const PREFERRED_EXERCISE = 'deadlift-sumo-inche-mur';
-const LIFT_COLORS = { S: '--series-1', B: '--series-2', D: '--series-3' } as const;
+/** Palette validée à 3 couleurs : au-delà de 3 RM, le graphique en montre un seul, au choix. */
+const MAX_COLORS = ['--series-1', '--series-2', '--series-3'] as const;
 /** Ordre validé (daltonisme) : l'échec ne touche jamais le validé ni le non réalisé. */
 const STATUS_ORDER: { status: Exclude<SetStatus, 'PLANNED'>; color: string }[] = [
   { status: 'VALIDATED', color: '--chart-validated' },
@@ -73,6 +73,8 @@ function Stats({ sessions, cycles, templates, changes }: Data) {
     () => (findCycleForDate(cycles, today) ?? cycles.at(-1))?.id ?? null,
   );
   const exercises = exercisesWithData(sessions);
+  const [maxShown, setMaxShown] = useState<string | null>(null);
+  const { name: maxName } = useMaxNames();
   const [exerciseId, setExerciseId] = useState(
     exercises.find((e) => e.exerciseId === PREFERRED_EXERCISE)?.exerciseId ?? exercises[0]?.exerciseId ?? '',
   );
@@ -88,13 +90,16 @@ function Stats({ sessions, cycles, templates, changes }: Data) {
   const perCycle = tonnageByCycle(cycles, sessions, rounding);
   const progress = exerciseId ? exerciseProgress(sessions, exerciseId, maxOf, rounding) : [];
   const history = maxHistory(cycles, changes);
+  const maxIds = [...history.keys()];
+  const shownMaxIds = maxIds.length <= MAX_COLORS.length ? maxIds : maxIds.filter((id) => id === (maxShown ?? maxIds[0]));
+  const pointsOf = (id: string) => history.get(id) ?? [];
   const volume = volumeByTemplate(inCycle, maxOf, rounding);
   const labelOf = (s: { name: string; cycleWeek: number | null; templateId: string | null; exercises: Session['exercises'] }) =>
     sessionLabel(s, templates.find((t) => t.id === s.templateId));
   const templateName = (id: string | null) => templates.find((t) => t.id === id)?.name ?? S.stats.noTemplate;
   const templateColor = (id: string | null) => templates.find((t) => t.id === id)?.color ?? '#6b7280';
   // Les marches se prolongent jusqu'à aujourd'hui (ou jusqu'au dernier changement s'il est futur).
-  const lastChange = LIFTS.flatMap((l) => history[l].map((p) => p.date)).sort().at(-1) ?? today;
+  const lastChange = maxIds.flatMap((id) => pointsOf(id).map((p) => p.date)).sort().at(-1) ?? today;
   const maxEnd = lastChange > today ? lastChange : today;
   const done = inCycle.filter((s) => ['VALIDATED', 'FAILED', 'INCOMPLETE'].includes(deriveSessionStatus(s, today))).length;
 
@@ -214,34 +219,46 @@ function Stats({ sessions, cycles, templates, changes }: Data) {
         )}
       </ChartCard>
 
-      {cycles.length > 0 && (
+      {maxIds.length > 0 && (
         <ChartCard
           title={S.stats.maxes}
           subtitle={S.stats.maxesSub}
-          legend={<Legend items={LIFTS.map((l) => ({ label: S.lifts[l], color: LIFT_COLORS[l], line: true }))} />}
+          legend={<Legend items={shownMaxIds.map((id, i) => ({ label: maxName(id), color: MAX_COLORS[i]!, line: true }))} />}
           table={{
-            head: [S.stats.colDate, S.stats.colCycle, ...LIFTS.map((l) => S.lifts[l])],
-            rows: [...new Set(LIFTS.flatMap((l) => history[l].map((p) => p.date)))].sort().map((date) => [
+            head: [S.stats.colDate, S.stats.colCycle, ...maxIds.map(maxName)],
+            rows: [...new Set(maxIds.flatMap((id) => pointsOf(id).map((p) => p.date)))].sort().map((date) => [
               formatDayMedium(date),
-              LIFTS.map((l) => history[l].find((p) => p.date === date)?.cycleName).find(Boolean) ?? '',
-              ...LIFTS.map((l) => {
-                const p = [...history[l]].reverse().find((q) => q.date <= date);
+              maxIds.map((id) => pointsOf(id).find((p) => p.date === date)?.cycleName).find(Boolean) ?? '',
+              ...maxIds.map((id) => {
+                const p = [...pointsOf(id)].reverse().find((q) => q.date <= date);
                 return p ? formatKg(p.value) : '—';
               }),
             ]),
           }}
         >
+          {maxIds.length > MAX_COLORS.length && (
+            <label class="field">
+              <span>{S.stats.maxShown}</span>
+              <select class="text-input" value={shownMaxIds[0]} onChange={(e) => setMaxShown(e.currentTarget.value)}>
+                {maxIds.map((id) => (
+                  <option key={id} value={id}>
+                    {maxName(id)}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
           <LineChart
             step
             ariaLabel={S.stats.maxes}
             formatValue={kg}
             formatDate={formatDayShort}
-            series={LIFTS.map((l) => ({
-              id: l,
-              label: S.lifts[l],
-              color: LIFT_COLORS[l],
+            series={shownMaxIds.map((id, i) => ({
+              id,
+              label: maxName(id),
+              color: MAX_COLORS[i]!,
               points: carryForward(
-                history[l].map((p) => ({ date: p.date, value: p.value })),
+                pointsOf(id).map((p) => ({ date: p.date, value: p.value })),
                 maxEnd,
               ),
             }))}

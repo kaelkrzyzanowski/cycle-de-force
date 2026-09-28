@@ -1,9 +1,10 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  // Identifiant définitif : le changer créerait une autre app, avec des données séparées.
-  appId: 'fr.cycledeforce.app',
-  appName: 'Cycle de force',
+  // Version bêta (app générique) : identifiant distinct de fr.cycledeforce.app pour s'installer à côté,
+  // avec ses propres données. Le changer créerait encore une autre app.
+  appId: 'fr.cycledeforce.beta',
+  appName: 'Cycle de force β',
   webDir: 'dist',
   android: {
     backgroundColor: '#0e1013',

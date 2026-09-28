@@ -1,7 +1,8 @@
 import type { IsoDate } from './types';
 
 /** Dossier de la sauvegarde automatique (dans « Documents » sur Android). */
-export const AUTO_BACKUP_DIR = 'CycleDeForce';
+/** Distinct de l'app 1.x (« CycleDeForce ») : la bêta s'installe à côté sans mélanger les copies. */
+export const AUTO_BACKUP_DIR = 'CycleDeForceBeta';
 /** Nombre de jours de sauvegarde automatique conservés. */
 export const AUTO_BACKUP_KEEP = 14;
 /** Intervalle minimal entre deux sauvegardes automatiques. */

@@ -4,7 +4,7 @@ android {
     namespace = "fr.cycledeforce.app"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "fr.cycledeforce.app"
+        applicationId "fr.cycledeforce.beta"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         // Fournis par la CI (numéro de build, version du package.json) ; valeurs par défaut en local.

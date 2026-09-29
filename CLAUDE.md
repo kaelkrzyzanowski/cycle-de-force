@@ -71,6 +71,11 @@ Racine locale : `C:\Users\kaelk\cycle-de-force`.
 - Éditeur de modèles (création, semaines, progression %, dupliquer, supprimer).
 - Premier lancement : carte « Bienvenue » (créer un modèle → un cycle, ou restaurer une sauvegarde).
 - Stats (tonnage, e1RM, historique des max, volume par modèle).
+- Activités cardio (vélo, course, marche, natation, autre) en saisie manuelle, dans le calendrier
+  (bouton +) : distance, durée, allure et vitesse calculées. Reprises de la branche `perso` 1.2.0.
+- **Numérotation divergente avec `perso`** : là-bas, base IndexedDB v2 et sauvegarde v2 = activités.
+  Ici, v2 = RM par exercice et v3 = activités. La migration de sauvegarde 3 refait aussi la 2
+  (idempotente) pour qu'un fichier « v2 » de l'app perso se restaure dans la bêta.
 - Onglet Chrono : horloge, chronomètre (repris de la branche `perso`, 1.3.0) et minuteur sonore.
   Le minuteur (`src/domain/timer.ts` pur + moteur `src/ui/timer.ts`) vit hors des écrans : il
   sonne (Web Audio, bips générés) et vibre même sur un autre onglet ; `TimerPill` affiche le temps

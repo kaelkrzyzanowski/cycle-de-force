@@ -1,11 +1,11 @@
 import { migrateLegacyLifts } from './legacyLifts';
 import { isRealized } from './load';
 import { DEFAULT_SETTINGS } from './types';
-import type { Cycle, Exercise, IsoDate, MaxChange, Session, SessionTemplate, Settings } from './types';
+import type { Activity, Cycle, Exercise, IsoDate, MaxChange, Session, SessionTemplate, Settings } from './types';
 
 export const BACKUP_APP = 'cycle-de-force';
 /** Version du format de fichier. À incrémenter avec une migration dans BACKUP_MIGRATIONS. */
-export const BACKUP_SCHEMA_VERSION = 2;
+export const BACKUP_SCHEMA_VERSION = 3;
 
 export interface BackupData {
   settings: Settings;
@@ -14,6 +14,7 @@ export interface BackupData {
   cycles: Cycle[];
   sessions: Session[];
   maxChanges: MaxChange[];
+  activities: Activity[];
 }
 
 export interface BackupCounts {
@@ -23,6 +24,7 @@ export interface BackupCounts {
   templates: number;
   exercises: number;
   maxChanges: number;
+  activities: number;
 }
 
 export interface BackupFile {
@@ -44,6 +46,7 @@ export function countBackup(data: BackupData): BackupCounts {
     templates: data.templates.length,
     exercises: data.exercises.length,
     maxChanges: data.maxChanges.length,
+    activities: data.activities.length,
   };
 }
 
@@ -64,6 +67,12 @@ export type Migration = (file: Json) => Json;
 export const BACKUP_MIGRATIONS: Record<number, Migration> = {
   // 2 : RM par exercice (les % et les max ne sont plus limités à S/B/D).
   2: (file) => ({ ...file, data: isRecord(file['data']) ? migrateLegacyLifts(file['data']) : file['data'] }),
+  // 3 : activités cardio. La branche perso (1.2.0+) a publié ce même ajout sous le numéro 2, sans
+  // passer au RM par exercice : on refait donc aussi la migration 2, sans effet si elle a déjà eu lieu.
+  3: (file) => {
+    const data = isRecord(file['data']) ? migrateLegacyLifts(file['data']) : {};
+    return { ...file, data: { ...data, activities: data['activities'] ?? [] } };
+  },
 };
 
 export type BackupError = 'NOT_JSON' | 'WRONG_APP' | 'TOO_NEW' | 'INVALID';
@@ -77,6 +86,7 @@ class Invalid extends Error {}
 const isRecord = (v: unknown): v is Json => typeof v === 'object' && v !== null && !Array.isArray(v);
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const STATUS = new Set(['PLANNED', 'VALIDATED', 'FAILED', 'NOT_DONE', 'CLUSTER']);
+const ACTIVITY_TYPE = new Set(['RUNNING', 'CYCLING', 'WALKING', 'SWIMMING', 'OTHER']);
 
 function check(cond: boolean, what: string): asserts cond {
   if (!cond) throw new Invalid(what);
@@ -160,6 +170,19 @@ function checkData(data: unknown): asserts data is BackupData {
   });
   checkArray(data, 'maxChanges', (m, w) => {
     check(isStr(m['cycleId']) && isStr(m['exerciseId']) && isNum(m['from']) && isNum(m['to']) && isStr(m['at']), w);
+  });
+  checkArray(data, 'activities', (a, w) => {
+    check(
+      isStr(a['date']) &&
+        ISO_DATE.test(a['date']) &&
+        ACTIVITY_TYPE.has(String(a['type'])) &&
+        isNum(a['distanceKm']) &&
+        a['distanceKm'] > 0 &&
+        isNum(a['durationSec']) &&
+        a['durationSec'] > 0 &&
+        optStr(a['note']),
+      w,
+    );
   });
 }
 

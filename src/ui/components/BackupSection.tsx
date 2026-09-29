@@ -122,6 +122,7 @@ export function BackupSection() {
                   preview.backup.counts.cycles,
                   preview.backup.counts.sessions,
                   preview.backup.counts.realizedSets,
+                  preview.backup.counts.activities,
                 )}
               </p>
               {preview.migratedFrom !== null && <p class="muted">{S.backup.migrated(preview.migratedFrom)}</p>}

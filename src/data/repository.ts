@@ -1,6 +1,6 @@
 import type { BackupData } from '../domain/backup';
 import { DEFAULT_SETTINGS } from '../domain/types';
-import type { Cycle, Exercise, IsoDate, MaxChange, Session, SessionTemplate, Settings } from '../domain/types';
+import type { Activity, Cycle, Exercise, IsoDate, MaxChange, Session, SessionTemplate, Settings } from '../domain/types';
 import { openCdfDb, DB_NAME } from './db';
 import type { CdfDb } from './db';
 
@@ -35,6 +35,9 @@ export interface Repository {
   listMaxChanges(cycleId?: string): Promise<MaxChange[]>;
   addMaxChanges(changes: readonly MaxChange[]): Promise<void>;
 
+  /** Activités entre deux dates incluses, triées par date. */
+  listActivitiesBetween(from: IsoDate, to: IsoDate): Promise<Activity[]>;
+
   /** Applique plusieurs écritures en une seule transaction : tout ou rien. */
   applyChanges(changes: Changes): Promise<void>;
 
@@ -58,6 +61,8 @@ export interface Changes {
   saveSessions?: readonly Session[];
   deleteSessionIds?: readonly string[];
   addMaxChanges?: readonly MaxChange[];
+  saveActivities?: readonly Activity[];
+  deleteActivityIds?: readonly string[];
 }
 
 const SETTINGS_KEY = 'current';
@@ -163,14 +168,21 @@ class IdbRepository implements Repository {
     await Promise.all([...changes.map((c) => tx.store.put(c)), tx.done]);
   }
 
+  listActivitiesBetween(from: IsoDate, to: IsoDate): Promise<Activity[]> {
+    return this.db.getAllFromIndex('activities', 'byDate', IDBKeyRange.bound(from, to));
+  }
+
   async applyChanges(changes: Changes): Promise<void> {
-    const tx = this.db.transaction(['cycles', 'sessions', 'maxChanges'], 'readwrite');
+    const tx = this.db.transaction(['cycles', 'sessions', 'maxChanges', 'activities'], 'readwrite');
     const sessions = tx.objectStore('sessions');
+    const activities = tx.objectStore('activities');
     await atomically(tx, (push) => {
       for (const c of changes.saveCycles ?? []) push(tx.objectStore('cycles').put(c));
       for (const id of changes.deleteSessionIds ?? []) push(sessions.delete(id));
       for (const s of changes.saveSessions ?? []) push(sessions.put(s));
       for (const m of changes.addMaxChanges ?? []) push(tx.objectStore('maxChanges').put(m));
+      for (const id of changes.deleteActivityIds ?? []) push(activities.delete(id));
+      for (const a of changes.saveActivities ?? []) push(activities.put(a));
     });
   }
 
@@ -183,21 +195,30 @@ class IdbRepository implements Repository {
   }
 
   async exportData(): Promise<BackupData> {
-    const tx = this.db.transaction(['settings', 'templates', 'exercises', 'cycles', 'sessions', 'maxChanges'], 'readonly');
-    const [settings, templates, exercises, cycles, sessions, maxChanges] = await Promise.all([
+    const tx = this.db.transaction(['settings', 'templates', 'exercises', 'cycles', 'sessions', 'maxChanges', 'activities'], 'readonly');
+    const [settings, templates, exercises, cycles, sessions, maxChanges, activities] = await Promise.all([
       tx.objectStore('settings').get(SETTINGS_KEY),
       tx.objectStore('templates').getAll(),
       tx.objectStore('exercises').getAll(),
       tx.objectStore('cycles').getAll(),
       tx.objectStore('sessions').getAll(),
       tx.objectStore('maxChanges').getAll(),
+      tx.objectStore('activities').getAll(),
     ]);
     await tx.done;
-    return { settings: { ...DEFAULT_SETTINGS, ...settings }, templates, exercises, cycles, sessions: sessions.sort(byDate), maxChanges };
+    return {
+      settings: { ...DEFAULT_SETTINGS, ...settings },
+      templates,
+      exercises,
+      cycles,
+      sessions: sessions.sort(byDate),
+      maxChanges,
+      activities: activities.sort((a, b) => a.date.localeCompare(b.date)),
+    };
   }
 
   async replaceAll(data: BackupData, previousBackup: string): Promise<void> {
-    const stores = ['settings', 'templates', 'exercises', 'cycles', 'sessions', 'maxChanges', 'meta'] as const;
+    const stores = ['settings', 'templates', 'exercises', 'cycles', 'sessions', 'maxChanges', 'activities', 'meta'] as const;
     const tx = this.db.transaction([...stores], 'readwrite');
     await atomically(tx, (push) => {
       for (const name of stores) if (name !== 'meta') push(tx.objectStore(name).clear());
@@ -207,6 +228,7 @@ class IdbRepository implements Repository {
       for (const c of data.cycles) push(tx.objectStore('cycles').put(c));
       for (const s of data.sessions) push(tx.objectStore('sessions').put(s));
       for (const m of data.maxChanges) push(tx.objectStore('maxChanges').put(m));
+      for (const a of data.activities) push(tx.objectStore('activities').put(a));
       push(tx.objectStore('meta').put({ key: PRE_RESTORE_KEY, value: previousBackup }));
     });
   }

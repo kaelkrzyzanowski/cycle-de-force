@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { exampleCycle, exampleProgram } from '../fixtures';
-import { buildBackup, parseBackup } from './backup';
+import { BACKUP_MIGRATIONS, buildBackup, parseBackup } from './backup';
 import type { BackupData } from './backup';
 import { generateCycleSessions } from './cycles';
 import { recordSet, validateSet } from './sets';
 import { DEFAULT_SETTINGS } from './types';
+import type { Activity } from './types';
 
 let n = 0;
 const newId = () => `b${++n}`;
@@ -18,6 +19,7 @@ function sampleData(): BackupData {
   ex.sets = [validateSet(ex.sets[0]!, cycle.max, 1), recordSet(ex.sets[1]!, 'FAILED', { reps: 3, kg: 168 }, cycle.max, 1)];
   ex.rir = 1;
   first.note = 'Dos un peu raide';
+  const activities: Activity[] = [{ id: 'a1', type: 'RUNNING', date: '2026-09-22', distanceKm: 8.4, durationSec: 2520 }];
   return {
     settings: { ...DEFAULT_SETTINGS, lastBackupAt: '2026-09-20T08:00:00.000Z' },
     templates,
@@ -25,6 +27,7 @@ function sampleData(): BackupData {
     cycles: [cycle],
     sessions,
     maxChanges: [{ id: 'm1', cycleId: 'c0', exerciseId: 'D', from: 210, to: 215, at: '2026-09-24T10:00:00Z' }],
+    activities,
   };
 }
 
@@ -33,8 +36,8 @@ describe('format de sauvegarde', () => {
   const file = buildBackup(data, '2026-09-24T12:00:00.000Z');
 
   it('porte un en-tête avec les comptes', () => {
-    expect(file).toMatchObject({ app: 'cycle-de-force', schemaVersion: 2, exportedAt: '2026-09-24T12:00:00.000Z' });
-    expect(file.counts).toEqual({ cycles: 1, sessions: 28, realizedSets: 2, templates: 5, exercises: 40, maxChanges: 1 });
+    expect(file).toMatchObject({ app: 'cycle-de-force', schemaVersion: 3, exportedAt: '2026-09-24T12:00:00.000Z' });
+    expect(file.counts).toEqual({ cycles: 1, sessions: 28, realizedSets: 2, templates: 5, exercises: 40, maxChanges: 1, activities: 1 });
   });
 
   it('JSON aller-retour = données identiques', () => {
@@ -61,29 +64,29 @@ describe('format de sauvegarde', () => {
   });
 
   it('migre un fichier d’une version plus ancienne', () => {
-    // Version 2 fictive où les max étaient rangés sous « maxes » et le journal absent, lue par une v3.
+    // Version 3 fictive où les max étaient rangés sous « maxes » et le journal absent, lue par une v4.
     const v1 = structuredClone(file) as unknown as { schemaVersion: number; data: Record<string, unknown> };
     const cycles = (v1.data['cycles'] as Record<string, unknown>[]).map(({ max, ...c }) => ({ ...c, maxes: max }));
     v1.data = { ...v1.data, cycles };
     delete v1.data['maxChanges'];
 
     const migrations = {
-      3: (f: Record<string, unknown>) => {
+      4: (f: Record<string, unknown>) => {
         const d = f['data'] as Record<string, unknown>;
         const migrated = (d['cycles'] as Record<string, unknown>[]).map(({ maxes, ...c }) => ({ ...c, max: maxes }));
         return { ...f, data: { ...d, cycles: migrated, maxChanges: [] } };
       },
     };
-    const parsed = parseBackup(JSON.stringify(v1), { currentVersion: 3, migrations });
+    const parsed = parseBackup(JSON.stringify(v1), { currentVersion: 4, migrations });
     expect(parsed.ok).toBe(true);
     if (parsed.ok) {
-      expect(parsed.migratedFrom).toBe(2);
-      expect(parsed.backup.schemaVersion).toBe(3);
+      expect(parsed.migratedFrom).toBe(3);
+      expect(parsed.backup.schemaVersion).toBe(4);
       expect(parsed.backup.data.cycles[0]?.max).toEqual({ squat: 170, 'developpe-couche': 115, 'souleve-de-terre': 210 });
       expect(parsed.backup.data.maxChanges).toEqual([]);
     }
     // Sans la migration, le fichier est refusé plutôt que chargé à moitié.
-    expect(parseBackup(JSON.stringify(v1), { currentVersion: 3, migrations: {} })).toMatchObject({ ok: false, error: 'INVALID' });
+    expect(parseBackup(JSON.stringify(v1), { currentVersion: 4, migrations: {} })).toMatchObject({ ok: false, error: 'INVALID' });
   });
 
   it('lit une sauvegarde v1 (RM limités à S/B/D) et la passe au RM par exercice', () => {
@@ -126,5 +129,50 @@ describe('format de sauvegarde', () => {
     partial.data.settings = { rounding: 2.5 };
     const parsed = parseBackup(JSON.stringify(partial));
     expect(parsed.ok && parsed.backup.data.settings).toEqual({ ...DEFAULT_SETTINGS, rounding: 2.5 });
+  });
+
+  it('migre un fichier sans activités (v2) avec une liste vide', () => {
+    const v2 = structuredClone(file) as unknown as { schemaVersion: number; data: Record<string, unknown> };
+    v2.schemaVersion = 2;
+    delete v2.data['activities'];
+    const parsed = parseBackup(JSON.stringify(v2), { migrations: BACKUP_MIGRATIONS });
+    expect(parsed.ok).toBe(true);
+    if (parsed.ok) {
+      expect(parsed.migratedFrom).toBe(2);
+      expect(parsed.backup.data.activities).toEqual([]);
+    }
+  });
+
+  it('lit une sauvegarde de l’app perso 1.2+ (« v2 » : activités, mais RM encore en S/B/D)', () => {
+    const perso = {
+      app: 'cycle-de-force',
+      schemaVersion: 2,
+      exportedAt: '2026-09-29T08:00:00.000Z',
+      data: {
+        settings: DEFAULT_SETTINGS,
+        templates: [],
+        exercises: [],
+        cycles: [{ id: 'c0', name: 'Bloc 0', startDate: '2026-09-21', weeksCount: 7, max: { S: 170, B: 115, D: 210 }, weeklyPlan: [] }],
+        sessions: [],
+        maxChanges: [{ id: 'm1', cycleId: 'c0', lift: 'D', from: 205, to: 210, at: '2026-09-21T10:00:00Z' }],
+        activities: [{ id: 'a1', type: 'CYCLING', date: '2026-09-27', distanceKm: 42, durationSec: 5400 }],
+      },
+    };
+    const parsed = parseBackup(JSON.stringify(perso));
+    expect(parsed).toMatchObject({ ok: true, migratedFrom: 2 });
+    if (!parsed.ok) return;
+    expect(parsed.backup.data.cycles[0]?.max).toEqual({ squat: 170, 'developpe-couche': 115, 'souleve-de-terre': 210 });
+    expect(parsed.backup.data.maxChanges[0]?.exerciseId).toBe('souleve-de-terre');
+    expect(parsed.backup.data.activities).toHaveLength(1);
+  });
+
+  it('refuse une activité invalide', () => {
+    const zeroDistance = structuredClone(file);
+    zeroDistance.data.activities = [{ id: 'a2', type: 'RUNNING', date: '2026-09-22', distanceKm: 0, durationSec: 60 }];
+    expect(parseBackup(JSON.stringify(zeroDistance))).toMatchObject({ ok: false, error: 'INVALID' });
+
+    const unknownType = structuredClone(file) as unknown as { data: { activities: Record<string, unknown>[] } };
+    unknownType.data.activities = [{ id: 'a3', type: 'SKI', date: '2026-09-22', distanceKm: 5, durationSec: 60 }];
+    expect(parseBackup(JSON.stringify(unknownType))).toMatchObject({ ok: false, error: 'INVALID' });
   });
 });

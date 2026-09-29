@@ -15,7 +15,7 @@ export function exampleBackup({ withCycle = true } = {}): string {
   let n = 0;
   const cycle = exampleCycle('bloc-0', mondayOf(todayIso()));
   const sessions = withCycle ? generateCycleSessions(cycle, new Map(templates.map((t) => [t.id, t])), () => `ex-${++n}`) : [];
-  const data = { settings: DEFAULT_SETTINGS, templates, exercises, cycles: withCycle ? [cycle] : [], sessions, maxChanges: [] };
+  const data = { settings: DEFAULT_SETTINGS, templates, exercises, cycles: withCycle ? [cycle] : [], sessions, maxChanges: [], activities: [] };
   return JSON.stringify(buildBackup(data, new Date().toISOString()));
 }
 

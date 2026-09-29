@@ -79,3 +79,10 @@ export function formatCountdown(ms: number): string {
   const totalSec = Math.max(0, Math.ceil(ms / 1000));
   return `${Math.floor(totalSec / 60)}:${pad2(totalSec % 60)}`;
 }
+
+/** « 42 min 15 s » (ou « 42 min » si les secondes sont nulles). */
+export function formatDuration(sec: number): string {
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return s > 0 ? `${m}${NBSP}min${NBSP}${s}${NBSP}s` : `${m}${NBSP}min`;
+}

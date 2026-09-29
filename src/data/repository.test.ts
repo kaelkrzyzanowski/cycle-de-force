@@ -131,6 +131,8 @@ describe('repository IndexedDB', () => {
     const exercises = await r.listExercises();
     expect(exercises.find((e) => e.id === 'dc')).toEqual({ id: 'dc', name: 'DC', aliases: [], defaultMax: 'developpe-couche' });
     expect(exercises.filter((e) => e.hasMax).map((e) => e.id).sort()).toEqual(['developpe-couche', 'souleve-de-terre', 'squat']);
+    // Le store des activités (v3) existe aussi après la réécriture des données (v2).
+    expect(await r.listActivitiesBetween('2026-01-01', '2026-12-31')).toEqual([]);
     // L'exercice « x » de la séance a rejoint le catalogue.
     expect(exercises.some((e) => e.id === 'x')).toBe(true);
   });

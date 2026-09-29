@@ -33,7 +33,7 @@ const dayMedium = fmt({ weekday: 'short', day: 'numeric', month: 'short' });
 const dayShort = fmt({ day: 'numeric', month: 'short' });
 const monthYear = fmt({ month: 'long', year: 'numeric' });
 
-const capitalize = (s: string): string => s.charAt(0).toUpperCase() + s.slice(1);
+export const capitalize = (s: string): string => s.charAt(0).toUpperCase() + s.slice(1);
 
 /** « Mardi 22 septembre » */
 export const formatDayLong = (iso: IsoDate): string => capitalize(dayLong.format(utc(iso)));
@@ -61,4 +61,17 @@ export function formatDuration(sec: number): string {
   const m = Math.floor(sec / 60);
   const s = sec % 60;
   return s > 0 ? `${m}${NBSP}min${NBSP}${s}${NBSP}s` : `${m}${NBSP}min`;
+}
+
+const pad2 = (n: number): string => String(n).padStart(2, '0');
+
+/** Chronomètre : « 12:34.5 » (ou « 1:12:34.5 » à partir d'une heure). */
+export function formatStopwatch(ms: number): string {
+  const centis = Math.floor((ms % 1000) / 100);
+  const totalSec = Math.floor(ms / 1000);
+  const h = Math.floor(totalSec / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
+  const s = totalSec % 60;
+  const base = h > 0 ? `${h}:${pad2(m)}:${pad2(s)}` : `${m}:${pad2(s)}`;
+  return `${base}.${centis}`;
 }

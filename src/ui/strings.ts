@@ -28,6 +28,7 @@ export const S = {
     label: 'Navigation principale',
     calendar: 'Calendrier',
     today: 'Aujourd’hui',
+    chrono: 'Chrono',
     templates: 'Modèles',
     stats: 'Stats',
   },
@@ -360,6 +361,20 @@ export const S = {
     next: (day: string) => `Prochaine séance : ${day}`,
     toCalendar: 'Voir le calendrier',
   },
+
+  chrono: {
+    title: 'Chrono',
+    clock: 'Horloge',
+    stopwatch: 'Chronomètre',
+    start: 'Démarrer',
+    pause: 'Pause',
+    resume: 'Reprendre',
+    reset: 'Réinitialiser',
+    lap: 'Tour',
+    laps: 'Tours',
+    lapNumber: (n: number) => `Tour ${n}`,
+  },
+
   templates: {
     title: 'Modèles de séance',
     native: 'Natif',

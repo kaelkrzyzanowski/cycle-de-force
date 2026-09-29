@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'preact/hooks';
 import type { IsoDate } from '../domain/types';
 
-export type Tab = 'calendar' | 'today' | 'templates' | 'stats';
+export type Tab = 'calendar' | 'today' | 'chrono' | 'templates' | 'stats';
 
 export type Route =
   | { name: 'calendar' }
   | { name: 'today' }
+  | { name: 'chrono' }
   | { name: 'templates' }
   | { name: 'stats' }
   | { name: 'settings' }
@@ -19,6 +20,7 @@ export type Route =
 export const href = {
   calendar: () => '#/calendrier',
   today: () => '#/aujourdhui',
+  chrono: () => '#/chrono',
   templates: () => '#/modeles',
   stats: () => '#/stats',
   settings: () => '#/reglages',
@@ -35,6 +37,8 @@ export function parseRoute(hash: string): Route {
   switch (head) {
     case 'aujourdhui':
       return { name: 'today' };
+    case 'chrono':
+      return { name: 'chrono' };
     case 'modeles':
       return { name: 'templates' };
     case 'stats':
@@ -61,6 +65,7 @@ export function tabOf(route: Route): Tab | null {
   switch (route.name) {
     case 'calendar':
     case 'today':
+    case 'chrono':
     case 'templates':
     case 'stats':
       return route.name;

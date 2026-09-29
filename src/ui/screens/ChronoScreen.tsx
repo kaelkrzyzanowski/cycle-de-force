@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'preact/hooks';
-import { capitalize, formatStopwatch } from '../format';
+import { capitalize, formatCountdown, formatStopwatch } from '../format';
 import { S } from '../strings';
+import { timer, useTimer } from '../timer';
 
 const dateFmt = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
 const timeFmt = new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -20,6 +21,78 @@ function ClockCard() {
       <p class="muted" style={{ textAlign: 'center' }}>
         {capitalize(dateFmt.format(now))}
       </p>
+    </section>
+  );
+}
+
+/** Repos les plus courants : un geste choisit la durée et lance le compte à rebours. */
+const PRESETS_S = [30, 60, 90, 120, 180, 300];
+
+function TimerCard() {
+  const { state, remainingMs } = useTimer();
+  const { phase } = state;
+  const done = phase === 'done';
+  return (
+    <section class={`card stack timer-card${done ? ' is-done' : ''}`} aria-labelledby="timer-title">
+      <h2 id="timer-title" class="card-title">
+        {S.chrono.timer}
+      </h2>
+      <div class="timer-display">
+        <button type="button" class="btn" aria-label={S.chrono.minus15} disabled={done} onClick={() => timer.adjust(-15_000)}>
+          −15 s
+        </button>
+        <p class="num big-time" role="timer" aria-live={done ? 'assertive' : 'off'}>
+          {done ? S.chrono.timeUp : formatCountdown(remainingMs)}
+        </p>
+        <button type="button" class="btn" aria-label={S.chrono.plus15} disabled={done} onClick={() => timer.adjust(15_000)}>
+          +15 s
+        </button>
+      </div>
+      <div class="chip-row" role="group" aria-label={S.chrono.presets}>
+        {PRESETS_S.map((s) => (
+          <button key={s} type="button" class="btn small" onClick={() => timer.preset(s * 1000)}>
+            {formatCountdown(s * 1000)}
+          </button>
+        ))}
+      </div>
+      <div class="button-row">
+        {phase === 'running' && (
+          <>
+            <button type="button" class="btn" onClick={timer.reset}>
+              {S.chrono.reset}
+            </button>
+            <button type="button" class="btn primary" onClick={timer.pause}>
+              {S.chrono.pause}
+            </button>
+          </>
+        )}
+        {phase === 'paused' && (
+          <>
+            <button type="button" class="btn" onClick={timer.reset}>
+              {S.chrono.reset}
+            </button>
+            <button type="button" class="btn primary" onClick={timer.start}>
+              {S.chrono.resume}
+            </button>
+          </>
+        )}
+        {phase === 'idle' && (
+          <button type="button" class="btn primary" onClick={timer.start}>
+            {S.chrono.start}
+          </button>
+        )}
+        {done && (
+          <>
+            <button type="button" class="btn" onClick={timer.reset}>
+              {S.chrono.ok}
+            </button>
+            <button type="button" class="btn primary" onClick={timer.start}>
+              {S.chrono.restart(formatCountdown(state.durationMs))}
+            </button>
+          </>
+        )}
+      </div>
+      <p class="muted">{S.chrono.timerNote}</p>
     </section>
   );
 }
@@ -117,6 +190,7 @@ export function ChronoScreen() {
   return (
     <div class="stack">
       <ClockCard />
+      <TimerCard />
       <StopwatchCard />
     </div>
   );

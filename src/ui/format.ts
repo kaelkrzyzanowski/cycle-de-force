@@ -60,6 +60,7 @@ export function parseDecimal(text: string): number | null {
   const n = Number(text.replace(',', '.').replace(/\s/g, ''));
   return text.trim() === '' || !Number.isFinite(n) ? null : n;
 }
+
 const pad2 = (n: number): string => String(n).padStart(2, '0');
 
 /** Chronomètre : « 12:34.5 » (ou « 1:12:34.5 » à partir d'une heure). */
@@ -71,4 +72,10 @@ export function formatStopwatch(ms: number): string {
   const s = totalSec % 60;
   const base = h > 0 ? `${h}:${pad2(m)}:${pad2(s)}` : `${m}:${pad2(s)}`;
   return `${base}.${centis}`;
+}
+
+/** Minuteur : « 1:30 » (secondes arrondies au-dessus : 0,2 s restante s'affiche « 0:01 »). */
+export function formatCountdown(ms: number): string {
+  const totalSec = Math.max(0, Math.ceil(ms / 1000));
+  return `${Math.floor(totalSec / 60)}:${pad2(totalSec % 60)}`;
 }

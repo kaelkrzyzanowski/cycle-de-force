@@ -1274,3 +1274,54 @@ legend {
   outline: 3px solid var(--accent);
   outline-offset: 2px;
 }
+
+/* ——— Minuteur ——— */
+.timer-display {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+}
+.big-time {
+  margin: 0;
+  font-size: 2.5rem;
+  text-align: center;
+}
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.chip-row .btn {
+  flex: 1 0 auto;
+}
+.timer-card.is-done {
+  border-color: var(--accent);
+  animation: timer-flash 1s ease-in-out 3;
+}
+@keyframes timer-flash {
+  50% {
+    background: var(--surface-2);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .timer-card.is-done {
+    animation: none;
+  }
+}
+.timer-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 650;
+}
+.timer-pill.is-done {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}

@@ -71,6 +71,10 @@ Racine locale : `C:\Users\kaelk\cycle-de-force`.
 - Éditeur de modèles (création, semaines, progression %, dupliquer, supprimer).
 - Premier lancement : carte « Bienvenue » (créer un modèle → un cycle, ou restaurer une sauvegarde).
 - Stats (tonnage, e1RM, historique des max, volume par modèle).
+- Onglet Chrono : horloge, chronomètre (repris de la branche `perso`, 1.3.0) et minuteur sonore.
+  Le minuteur (`src/domain/timer.ts` pur + moteur `src/ui/timer.ts`) vit hors des écrans : il
+  sonne (Web Audio, bips générés) et vibre même sur un autre onglet ; `TimerPill` affiche le temps
+  restant dans la barre du haut et garde l'écran allumé (`useWakeLock` compté côté natif).
 - Sauvegarde manuelle + copie automatique sur Android (`Documents/CycleDeForceBeta` pour la bêta 2.x,
   `Documents/CycleDeForce` pour l'app 1.x).
 - Icône de l'app = photo personnelle (voir `assets/icon-source.webp`).

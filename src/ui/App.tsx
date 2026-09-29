@@ -6,6 +6,7 @@ import { isNative, loadNative } from '../platform';
 import { runAutoBackup } from './backupIO';
 import { AppContext } from './context';
 import type { ToastAction } from './context';
+import { TimerPill } from './components/TimerPill';
 import { Icon } from './Icon';
 import type { IconName } from './Icon';
 import { goBack, href, tabOf, useRoute } from './router';
@@ -158,6 +159,7 @@ export function App() {
             </button>
           )}
           <h1>{TITLES[route.name]}</h1>
+          <TimerPill hidden={route.name === 'chrono'} />
           {route.name !== 'settings' && (
             <a class="icon-btn" href={href.settings()} aria-label={S.menu.settings} title={S.menu.settings}>
               <Icon name="menu" />

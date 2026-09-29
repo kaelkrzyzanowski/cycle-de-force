@@ -348,6 +348,16 @@ export const S = {
     lap: 'Tour',
     laps: 'Tours',
     lapNumber: (n: number) => `Tour ${n}`,
+    timer: 'Minuteur',
+    presets: 'Durées rapides',
+    minus15: 'Retirer 15 secondes',
+    plus15: 'Ajouter 15 secondes',
+    timeUp: 'Terminé !',
+    ok: 'OK',
+    restart: (d: string) => `Relancer ${d}`,
+    timerNote: 'Sonne et vibre à la fin, même si tu changes d’onglet ; l’écran reste allumé pendant le décompte. Le son suit le volume « multimédia » du téléphone.',
+    pill: (t: string) => `Minuteur : ${t}`,
+    pillDone: 'Minuteur terminé',
   },
 
   templates: {

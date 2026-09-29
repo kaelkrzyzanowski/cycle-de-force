@@ -3,7 +3,10 @@ import { isRealized } from './load';
 import { DEFAULT_SETTINGS } from './types';
 import type { Activity, Cycle, Exercise, IsoDate, MaxChange, Session, SessionTemplate, Settings } from './types';
 
+/** Identifiant interne du format, inchangé depuis la 1.x (l'app s'appelle désormais HaltèreBook). */
 export const BACKUP_APP = 'cycle-de-force';
+/** Début des noms de fichiers de sauvegarde (sans accent : noms de fichiers sûrs partout). */
+export const BACKUP_FILE_PREFIX = 'halterebook';
 /** Version du format de fichier. À incrémenter avec une migration dans BACKUP_MIGRATIONS. */
 export const BACKUP_SCHEMA_VERSION = 3;
 
@@ -55,7 +58,7 @@ export function buildBackup(data: BackupData, exportedAt: string): BackupFile {
 }
 
 export function backupFileName(date: IsoDate): string {
-  return `cycle-de-force-${date}.json`;
+  return `${BACKUP_FILE_PREFIX}-${date}.json`;
 }
 
 // ——— Lecture et validation ———
@@ -148,7 +151,10 @@ function checkData(data: unknown): asserts data is BackupData {
   });
   checkArray(data, 'exercises', (e, w) => {
     check(isStr(e['name']) && Array.isArray(e['aliases']), w);
-    check((e['hasMax'] === undefined || typeof e['hasMax'] === 'boolean') && optStr(e['short']) && optStr(e['defaultMax']), `${w} : RM`);
+    check(
+      (e['hasMax'] === undefined || typeof e['hasMax'] === 'boolean') && optNum(e['max']) && optStr(e['short']) && optStr(e['defaultMax']),
+      `${w} : RM`,
+    );
   });
   checkArray(data, 'cycles', (c, w) => {
     check(isStr(c['name']) && isStr(c['startDate']) && ISO_DATE.test(c['startDate']) && isNum(c['weeksCount']), w);

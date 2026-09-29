@@ -18,6 +18,7 @@ import { ChronoScreen } from './screens/ChronoScreen';
 import { CycleScreen } from './screens/CycleScreen';
 import { DuplicateCycleScreen } from './screens/DuplicateCycleScreen';
 import { DuplicateWeekScreen } from './screens/DuplicateWeekScreen';
+import { ExercisesScreen } from './screens/ExercisesScreen';
 import { NewCycleScreen } from './screens/NewCycleScreen';
 import { SessionScreen } from './screens/SessionScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
@@ -39,6 +40,7 @@ const TITLES: Record<Route['name'], string> = {
   today: S.today.title,
   chrono: S.chrono.title,
   templates: S.templates.title,
+  exercises: S.exercises.title,
   stats: S.stats.title,
   settings: S.settings.title,
   session: S.session.title,
@@ -59,6 +61,8 @@ function Screen({ route }: { route: Route }) {
       return <ChronoScreen />;
     case 'templates':
       return <TemplatesScreen />;
+    case 'exercises':
+      return <ExercisesScreen />;
     case 'stats':
       return <StatsScreen />;
     case 'settings':

@@ -1,7 +1,8 @@
 import { createContext } from 'preact';
 import { useContext, useEffect, useState } from 'preact/hooks';
 import type { Repository } from '../data/repository';
-import type { Exercise, MaxId, Settings } from '../domain/types';
+import { effectiveMax, exerciseMaxes } from '../domain/max';
+import type { Exercise, Maxes, MaxId, Settings } from '../domain/types';
 
 export interface ToastAction {
   label: string;
@@ -37,6 +38,13 @@ export function useMaxNames() {
   const short = (id: MaxId): string => exercises.get(id)?.short?.trim() || name(id);
   const withMax = [...exercises.values()].filter((e) => e.hasMax);
   return { name, short, withMax };
+}
+
+/** RM actuels des exercices, et RM effectifs d'un cycle (ceux du cycle, complétés par ceux des exercices). */
+export function useMaxOf() {
+  const { exercises } = useApp();
+  const fallback = exerciseMaxes(exercises.values());
+  return { fallback, maxOf: (cycleMax?: Maxes): Maxes => effectiveMax(cycleMax, fallback) };
 }
 
 /** Charge des données depuis le repository ; recharge après chaque écriture. */

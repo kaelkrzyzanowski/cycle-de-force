@@ -29,6 +29,15 @@ export function TemplatesScreen() {
 
   return (
     <div class="stack">
+      <a class="card template-row link-card" href={href.exercises()}>
+        <div>
+          <div class="name">{S.exercises.title}</div>
+          <div class="muted">{S.exercises.linkHint}</div>
+        </div>
+        <span aria-hidden="true" class="chevron">
+          ›
+        </span>
+      </a>
       {sorted.length === 0 && (
         <section class="card stack tight">
           <strong>{S.templates.emptyTitle}</strong>

@@ -21,7 +21,7 @@ export async function shareBackupFile(json: string, fileName: string, dialogTitl
 }
 
 /**
- * Copie datée dans Documents/CycleDeForceBeta (visible dans l'app Fichiers, conservée après désinstallation),
+ * Copie datée dans Documents/HaltereBook (visible dans l'app Fichiers, conservée après désinstallation),
  * puis suppression des copies au-delà de 14 jours. Renvoie le chemin écrit.
  */
 export async function writeAutoBackup(json: string, now: Date = new Date()): Promise<string> {

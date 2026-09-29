@@ -21,7 +21,7 @@ import { LineChart } from '../charts/LineChart';
 import type { LinePoint } from '../charts/LineChart';
 import { ChartCard, HBars, Legend, StackedBars, StatTile } from '../charts/parts';
 import { SET_GLYPH } from '../session/SetPill';
-import { useApp, useData, useMaxNames } from '../context';
+import { useApp, useData, useMaxNames, useMaxOf } from '../context';
 import { formatDayMedium, formatDayShort, formatKg, formatTonnage } from '../format';
 import { S } from '../strings';
 
@@ -74,11 +74,12 @@ function Stats({ sessions, cycles, templates, changes }: Data) {
   const exercises = exercisesWithData(sessions);
   const [maxShown, setMaxShown] = useState<string | null>(null);
   const { name: maxName } = useMaxNames();
+  const { fallback: fallbackMax } = useMaxOf();
   const [exerciseId, setExerciseId] = useState(
     exercises[0]?.exerciseId ?? '',
   );
 
-  const maxOf = maxOfCycles(cycles);
+  const maxOf = maxOfCycles(cycles, fallbackMax);
   const cycle = cycles.find((c) => c.id === cycleId);
   const inCycle = cycle ? sessions.filter((s) => s.cycleId === cycle.id) : [];
   const realizedSets = inCycle.reduce((n, s) => n + s.exercises.reduce((m, e) => m + e.sets.filter((x) => isRealized(x.status)).length, 0), 0);

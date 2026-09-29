@@ -3,7 +3,7 @@ import { conflictDates, cycleEndDate, duplicateCycle, resolveConflicts } from '.
 import type { CopyMode } from '../../domain/cycles';
 import { addDays } from '../../domain/dates';
 import { newId } from '../../domain/ids';
-import { cycleMaxIds } from '../../domain/max';
+import { cycleMaxIds, withUpdatedMaxes } from '../../domain/max';
 import type { Cycle, Maxes, Session, SessionTemplate } from '../../domain/types';
 import { commit, templatesById } from '../actions';
 import { allResolved, ConflictResolver } from '../components/ConflictResolver';
@@ -55,7 +55,12 @@ function Form({ source, sessions, templates }: { source: Cycle; sessions: Sessio
     const { save, remove } = resolveConflicts(result.sessions, existing, choices);
     const ok = await commit(
       app,
-      { saveCycles: [result.cycle], saveSessions: save, deleteSessionIds: remove.map((s) => s.id) },
+      {
+        saveCycles: [result.cycle],
+        saveSessions: save,
+        deleteSessionIds: remove.map((s) => s.id),
+        saveExercises: withUpdatedMaxes([...app.exercises.values()], result.cycle.max),
+      },
       S.cycleForm.created(result.cycle.name, save.length),
     );
     if (ok) navigate(href.cycle(result.cycle.id), true);

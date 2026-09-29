@@ -1,4 +1,10 @@
-# Cycle de force
+# HaltèreBook (ex-« Cycle de force »)
+
+La branche `rm-par-exercice` (versions 2.x bêta) est l'app grand public **HaltèreBook** :
+identifiant Android `fr.cycledeforce.beta` (inchangé, pour garder les données installées),
+sauvegardes `halterebook-AAAA-MM-JJ.json` dans `Documents/HaltereBook`, APK `halterebook-X.Y.Z.apk`.
+L'identifiant interne des sauvegardes (`app: 'cycle-de-force'`) ne change pas : les fichiers
+de l'app perso 1.x restent restaurables.
 
 PWA en français, 100 % hors ligne, pour planifier et suivre des cycles de force
 athlétique (Squat/Bench/Deadlift). Pas de compte ni de serveur : les données
@@ -54,7 +60,11 @@ Racine locale : `C:\Users\kaelk\cycle-de-force`.
   semaines suivantes du même cycle".
 - **RM par exercice** : n'importe quel exercice peut servir de base à un % (`LoadRule`
   `{ kind: 'PERCENT', of: <exerciseId>, pct }`). `Cycle.max` est un `Record<exerciseId, kg>` ;
-  `Exercise.hasMax`/`short`/`defaultMax` servent à l'affichage et aux choix par défaut. Les
+  `Exercise.hasMax`/`short`/`defaultMax` servent à l'affichage et aux choix par défaut.
+  `Exercise.max` = RM **actuel** de l'exercice (écran « Exercices et RM », ou ligne « RM … » dans
+  l'éditeur sous un exercice en %). RM effectif d'une séance = `effectiveMax(cycle.max, RM des
+  exercices)` : le cycle prime, l'exercice complète (et sert seul hors cycle). Saisir un RM dans
+  un cycle (création, duplication, « Mes max ») met aussi à jour `Exercise.max`. Les
   anciennes données S/B/D (base IndexedDB v1, sauvegarde `schemaVersion` 1) sont migrées par
   `src/domain/legacyLifts.ts` (S→`squat`, B→`developpe-couche`, D→`souleve-de-terre`).
 - **Sauvegarde/restauration** (`backup.ts`, `BackupSection.tsx`) : export/import
@@ -80,8 +90,8 @@ Racine locale : `C:\Users\kaelk\cycle-de-force`.
   Le minuteur (`src/domain/timer.ts` pur + moteur `src/ui/timer.ts`) vit hors des écrans : il
   sonne (Web Audio, bips générés) et vibre même sur un autre onglet ; `TimerPill` affiche le temps
   restant dans la barre du haut et garde l'écran allumé (`useWakeLock` compté côté natif).
-- Sauvegarde manuelle + copie automatique sur Android (`Documents/CycleDeForceBeta` pour la bêta 2.x,
-  `Documents/CycleDeForce` pour l'app 1.x).
+- Sauvegarde manuelle + copie automatique sur Android (`Documents/HaltereBook` pour HaltèreBook,
+  `Documents/CycleDeForce` pour l'app perso 1.x).
 - Icône de l'app = photo personnelle (voir `assets/icon-source.webp`).
 
 ## Commandes

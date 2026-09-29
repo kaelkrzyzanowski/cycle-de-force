@@ -52,7 +52,8 @@ function Editor({ saved, catalogue }: { saved: SessionTemplate; catalogue: Exerc
   const [week, setWeek] = useState(1);
   const [dirty, setDirty] = useState(false);
   const [dialog, setDialog] = useState<Dialog>(null);
-  const { known, resolve, newExercises } = useCatalogue(catalogue);
+  const catalog = useCatalogue(catalogue);
+  const { known } = catalog;
 
   const change = (next: SessionTemplate) => {
     setTemplate(next);
@@ -65,8 +66,7 @@ function Editor({ saved, catalogue }: { saved: SessionTemplate; catalogue: Exerc
   };
 
   const persist = async (t: SessionTemplate) => {
-    const used = new Set(Object.values(t.weeks).flatMap((w) => w.map((e) => e.exerciseId)));
-    await Promise.all(newExercises.filter((e) => used.has(e.id)).map((e) => app.repo.saveExercise(e)));
+    await Promise.all(catalog.toSave(Object.values(t.weeks).map((exercises) => ({ exercises }))).map((e) => app.repo.saveExercise(e)));
     await app.repo.saveTemplate(t);
   };
 
@@ -183,7 +183,7 @@ function Editor({ saved, catalogue }: { saved: SessionTemplate; catalogue: Exerc
       </div>
 
       <div role="tabpanel" class="stack" aria-label={S.templateEditor.weekTab(week)}>
-        <PrescriptionEditor key={week} draft={draft} known={known} dispatch={dispatch} resolve={resolve} />
+        <PrescriptionEditor key={week} draft={draft} catalog={catalog} dispatch={dispatch} />
       </div>
 
       <div class="button-row sticky-actions">

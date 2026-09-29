@@ -9,7 +9,7 @@ import { ActivityCard, ActivityDot } from '../components/ActivityCard';
 import { NEUTRAL_COLOR, SessionCard, SessionDot } from '../components/SessionCard';
 import { Sheet } from '../components/Sheet';
 import { useSwipe } from '../components/useSwipe';
-import { useApp, useData } from '../context';
+import { useApp, useData, useMaxOf } from '../context';
 import { formatDayLong, formatMonthYear, formatRange } from '../format';
 import { href, navigate } from '../router';
 import { S } from '../strings';
@@ -48,6 +48,7 @@ interface CalendarData {
 
 export function CalendarScreen() {
   const app = useApp();
+  const { maxOf: effectiveMaxOf } = useMaxOf();
   const today = todayIso();
   const [view, setViewState] = useState<View>(memory.view);
   const [selected, setSelectedState] = useState<IsoDate>(memory.selected ?? today);
@@ -110,7 +111,7 @@ export function CalendarScreen() {
   const templates = templatesById(data.templates);
   const colorOf = (s: Session) => (s.templateId ? templates.get(s.templateId)?.color : undefined) ?? NEUTRAL_COLOR;
   const labelOf = (s: Session) => sessionLabel(s, s.templateId ? templates.get(s.templateId) : undefined);
-  const maxOf = (s: Session) => data.cycles.find((c) => c.id === s.cycleId)?.max ?? {};
+  const maxOf = (s: Session) => effectiveMaxOf(data.cycles.find((c) => c.id === s.cycleId)?.max);
   const byDay = new Map<IsoDate, Session[]>();
   for (const s of data.sessions) byDay.set(s.date, [...(byDay.get(s.date) ?? []), s]);
   const byDayActivities = new Map<IsoDate, Activity[]>();

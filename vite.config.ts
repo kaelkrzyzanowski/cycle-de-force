@@ -17,8 +17,8 @@ export default defineConfig({
       includeAssets: ['icons/favicon.png', 'icons/apple-touch-icon.png'],
       manifest: {
         id: './',
-        name: 'Cycle de force',
-        short_name: 'Cycle de force',
+        name: 'HaltèreBook',
+        short_name: 'HaltèreBook',
         description: 'Planification et suivi de cycles de force athlétique (SBD), 100 % hors ligne.',
         lang: 'fr',
         dir: 'ltr',

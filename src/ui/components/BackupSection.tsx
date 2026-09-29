@@ -1,5 +1,5 @@
 import { useRef, useState } from 'preact/hooks';
-import { parseBackup } from '../../domain/backup';
+import { BACKUP_FILE_PREFIX, parseBackup } from '../../domain/backup';
 import type { BackupFile, BackupError } from '../../domain/backup';
 import { todayIso } from '../../domain/dates';
 import { isNative } from '../../platform';
@@ -84,7 +84,7 @@ export function BackupSection() {
         onChange={(e) => void pick(e.currentTarget.files?.[0])}
       />
       {preRestore && (
-        <button type="button" class="btn small" onClick={() => void saveJsonFile(preRestore, `cycle-de-force-avant-restauration-${todayIso()}.json`)}>
+        <button type="button" class="btn small" onClick={() => void saveJsonFile(preRestore, `${BACKUP_FILE_PREFIX}-avant-restauration-${todayIso()}.json`)}>
           {S.backup.preRestore}
         </button>
       )}

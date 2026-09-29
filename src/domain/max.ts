@@ -1,5 +1,5 @@
 import { plannedKg } from './load';
-import type { Cycle, LoadRule, MaxChange, MaxId, Maxes, Rounding, Session, SessionTemplate } from './types';
+import type { Cycle, Exercise, LoadRule, MaxChange, MaxId, Maxes, Rounding, Session, SessionTemplate } from './types';
 
 export interface PlannedLoadChange {
   sessionId: string;
@@ -56,6 +56,28 @@ export function applyMaxChange(
     .filter((id) => (cycle.max[id] ?? 0) !== (newMax[id] ?? 0))
     .map((id) => ({ id: newId(), cycleId: cycle.id, exerciseId: id, from: cycle.max[id] ?? 0, to: newMax[id] ?? 0, at }));
   return { cycle: { ...cycle, max: { ...newMax } }, log };
+}
+
+/** RM actuels renseignés sur les exercices. */
+export function exerciseMaxes(exercises: Iterable<Pick<Exercise, 'id' | 'max'>>): Maxes {
+  const out: Maxes = {};
+  for (const e of exercises) if (e.max && e.max > 0) out[e.id] = e.max;
+  return out;
+}
+
+/** RM à utiliser pour une séance : ceux du cycle, complétés par les RM actuels des exercices. */
+export function effectiveMax(cycleMax: Maxes | undefined, fallback: Maxes): Maxes {
+  const out: Maxes = { ...fallback };
+  for (const [id, kg] of Object.entries(cycleMax ?? {})) if (kg > 0) out[id] = kg;
+  return out;
+}
+
+/** Exercices dont le RM actuel suit de nouvelles valeurs (saisies dans un cycle). */
+export function withUpdatedMaxes(exercises: readonly Exercise[], max: Maxes): Exercise[] {
+  return exercises.flatMap((e) => {
+    const kg = max[e.id];
+    return kg && kg > 0 && kg !== e.max ? [{ ...e, max: kg, hasMax: true }] : [];
+  });
 }
 
 type WithExercises = { exercises: readonly { sets: readonly { load: LoadRule }[] }[] };

@@ -6,7 +6,7 @@ import { templatesById } from '../actions';
 import { BackupReminder } from '../components/BackupReminder';
 import { MaxCard } from '../components/MaxCard';
 import { NEUTRAL_COLOR, SessionCard } from '../components/SessionCard';
-import { useApp, useData } from '../context';
+import { useApp, useData, useMaxOf } from '../context';
 import { formatDayLong } from '../format';
 import { href, navigate } from '../router';
 import { S } from '../strings';
@@ -20,6 +20,7 @@ interface Data {
 
 export function TodayScreen() {
   const { settings } = useApp();
+  const { maxOf } = useMaxOf();
   const today = todayIso();
   const data = useData<Data>(
     async (repo) => {
@@ -39,7 +40,7 @@ export function TodayScreen() {
       session={s}
       label={sessionLabel(s, s.templateId ? templates.get(s.templateId) : undefined)}
       color={(s.templateId ? templates.get(s.templateId)?.color : undefined) ?? NEUTRAL_COLOR}
-      max={data.cycles.find((c) => c.id === s.cycleId)?.max ?? {}}
+      max={maxOf(data.cycles.find((c) => c.id === s.cycleId)?.max)}
       rounding={settings.rounding}
       today={today}
       onOpen={() => navigate(href.session(s.id))}

@@ -1,10 +1,10 @@
 import type { ComponentChildren } from 'preact';
 import { useState } from 'preact/hooks';
 import { newId } from '../../domain/ids';
-import { applyMaxChange, cycleMaxIds, previewMaxChange } from '../../domain/max';
+import { applyMaxChange, cycleMaxIds, previewMaxChange, withUpdatedMaxes } from '../../domain/max';
 import type { Cycle, Maxes, MaxId, Session } from '../../domain/types';
 import { commit } from '../actions';
-import { useApp, useData, useMaxNames } from '../context';
+import { useApp, useData, useMaxNames, useMaxOf } from '../context';
 import { formatKg } from '../format';
 import { S } from '../strings';
 import { NumberField } from './NumberField';
@@ -14,6 +14,7 @@ import { Sheet } from './Sheet';
 export function MaxCard({ cycle }: { cycle: Cycle }) {
   const [open, setOpen] = useState(false);
   const { name } = useMaxNames();
+  const current = useMaxOf().maxOf(cycle.max);
   const sessions = useData((repo) => repo.listSessionsByCycle(cycle.id), [cycle.id]);
   const ids = cycleMaxIds(cycle, sessions ?? []);
   return (
@@ -27,7 +28,7 @@ export function MaxCard({ cycle }: { cycle: Cycle }) {
         {ids.map((id) => (
           <span key={id} class="max-cell">
             <span class="muted">{name(id)}</span>
-            <span class="num max-value">{cycle.max[id] ? formatKg(cycle.max[id]) : '—'}</span>
+            <span class="num max-value">{current[id] ? formatKg(current[id]) : '—'}</span>
           </span>
         ))}
         {ids.length === 0 && <span class="muted">{S.max.none}</span>}
@@ -46,15 +47,19 @@ interface SheetProps {
 
 function MaxSheet({ cycle, sessions, ids, onClose }: SheetProps) {
   const app = useApp();
-  const [max, setMax] = useState<Maxes>({ ...cycle.max });
-  const changes = previewMaxChange(sessions, cycle.max, max, app.settings.rounding);
+  // Valeurs de départ : celles du cycle, sinon le RM actuel de l'exercice (qui s'applique déjà).
+  const current = useMaxOf().maxOf(cycle.max);
+  const [max, setMax] = useState<Maxes>(Object.fromEntries(ids.map((id) => [id, current[id] ?? 0])));
+  const changes = previewMaxChange(sessions, current, max, app.settings.rounding);
   const unchanged = ids.every((id) => (max[id] ?? 0) === (cycle.max[id] ?? 0));
   // Exemples distincts : une ligne par exercice et par charge.
   const examples = [...new Map(changes.map((c) => [`${c.exerciseName}|${c.fromKg}|${c.toKg}`, c])).values()].slice(0, 3);
 
   const save = async () => {
-    const { cycle: updated, log } = applyMaxChange(cycle, max, new Date().toISOString(), newId);
-    if (await commit(app, { saveCycles: [updated], addMaxChanges: log }, S.max.saved)) onClose();
+    const { cycle: updated, log } = applyMaxChange(cycle, { ...cycle.max, ...max }, new Date().toISOString(), newId);
+    // Le RM saisi devient aussi le RM actuel de l'exercice.
+    const saveExercises = withUpdatedMaxes([...app.exercises.values()], max);
+    if (await commit(app, { saveCycles: [updated], addMaxChanges: log, saveExercises }, S.max.saved)) onClose();
   };
 
   return (

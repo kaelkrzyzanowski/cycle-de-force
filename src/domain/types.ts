@@ -102,6 +102,11 @@ export interface Exercise {
   aliases: string[];
   /** L'exercice a un RM propre, utilisable comme base de pourcentages. */
   hasMax?: boolean;
+  /**
+   * RM actuel (kg). Base des % hors cycle et quand un cycle n'a pas de valeur pour cet exercice ;
+   * chaque cycle garde sa propre copie (`Cycle.max`) pour que l'historique reste juste.
+   */
+  max?: number;
   /** Abréviation affichée après un % (« 70 % S ») ; à défaut, le nom. */
   short?: string;
   /** RM utilisé par défaut quand on passe une série de cet exercice en %. */

@@ -4,10 +4,10 @@ import { followingSessions, propagateEdits } from '../../domain/sessionEdit';
 import type { SessionEdit } from '../../domain/sessionEdit';
 import { canQuickValidate, mapExercise, mapSet, recordSet, resetSet, validateExercise, validateSet } from '../../domain/sets';
 import { sessionTotals } from '../../domain/totals';
-import type { Cycle, Exercise, Maxes, Session, SessionExercise } from '../../domain/types';
+import type { Cycle, Exercise, Session, SessionExercise } from '../../domain/types';
 import { commit } from '../actions';
 import { Sheet } from '../components/Sheet';
-import { useApp, useData } from '../context';
+import { useApp, useData, useMaxOf } from '../context';
 import { formatDayLong, formatKg, formatTonnage } from '../format';
 import { S } from '../strings';
 import { useSessionLabel } from '../useSessionLabel';
@@ -17,7 +17,6 @@ import { SetPill } from '../session/SetPill';
 import { SetSheet } from '../session/SetSheet';
 import type { SetDecision } from '../session/SetSheet';
 
-const NO_MAX: Maxes = {};
 const RIR_VALUES = [0, 1, 2, 3, 4, 5];
 
 interface Data {
@@ -53,7 +52,7 @@ function SessionView({ session: initial, cycle, cycleSessions, catalogue }: Data
   const [open, setOpen] = useState<{ exerciseRowId: string; index: number } | null>(null);
   const [editing, setEditing] = useState(false);
   const [pending, setPending] = useState<Pending | null>(null);
-  const max = cycle?.max ?? NO_MAX;
+  const max = useMaxOf().maxOf(cycle?.max);
   const labelOf = useSessionLabel();
   useWakeLock(true);
 
@@ -121,8 +120,7 @@ function SessionView({ session: initial, cycle, cycleSessions, catalogue }: Data
   };
 
   const saveEdits = async (p: Pending, propagate: boolean) => {
-    const used = new Set(p.draft.exercises.map((e) => e.exerciseId));
-    await Promise.all(p.newExercises.filter((e) => used.has(e.id)).map((e) => app.repo.saveExercise(e)));
+    await Promise.all(p.newExercises.map((e) => app.repo.saveExercise(e)));
     const others = propagate ? propagateEdits(p.draft, cycleSessions, p.edits, newId) : [];
     const message = others.length ? S.edit.savedIn(others.length + 1) : S.edit.saved;
     if (await commit(app, { saveSessions: [p.draft, ...others] }, message)) {

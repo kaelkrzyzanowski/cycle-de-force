@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Cycle de force β</string>
-    <string name="title_activity_main">Cycle de force β</string>
+    <string name="app_name">HaltèreBook</string>
+    <string name="title_activity_main">HaltèreBook</string>
     <string name="package_name">fr.cycledeforce.beta</string>
     <string name="custom_url_scheme">fr.cycledeforce.beta</string>
 </resources>

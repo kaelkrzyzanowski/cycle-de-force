@@ -103,7 +103,7 @@ test('exporter puis restaurer une sauvegarde sur un appareil vierge', async ({ p
     page.waitForEvent('download'),
     page.getByRole('button', { name: 'Exporter une sauvegarde' }).click(),
   ]);
-  expect(download.suggestedFilename()).toMatch(/^cycle-de-force-\d{4}-\d{2}-\d{2}\.json$/);
+  expect(download.suggestedFilename()).toMatch(/^halterebook-\d{4}-\d{2}-\d{2}\.json$/);
   const path = await download.path();
   const exported = JSON.parse(await readFile(path, 'utf8')) as { app: string; counts: Record<string, number>; data: unknown };
   expect(exported.app).toBe('cycle-de-force');
@@ -117,7 +117,7 @@ test('exporter puis restaurer une sauvegarde sur un appareil vierge', async ({ p
   const input = other.locator('input[type="file"]');
 
   await input.setInputFiles({ name: 'autre.json', mimeType: 'application/json', buffer: Buffer.from('{"app":"autre"}') });
-  await expect(other.getByRole('alert')).toHaveText('Ce fichier ne vient pas de Cycle de force.');
+  await expect(other.getByRole('alert')).toHaveText('Ce fichier n’est pas une sauvegarde HaltèreBook (ni Cycle de force).');
   await other.getByRole('button', { name: 'Fermer' }).click();
 
   await input.setInputFiles(path);

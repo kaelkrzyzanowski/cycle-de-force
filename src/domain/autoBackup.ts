@@ -1,19 +1,20 @@
+import { BACKUP_FILE_PREFIX } from './backup';
 import type { IsoDate } from './types';
 
 /** Dossier de la sauvegarde automatique (dans « Documents » sur Android). */
-/** Distinct de l'app 1.x (« CycleDeForce ») : la bêta s'installe à côté sans mélanger les copies. */
-export const AUTO_BACKUP_DIR = 'CycleDeForceBeta';
+/** Distinct de l'app 1.x (« CycleDeForce ») : HaltèreBook s'installe à côté sans mélanger les copies. */
+export const AUTO_BACKUP_DIR = 'HaltereBook';
 /** Nombre de jours de sauvegarde automatique conservés. */
 export const AUTO_BACKUP_KEEP = 14;
 /** Intervalle minimal entre deux sauvegardes automatiques. */
 export const AUTO_BACKUP_MIN_INTERVAL_MS = 2 * 60_000;
 
-const NAME = /^cycle-de-force-(\d{4}-\d{2}-\d{2})(?:-(\d{4}))?\.json$/;
+const NAME = new RegExp(String.raw`^${BACKUP_FILE_PREFIX}-(\d{4}-\d{2}-\d{2})(?:-(\d{4}))?\.json$`);
 
 /** Nom de secours quand le fichier du jour existe mais n'appartient plus à l'app (après réinstallation). */
 export function fallbackBackupName(date: IsoDate, now: Date): string {
   const hhmm = `${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
-  return `cycle-de-force-${date}-${hhmm}.json`;
+  return `${BACKUP_FILE_PREFIX}-${date}-${hhmm}.json`;
 }
 
 /**

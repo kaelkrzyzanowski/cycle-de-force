@@ -62,6 +62,8 @@ export interface Changes {
   deleteSessionIds?: readonly string[];
   addMaxChanges?: readonly MaxChange[];
   saveActivities?: readonly Activity[];
+  saveExercises?: readonly Exercise[];
+  saveTemplates?: readonly SessionTemplate[];
   deleteActivityIds?: readonly string[];
 }
 
@@ -173,7 +175,7 @@ class IdbRepository implements Repository {
   }
 
   async applyChanges(changes: Changes): Promise<void> {
-    const tx = this.db.transaction(['cycles', 'sessions', 'maxChanges', 'activities'], 'readwrite');
+    const tx = this.db.transaction(['cycles', 'sessions', 'maxChanges', 'activities', 'exercises', 'templates'], 'readwrite');
     const sessions = tx.objectStore('sessions');
     const activities = tx.objectStore('activities');
     await atomically(tx, (push) => {
@@ -183,6 +185,8 @@ class IdbRepository implements Repository {
       for (const m of changes.addMaxChanges ?? []) push(tx.objectStore('maxChanges').put(m));
       for (const id of changes.deleteActivityIds ?? []) push(activities.delete(id));
       for (const a of changes.saveActivities ?? []) push(activities.put(a));
+      for (const e of changes.saveExercises ?? []) push(tx.objectStore('exercises').put(e));
+      for (const t of changes.saveTemplates ?? []) push(tx.objectStore('templates').put(t));
     });
   }
 

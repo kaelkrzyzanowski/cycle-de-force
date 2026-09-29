@@ -8,6 +8,7 @@ export type Route =
   | { name: 'today' }
   | { name: 'chrono' }
   | { name: 'templates' }
+  | { name: 'exercises' }
   | { name: 'stats' }
   | { name: 'settings' }
   | { name: 'session'; id: string }
@@ -22,6 +23,7 @@ export const href = {
   today: () => '#/aujourdhui',
   chrono: () => '#/chrono',
   templates: () => '#/modeles',
+  exercises: () => '#/exercices',
   stats: () => '#/stats',
   settings: () => '#/reglages',
   session: (id: string) => `#/seance/${id}`,
@@ -41,6 +43,8 @@ export function parseRoute(hash: string): Route {
       return { name: 'chrono' };
     case 'modeles':
       return { name: 'templates' };
+    case 'exercices':
+      return { name: 'exercises' };
     case 'stats':
       return { name: 'stats' };
     case 'reglages':
@@ -72,6 +76,7 @@ export function tabOf(route: Route): Tab | null {
     case 'settings':
       return null;
     case 'template':
+    case 'exercises':
       return 'templates';
     default:
       return 'calendar';

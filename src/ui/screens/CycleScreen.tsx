@@ -7,7 +7,7 @@ import type { Cycle, MaxChange, Session, SessionTemplate } from '../../domain/ty
 import { templatesById } from '../actions';
 import { MaxCard } from '../components/MaxCard';
 import { NEUTRAL_COLOR, SessionDot } from '../components/SessionCard';
-import { useApp, useData, useMaxNames } from '../context';
+import { useApp, useData, useMaxNames, useMaxOf } from '../context';
 import { formatDayLong, formatDayShort, formatKg, formatRange, formatTonnage } from '../format';
 import { href } from '../router';
 import { S } from '../strings';
@@ -22,6 +22,7 @@ interface Data {
 export function CycleScreen({ id }: { id: string }) {
   const { settings } = useApp();
   const { name: maxName } = useMaxNames();
+  const { maxOf } = useMaxOf();
   const data = useData<Data>(
     async (repo) => ({
       cycle: await repo.getCycle(id),
@@ -81,7 +82,7 @@ export function CycleScreen({ id }: { id: string }) {
             const monday = addDays(cycle.startDate, i * 7);
             const inWeek = sessions.filter((s) => s.cycleWeek === week);
             const done = inWeek.filter((s) => ['VALIDATED', 'FAILED', 'INCOMPLETE'].includes(deriveSessionStatus(s, today))).length;
-            const tonnage = inWeek.reduce((t, s) => t + sessionTotals(s, cycle.max, settings.rounding).tonnage, 0);
+            const tonnage = inWeek.reduce((t, s) => t + sessionTotals(s, maxOf(cycle.max), settings.rounding).tonnage, 0);
             return (
               <li key={week} class={`card cycle-week${week === currentWeek ? ' is-current' : ''}`}>
                 <div class="section-header">

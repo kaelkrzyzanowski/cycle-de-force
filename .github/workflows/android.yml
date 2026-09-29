@@ -51,7 +51,7 @@ jobs:
           test -f "$APK"
           "$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)/apksigner" verify --print-certs "$APK" | head -3
           mkdir -p ../release
-          cp "$APK" "../release/cycle-de-force-$VERSION_NAME.apk"
+          cp "$APK" "../release/halterebook-$VERSION_NAME.apk"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -66,5 +66,5 @@ jobs:
           # Une version avec suffixe (v2.0.0-beta.1) est publiée en pré-version, à part des releases stables.
           PRE=""; case "$GITHUB_REF_NAME" in *-*) PRE="--prerelease";; esac
           gh release create "$GITHUB_REF_NAME" release/*.apk $PRE \
-            --title "Cycle de force $GITHUB_REF_NAME" \
+            --title "HaltèreBook $GITHUB_REF_NAME" \
             --notes "APK Android. Sur le téléphone : ouvrir ce fichier .apk, autoriser l'installation, puis installer. Les mises à jour s'installent par-dessus sans perdre les données."

@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 test('premier lancement vierge : aucun modèle, accueil pour démarrer', async ({ page }) => {
   await page.goto('/#/modeles');
   await expect(page.getByText('Aucun modèle pour l’instant')).toBeVisible();
-  await expect(page.locator('.template-row')).toHaveCount(0);
+  await expect(page.locator('.template-row', { has: page.locator('.swatch') })).toHaveCount(0); // hors lien « Exercices et RM »
   await page.goto('/#/calendrier');
   await expect(page.getByRole('heading', { name: 'Bienvenue' })).toBeVisible();
   await page.getByRole('link', { name: 'Créer mon premier modèle' }).click();
@@ -16,7 +16,7 @@ test("l'app est installable et s'ouvre hors ligne", async ({ page, context }) =>
     const href = document.querySelector('link[rel="manifest"]')?.getAttribute('href');
     return href ? ((await (await fetch(href)).json()) as { name: string; display: string }) : null;
   });
-  expect(manifest).toMatchObject({ name: 'Cycle de force', display: 'standalone' });
+  expect(manifest).toMatchObject({ name: 'HaltèreBook', display: 'standalone' });
 
   // Attendre que le service worker contrôle la page (précache terminé).
   await page.evaluate(() => navigator.serviceWorker.ready);

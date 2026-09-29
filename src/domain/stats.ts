@@ -1,5 +1,6 @@
 import { cycleWeekOf } from './cycles';
 import { displayKg, displayReps, isRealized } from './load';
+import { effectiveMax } from './max';
 import { setsTotals } from './totals';
 import type { Cycle, IsoDate, MaxChange, MaxId, Maxes, Rounding, Session, SetStatus } from './types';
 
@@ -14,9 +15,10 @@ export function e1rm(reps: number, kg: number): number | null {
 
 export type MaxOf = (session: Session) => Maxes;
 
-export function maxOfCycles(cycles: readonly Cycle[]): MaxOf {
-  const byId = new Map(cycles.map((c) => [c.id, c.max]));
-  return (s) => (s.cycleId ? byId.get(s.cycleId) : undefined) ?? NO_MAX;
+/** `fallback` : RM actuels des exercices, pour les séances hors cycle et les RM absents du cycle. */
+export function maxOfCycles(cycles: readonly Cycle[], fallback: Maxes = NO_MAX): MaxOf {
+  const byId = new Map(cycles.map((c) => [c.id, effectiveMax(c.max, fallback)]));
+  return (s) => (s.cycleId ? byId.get(s.cycleId) : undefined) ?? fallback;
 }
 
 function sessionTonnage(s: Session, maxOf: MaxOf, rounding: Rounding): number {

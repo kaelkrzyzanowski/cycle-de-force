@@ -1325,3 +1325,32 @@ legend {
   background: var(--accent);
   color: var(--accent-contrast);
 }
+
+/* ——— Exercices et RM ——— */
+.exercise-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.exercise-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: var(--tap);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.exercise-row .name {
+  font-weight: 600;
+}
+.rm-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border);
+}

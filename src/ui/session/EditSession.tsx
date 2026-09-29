@@ -3,7 +3,8 @@ import { newId } from '../../domain/ids';
 import { applyEdit, pushEdit } from '../../domain/sessionEdit';
 import type { SessionEdit } from '../../domain/sessionEdit';
 import type { Exercise, LoadRule, MaxId, Session, SessionExercise, SessionSet } from '../../domain/types';
-import { useApp, useMaxNames } from '../context';
+import { NumberField } from '../components/NumberField';
+import { useApp } from '../context';
 import { formatKg, formatPct, parseDecimal } from '../format';
 import { S } from '../strings';
 import { defaultMaxFor, resolveExercise } from './catalog';
@@ -13,7 +14,8 @@ export const CATALOGUE_LIST_ID = 'exercise-catalogue';
 interface Props {
   initial: Session;
   catalogue: readonly Exercise[];
-  onDone: (draft: Session, edits: SessionEdit[], newExercises: Exercise[]) => void;
+  /** `exercises` : exercices créés ou modifiés (RM) pendant l'édition, à enregistrer. */
+  onDone: (draft: Session, edits: SessionEdit[], exercises: Exercise[]) => void;
   onCancel: () => void;
 }
 
@@ -21,7 +23,7 @@ interface Props {
 export function EditSession({ initial, catalogue, onDone, onCancel }: Props) {
   const [draft, setDraft] = useState(initial);
   const [edits, setEdits] = useState<SessionEdit[]>([]);
-  const { known, resolve, newExercises } = useCatalogue(catalogue);
+  const catalog = useCatalogue(catalogue);
 
   const dispatch = (edit: SessionEdit) => {
     const next = applyEdit(draft, edit, newId);
@@ -44,13 +46,13 @@ export function EditSession({ initial, catalogue, onDone, onCancel }: Props) {
         />
       </label>
 
-      <PrescriptionEditor draft={draft} known={known} dispatch={dispatch} resolve={resolve} />
+      <PrescriptionEditor draft={draft} catalog={catalog} dispatch={dispatch} />
 
       <div class="button-row sticky-actions">
         <button type="button" class="btn" onClick={onCancel}>
           {S.edit.cancel}
         </button>
-        <button type="button" class="btn primary" onClick={() => onDone(draft, edits, newExercises)}>
+        <button type="button" class="btn primary" onClick={() => onDone(draft, edits, catalog.toSave([draft]))}>
           {S.edit.done}
         </button>
       </div>
@@ -58,27 +60,49 @@ export function EditSession({ initial, catalogue, onDone, onCancel }: Props) {
   );
 }
 
-/** Catalogue d'exercices + ceux créés pendant l'édition (enregistrés à la fin). */
+/**
+ * Catalogue d'exercices pendant une édition : les nouveaux et ceux dont on change le RM restent en
+ * brouillon, et ne sont enregistrés qu'à la fin (`toSave`).
+ */
 export function useCatalogue(catalogue: readonly Exercise[]) {
   const [newExercises, setNewExercises] = useState<Exercise[]>([]);
-  const known = [...catalogue, ...newExercises];
+  const [changed, setChanged] = useState<Record<string, Exercise>>({});
+  const known = [...catalogue, ...newExercises].map((e) => changed[e.id] ?? e);
   const resolve = (name: string): Exercise => {
     const { exercise, isNew } = resolveExercise(name, known);
     if (isNew) setNewExercises((list) => [...list, exercise]);
     return exercise;
   };
-  return { known, resolve, newExercises };
+  /** RM actuel d'un exercice (0 : aucun). */
+  const setMax = (id: string, kg: number) => {
+    const base = known.find((e) => e.id === id) ?? { id, name: id, aliases: [] };
+    setChanged((c) => ({ ...c, [id]: { ...base, max: kg > 0 ? kg : undefined, hasMax: kg > 0 ? true : base.hasMax } }));
+  };
+  /** Exercices à enregistrer : les nouveaux encore utilisés, et tous ceux modifiés. */
+  const toSave = (drafts: readonly { exercises: readonly { exerciseId: string }[] }[]): Exercise[] => {
+    const used = new Set(drafts.flatMap((d) => d.exercises.map((e) => e.exerciseId)));
+    const byId = new Map(known.map((e) => [e.id, e]));
+    const ids = new Set([...newExercises.filter((e) => used.has(e.id)).map((e) => e.id), ...Object.keys(changed)]);
+    return [...ids].flatMap((id) => byId.get(id) ?? []);
+  };
+  const labelOf = (id: string): string => {
+    const e = known.find((k) => k.id === id);
+    return e?.short?.trim() || e?.name || id;
+  };
+  return { known, resolve, setMax, toSave, labelOf };
 }
+
+export type Catalog = ReturnType<typeof useCatalogue>;
 
 interface PrescriptionEditorProps {
   draft: Session;
-  known: readonly Exercise[];
+  catalog: Catalog;
   dispatch: (edit: SessionEdit) => void;
-  resolve: (name: string) => Exercise;
 }
 
 /** Liste d'exercices éditable (séance ou semaine de modèle) + ajout avec autocomplétion. */
-export function PrescriptionEditor({ draft, known, dispatch, resolve }: PrescriptionEditorProps) {
+export function PrescriptionEditor({ draft, catalog, dispatch }: PrescriptionEditorProps) {
+  const { known, resolve } = catalog;
   const app = useApp();
   const [newName, setNewName] = useState('');
 
@@ -109,8 +133,8 @@ export function PrescriptionEditor({ draft, known, dispatch, resolve }: Prescrip
           position={i}
           last={i === draft.exercises.length - 1}
           maxChoices={maxChoicesFor(ex.exerciseId, known)}
+          catalog={catalog}
           dispatch={dispatch}
-          resolve={resolve}
         />
       ))}
 
@@ -138,8 +162,8 @@ interface ExerciseEditorProps {
   position: number;
   last: boolean;
   maxChoices: MaxId[];
+  catalog: Catalog;
   dispatch: (edit: SessionEdit) => void;
-  resolve: (name: string) => Exercise;
 }
 
 /**
@@ -151,9 +175,12 @@ export function maxChoicesFor(exerciseId: string, known: readonly Exercise[]): M
   return [...new Set([...(first ? [first] : []), ...known.filter((e) => e.hasMax).map((e) => e.id), exerciseId])];
 }
 
-function ExerciseEditor({ ex, position, last, maxChoices, dispatch, resolve }: ExerciseEditorProps) {
+function ExerciseEditor({ ex, position, last, maxChoices, catalog, dispatch }: ExerciseEditorProps) {
+  const { resolve, known, setMax } = catalog;
   const locked = ex.sets.some((s) => s.status !== 'PLANNED');
   const lastSet = ex.sets.at(-1);
+  // RM utilisés par les séries en % de cet exercice : réglables ici même.
+  const maxIds = [...new Set(ex.sets.flatMap((s) => (s.load.kind === 'PERCENT' ? [s.load.of] : [])))];
   return (
     <section class="card stack tight">
       <div class="edit-exercise-header">
@@ -200,8 +227,26 @@ function ExerciseEditor({ ex, position, last, maxChoices, dispatch, resolve }: E
       </div>
 
       {ex.sets.map((set) => (
-        <SetEditor key={set.index} set={set} exerciseId={ex.exerciseId} maxChoices={maxChoices} dispatch={dispatch} />
+        <SetEditor key={set.index} set={set} exerciseId={ex.exerciseId} maxChoices={maxChoices} labelOf={catalog.labelOf} dispatch={dispatch} />
       ))}
+
+      {maxIds.map((id) => {
+        const exercise = known.find((e) => e.id === id);
+        return (
+          <div key={id} class="rm-row">
+            <NumberField
+              label={S.edit.rmOf(exercise?.name ?? id)}
+              value={exercise?.max ?? 0}
+              step={2.5}
+              max={999}
+              suffix="kg"
+              buttons={false}
+              onChange={(kg) => setMax(id, kg)}
+            />
+            {!exercise?.max && <span class="warning">{S.edit.rmMissing}</span>}
+          </div>
+        );
+      })}
 
       <button
         type="button"
@@ -252,11 +297,13 @@ function SetEditor({
   set,
   exerciseId,
   maxChoices,
+  labelOf,
   dispatch,
 }: {
   set: SessionSet;
   exerciseId: string;
   maxChoices: MaxId[];
+  labelOf: (id: MaxId) => string;
   dispatch: (edit: SessionEdit) => void;
 }) {
   const n = set.index + 1;
@@ -268,7 +315,6 @@ function SetEditor({
       </div>
     );
   }
-  const { short } = useMaxNames();
   const lift = set.load.kind === 'PERCENT' ? set.load.of : (maxChoices[0] ?? exerciseId);
   const choices = maxChoices.includes(lift) ? maxChoices : [lift, ...maxChoices];
   const value = parseDecimal(ruleValue(set.load)) ?? 0;
@@ -322,7 +368,7 @@ function SetEditor({
         >
           {choices.map((id) => (
             <option key={id} value={id}>
-              {short(id)}
+              {labelOf(id)}
             </option>
           ))}
         </select>

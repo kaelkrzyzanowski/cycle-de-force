@@ -58,7 +58,7 @@ export const AUTO_BACKUP_PATH = 'autoBackupPath';
 export const AUTO_BACKUP_ERROR = 'autoBackupError';
 
 /**
- * Application Android : copie automatique dans Documents/CycleDeForceBeta (au plus toutes les 2 minutes).
+ * Application Android : copie automatique dans Documents/HaltereBook (au plus toutes les 2 minutes).
  * Sans effet dans le navigateur. `force` ignore l'intervalle minimal.
  */
 export async function runAutoBackup(repo: Repository, force = false): Promise<void> {

@@ -3,7 +3,7 @@
 const plural = (n: number, one: string, many: string): string => `${n} ${n > 1 ? many : one}`;
 
 export const S = {
-  appName: 'Cycle de force β',
+  appName: 'HaltèreBook',
   loading: 'Chargement…',
   loadError: 'Impossible d’ouvrir la base de données locale.',
   saveError: 'L’enregistrement a échoué, rien n’a été modifié.',
@@ -298,6 +298,8 @@ export const S = {
     setLoadKind: (i: number) => `Type de charge série ${i}`,
     setLoadValue: (i: number) => `Valeur de charge série ${i}`,
     setLift: (i: number) => `Mouvement série ${i}`,
+    rmOf: (name: string) => `RM ${name}`,
+    rmMissing: 'RM à renseigner : sans lui, la charge reste « à saisir ».',
     loadKinds: { FIXED: 'kg', PERCENT: '% max', BODYWEIGHT: 'PDC +', NONE: 'libre' },
     locked: 'Réalisée',
     addExercise: 'Ajouter un exercice',
@@ -347,7 +349,7 @@ export const S = {
     preRestore: 'Télécharger la copie d’avant restauration',
     errors: {
       NOT_JSON: 'Ce fichier n’est pas un JSON lisible.',
-      WRONG_APP: 'Ce fichier ne vient pas de Cycle de force.',
+      WRONG_APP: 'Ce fichier n’est pas une sauvegarde HaltèreBook (ni Cycle de force).',
       TOO_NEW: 'Cette sauvegarde vient d’une version plus récente de l’app : mets l’app à jour avant de la restaurer.',
       INVALID: 'Sauvegarde corrompue ou incomplète.',
     },
@@ -357,7 +359,7 @@ export const S = {
     shareTitle: 'Enregistrer la sauvegarde',
     autoTitle: 'Sauvegarde automatique sur le téléphone',
     autoText:
-      'Une copie est écrite chaque jour dans Documents/CycleDeForceBeta (14 jours gardés). Elle reste sur le téléphone même si l’app est désinstallée. Pour changer de téléphone, utilise « Exporter une sauvegarde » vers Drive.',
+      'Une copie est écrite chaque jour dans Documents/HaltereBook (14 jours gardés). Elle reste sur le téléphone même si l’app est désinstallée. Pour changer de téléphone, utilise « Exporter une sauvegarde » vers Drive.',
     autoLast: (when: string, path: string) => `Dernière copie : ${when}${path ? ` · ${path}` : ''}`,
     autoNever: 'Pas encore de copie automatique.',
     autoError: (message: string) => `La dernière copie automatique a échoué : ${message}`,
@@ -392,6 +394,25 @@ export const S = {
     timerNote: 'Sonne et vibre à la fin, même si tu changes d’onglet ; l’écran reste allumé pendant le décompte. Le son suit le volume « multimédia » du téléphone.',
     pill: (t: string) => `Minuteur : ${t}`,
     pillDone: 'Minuteur terminé',
+  },
+
+  exercises: {
+    title: 'Exercices et RM',
+    linkHint: 'Tes exercices et leur RM, base des charges en %',
+    intro: 'Le RM (charge maximale sur une répétition) d’un exercice sert de base aux séries en %. Chaque cycle en garde sa propre copie, modifiable dans « Mes max ».',
+    empty: 'Aucun exercice pour l’instant : ils se créent aussi en ajoutant un exercice à un modèle.',
+    rm: (kg: string) => `RM ${kg} kg`,
+    noRm: 'Pas de RM',
+    new: 'Nouvel exercice',
+    name: 'Nom',
+    clash: (name: string) => `« ${name} » existe déjà.`,
+    max: 'RM actuel',
+    maxHint: 'Laisse 0 si tu ne travailles pas cet exercice en %.',
+    short: 'Abréviation (facultatif)',
+    shortHint: 'Affichée après un pourcentage : « 70 % S » au lieu de « 70 % Squat ».',
+    save: 'Enregistrer',
+    saved: 'Exercice enregistré',
+    created: (name: string) => `Exercice « ${name} » créé`,
   },
 
   templates: {

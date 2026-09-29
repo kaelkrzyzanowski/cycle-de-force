@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'preact/hooks';
 import { conflictDates, cycleEndDate, generateCycleSessions, resolveConflicts } from '../../domain/cycles';
 import { addDays, isoWeekday, mondayOf, todayIso } from '../../domain/dates';
 import { newId } from '../../domain/ids';
-import { maxIdsUsedBy, templateWeeks } from '../../domain/max';
+import { maxIdsUsedBy, templateWeeks, withUpdatedMaxes } from '../../domain/max';
 import { sessionLabel } from '../../domain/templates';
 import type { Cycle, Maxes, Session, SessionTemplate, Weekday } from '../../domain/types';
 import { commit, templatesById } from '../actions';
@@ -11,7 +11,7 @@ import type { Choices } from '../components/ConflictResolver';
 import { DateField, TextField } from '../components/fields';
 import { MaxFields } from '../components/MaxCard';
 import { NumberField } from '../components/NumberField';
-import { useApp, useData } from '../context';
+import { useApp, useData, useMaxOf } from '../context';
 import { formatDayLong, formatRange } from '../format';
 import { href, navigate } from '../router';
 import { S } from '../strings';
@@ -38,8 +38,9 @@ function Wizard({ cycles, templates }: Setup) {
     previous && cycleEndDate(previous) >= todayIso() ? addDays(cycleEndDate(previous), 1) : mondayOf(todayIso()),
   );
   const [weeksCount, setWeeksCount] = useState(7);
-  // RM et planning repris du cycle précédent ; tout est vide pour le premier.
-  const [max, setMax] = useState<Maxes>(previous ? { ...previous.max } : {});
+  // RM : ceux renseignés sur les exercices, sinon ceux du cycle précédent. Planning repris du précédent.
+  const { fallback } = useMaxOf();
+  const [max, setMax] = useState<Maxes>({ ...previous?.max, ...fallback });
   const [plan, setPlan] = useState<Partial<Record<Weekday, string>>>(
     Object.fromEntries(
       (previous?.weeklyPlan ?? []).filter((e) => templates.some((t) => t.id === e.templateId)).map((e) => [e.weekday, e.templateId]),
@@ -87,7 +88,12 @@ function Wizard({ cycles, templates }: Setup) {
     const { save, remove } = resolveConflicts(sessions, existing, choices);
     const ok = await commit(
       app,
-      { saveCycles: [cycle], saveSessions: save, deleteSessionIds: remove.map((s) => s.id) },
+      {
+        saveCycles: [cycle],
+        saveSessions: save,
+        deleteSessionIds: remove.map((s) => s.id),
+        saveExercises: withUpdatedMaxes([...app.exercises.values()], cycle.max),
+      },
       S.cycleForm.created(cycle.name, save.length),
     );
     if (ok) navigate(href.calendar(), true);

@@ -50,5 +50,6 @@ test('minuteur : durée rapide, pause, +15 s, sonne sur un autre onglet ; chrono
   await stopwatch.getByRole('button', { name: 'Tour' }).click();
   await stopwatch.getByRole('button', { name: 'Pause' }).click();
   await expect(stopwatch).toContainText('Tour 1');
-  await expect(stopwatch.locator('.num').first()).toHaveText('1:05.0');
+  // L'horloge simulée laisse aussi s'écouler le temps réel : au dixième près.
+  await expect(stopwatch.locator('.num').first()).toHaveText(/^1:05\.\d$/);
 });

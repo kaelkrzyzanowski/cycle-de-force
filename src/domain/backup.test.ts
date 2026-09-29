@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { exampleCycle, seedData } from '../seed';
+import { exampleCycle, exampleProgram } from '../fixtures';
 import { buildBackup, parseBackup } from './backup';
 import type { BackupData } from './backup';
 import { generateCycleSessions } from './cycles';
@@ -10,7 +10,7 @@ let n = 0;
 const newId = () => `b${++n}`;
 
 function sampleData(): BackupData {
-  const { templates, exercises } = seedData();
+  const { templates, exercises } = exampleProgram();
   const cycle = exampleCycle('c0', '2026-09-21');
   const sessions = generateCycleSessions(cycle, new Map(templates.map((t) => [t.id, t])), newId);
   const first = sessions[0]!;

@@ -85,7 +85,6 @@ export function App() {
   useEffect(() => {
     (async () => {
       const repo = await getRepository();
-      await repo.ensureSeeded();
       setExercises(new Map((await repo.listExercises()).map((e) => [e.id, e])));
       setBoot({ state: 'ready', repo, settings: await repo.getSettings() });
       if (isNative) {

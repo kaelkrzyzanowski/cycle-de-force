@@ -34,7 +34,7 @@ function migrateMaxes(max: unknown): unknown {
 
 /**
  * Passe des données au format « RM par exercice » : les % et les max référencent un exercice,
- * les trois anciens mouvements deviennent des exercices avec RM, et tout exercice utilisé par un
+ * les anciens mouvements utilisés deviennent des exercices avec RM, et tout exercice utilisé par un
  * modèle ou une séance est ajouté au catalogue s'il y manque. Idempotent.
  */
 export function migrateLegacyLifts<T extends Json>(data: T): T {
@@ -55,7 +55,15 @@ export function migrateLegacyLifts<T extends Json>(data: T): T {
     const { defaultLift, ...rest } = e;
     catalogue.set(String(e['id']), defaultLift === undefined ? rest : { ...rest, defaultMax: liftId(defaultLift) });
   }
+  // Seuls les anciens mouvements réellement utilisés (un max, un %, le journal) deviennent des exercices avec RM.
+  const referenced = new Set<unknown>([
+    ...cycles.flatMap((c) => (isRecord(c.max) ? Object.keys(c.max) : [])),
+    ...maxChanges.map((m) => m['exerciseId']),
+    // Array.from plutôt que les helpers d'itérateur : absents des WebView Android anciennes.
+    ...Array.from(JSON.stringify([templates, sessions]).matchAll(/"of":"([^"]+)"/g), (m) => m[1]),
+  ]);
   for (const legacy of Object.values(LEGACY_LIFTS)) {
+    if (!referenced.has(legacy.id)) continue;
     const existing = catalogue.get(legacy.id);
     catalogue.set(legacy.id, existing ? { short: legacy.short, ...existing, hasMax: true } : { ...legacy, aliases: [...legacy.aliases] });
   }

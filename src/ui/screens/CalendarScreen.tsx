@@ -1,11 +1,9 @@
 import { useState } from 'preact/hooks';
-import { cycleWeekOf, findCycleForDate, generateCycleSessions } from '../../domain/cycles';
+import { cycleWeekOf, findCycleForDate } from '../../domain/cycles';
 import { addDays, mondayOf, todayIso } from '../../domain/dates';
-import { newId } from '../../domain/ids';
 import { deriveSessionStatus } from '../../domain/sessionStatus';
 import type { Cycle, IsoDate, Session, SessionTemplate } from '../../domain/types';
 import { sessionLabel } from '../../domain/templates';
-import { exampleCycle } from '../../seed';
 import { commit, templatesById } from '../actions';
 import { NEUTRAL_COLOR, SessionCard, SessionDot } from '../components/SessionCard';
 import { Sheet } from '../components/Sheet';
@@ -42,7 +40,7 @@ interface CalendarData {
   sessions: Session[];
   cycles: Cycle[];
   templates: SessionTemplate[];
-  exampleDismissed: boolean;
+  welcomeHidden: boolean;
 }
 
 export function CalendarScreen() {
@@ -87,7 +85,7 @@ export function CalendarScreen() {
       sessions: await repo.listSessionsBetween(from, to),
       cycles: await repo.listCycles(),
       templates: await repo.listTemplates(),
-      exampleDismissed: (await repo.getFlag('exampleOffer')) === 'dismissed',
+      welcomeHidden: (await repo.getFlag('welcome')) === 'hidden',
     }),
     [from, to],
   );
@@ -110,13 +108,8 @@ export function CalendarScreen() {
   const cycle = findCycleForDate(data.cycles, selected);
   const cycleWeek = cycle ? cycleWeekOf(cycle, selected) : null;
 
-  const createExample = async () => {
-    const c = exampleCycle(newId(), mondayOf(today));
-    const sessions = generateCycleSessions(c, templates, newId);
-    await commit(app, { saveCycles: [c], saveSessions: sessions }, S.cycleForm.created(c.name, sessions.length));
-  };
-  const dismissExample = async () => {
-    await app.repo.setFlag('exampleOffer', 'dismissed');
+  const hideWelcome = async () => {
+    await app.repo.setFlag('welcome', 'hidden');
     app.refresh();
   };
 
@@ -197,18 +190,32 @@ export function CalendarScreen() {
         <p class="cycle-banner muted">{S.calendar.noCycle}</p>
       )}
 
-      {data.cycles.length === 0 && !data.exampleDismissed && (
+      {data.cycles.length === 0 && !data.welcomeHidden && (
         <section class="card stack">
-          <h3>{S.example.title}</h3>
-          <p>{S.example.text}</p>
+          <h3>{S.welcome.title}</h3>
+          <p>{S.welcome.text}</p>
+          <ol class="welcome-steps">
+            {S.welcome.steps.map((step) => (
+              <li key={step}>{step}</li>
+            ))}
+          </ol>
           <div class="button-row">
-            <button type="button" class="btn" onClick={dismissExample}>
-              {S.example.later}
-            </button>
-            <button type="button" class="btn primary" onClick={createExample}>
-              {S.example.create}
-            </button>
+            {data.templates.length === 0 ? (
+              <a class="btn primary" href={href.templates()}>
+                {S.welcome.toTemplates}
+              </a>
+            ) : (
+              <a class="btn primary" href={href.newCycle()}>
+                {S.welcome.toCycle}
+              </a>
+            )}
           </div>
+          <p class="muted">
+            {S.welcome.restoreHint} <a href={href.settings()}>{S.welcome.toSettings}</a>
+          </p>
+          <button type="button" class="btn small" onClick={hideWelcome}>
+            {S.welcome.hide}
+          </button>
         </section>
       )}
 

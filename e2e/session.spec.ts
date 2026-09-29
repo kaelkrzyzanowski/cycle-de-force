@@ -1,11 +1,10 @@
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
+import { loadExample } from './example';
 
 async function createBloc0(page: Page) {
-  await page.goto('/#/calendrier');
-  await page.getByRole('button', { name: 'Créer le Bloc 0' }).click();
-  await expect(page.getByRole('status')).toHaveText('Bloc 0 créé : 28 séances');
+  await loadExample(page);
   await page.getByRole('button', { name: 'Semaine', exact: true }).click();
 }
 

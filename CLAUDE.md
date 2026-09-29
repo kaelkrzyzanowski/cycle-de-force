@@ -22,8 +22,10 @@ Racine locale : `C:\Users\kaelk\cycle-de-force`.
 - `src/data/repository.ts` — seul point d'accès aux données (interface `Repository`),
   implémentation IndexedDB dans `db.ts`. `applyChanges()` fait des écritures
   transactionnelles tout-ou-rien.
-- `src/seed/` — les 5 modèles natifs (Squat, Bench, Deadlift, SBD, Joker) et le
-  cycle d'exemple « Bloc 0 », dérivés du cahier Excel original de l'utilisateur.
+- `src/fixtures/` — programme d'exemple (5 modèles Squat/Bench/Deadlift/SBD/Joker et le
+  cycle « Bloc 0 », tirés du cahier Excel de l'utilisateur) : **données de test uniquement**.
+  L'app démarre vierge (aucun modèle, exercice ni cycle) ; les e2e chargent l'exemple via
+  `loadExample()` (`e2e/example.ts`), qui passe par Réglages → Restaurer.
 - `src/ui/` — écrans Preact ; **tous les textes sont dans `src/ui/strings.ts`**
   (à respecter pour toute nouvelle UI).
 - `e2e/` — tests Playwright par écran/scénario.
@@ -66,10 +68,11 @@ Racine locale : `C:\Users\kaelk\cycle-de-force`.
 - Écran Séance : validation tap/appui long, panneau d'échec, RIR, notes, "Tout
   valider", totaux en direct.
 - Modifier une séance / dupliquer une semaine ou un cycle.
-- Éditeur de modèles (création, semaines, progression %, dupliquer/réinitialiser
-  un modèle natif).
+- Éditeur de modèles (création, semaines, progression %, dupliquer, supprimer).
+- Premier lancement : carte « Bienvenue » (créer un modèle → un cycle, ou restaurer une sauvegarde).
 - Stats (tonnage, e1RM, historique des max, volume par modèle).
-- Sauvegarde manuelle + copie automatique sur Android (`Documents/CycleDeForce`).
+- Sauvegarde manuelle + copie automatique sur Android (`Documents/CycleDeForceBeta` pour la bêta 2.x,
+  `Documents/CycleDeForce` pour l'app 1.x).
 - Icône de l'app = photo personnelle (voir `assets/icon-source.webp`).
 
 ## Commandes

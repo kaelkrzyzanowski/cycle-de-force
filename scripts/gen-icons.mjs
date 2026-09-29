@@ -1,10 +1,11 @@
-// Génère les icônes de l'application depuis la photo source (assets/icon-source.webp).
+// Génère les icônes de l'application depuis l'image source (assets/icon-source.webp : athlète et haltère,
+// coins déjà remplis du fond ci-dessous pour un carré plein).
 import { mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 
 const SOURCE = fileURLToPath(new URL('../assets/icon-source.webp', import.meta.url));
-const BG = '#0e1013';
+const BG = '#121418'; // fond de l'image source : l'icône adaptative et l'écran de démarrage s'y raccordent
 const PNG = { compressionLevel: 9 };
 
 const square = (size) => sharp(SOURCE).resize(size, size, { fit: 'cover' }).png(PNG);

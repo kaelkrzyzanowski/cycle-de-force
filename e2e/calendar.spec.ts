@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { addDays, mondayOf, todayIso } from '../src/domain/dates';
+import { loadExample } from './example';
 
 const monday = mondayOf(todayIso());
 
@@ -19,15 +20,23 @@ async function nextWeeks(page: Page, n: number) {
 const cards = (page: Page) => page.locator('.session-card .session-name');
 
 test('créer un cycle de 7 semaines avec l’assistant et le voir dans le calendrier', async ({ page }) => {
+  await loadExample(page, { withCycle: false });
   await page.goto('/#/cycle/nouveau');
   await page.getByLabel('Nom du cycle').fill('Bloc test');
   await page.getByLabel('Date de début').fill(addDays(monday, 2)); // un mercredi : ramené au lundi
   await expect(page.getByText(/Le cycle commence le lundi/)).toBeVisible();
   await page.getByRole('button', { name: 'Suivant' }).click();
-  await expect(page.getByLabel('Mardi')).toHaveValue('tpl-deadlift');
+  // Premier cycle : planning vide, à composer.
+  await expect(page.getByLabel('Mardi')).toHaveValue('');
+  const plan = { Mardi: 'Deadlift', Jeudi: 'SBD', Samedi: 'Bench', Dimanche: 'Squat' };
+  for (const [day, template] of Object.entries(plan)) await page.getByLabel(day).selectOption({ label: template });
   await page.getByRole('button', { name: 'Suivant' }).click();
   await expect(page.getByRole('heading', { name: 'Max théoriques' })).toBeVisible();
-  await expect(page.getByRole('textbox', { name: 'Soulevé de terre', exact: true })).toHaveValue('210');
+  for (const [name, kg] of [['Squat', '170'], ['Développé couché', '115'], ['Soulevé de terre', '210']] as const) {
+    const field = page.getByRole('textbox', { name, exact: true });
+    await field.fill(kg);
+    await field.press('Enter');
+  }
   await page.getByRole('button', { name: 'Suivant' }).click();
   await expect(page.getByText('28 séances seront créées.')).toBeVisible();
   await page.getByRole('button', { name: 'Créer' }).click();
@@ -45,9 +54,7 @@ test('créer un cycle de 7 semaines avec l’assistant et le voir dans le calend
 });
 
 test('dupliquer une semaine vers une date libre, puis sur une semaine occupée', async ({ page }) => {
-  await page.goto('/#/calendrier');
-  await page.getByRole('button', { name: 'Créer le Bloc 0' }).click();
-  await expect(page.getByRole('status')).toHaveText('Bloc 0 créé : 28 séances');
+  await loadExample(page);
 
   // Semaine 2 → semaine libre après le cycle.
   const week2 = addDays(monday, 7);
@@ -79,8 +86,7 @@ test('dupliquer une semaine vers une date libre, puis sur une semaine occupée',
 });
 
 test('dupliquer le cycle avec Deadlift +5 kg', async ({ page }) => {
-  await page.goto('/#/calendrier');
-  await page.getByRole('button', { name: 'Créer le Bloc 0' }).click();
+  await loadExample(page);
   await page.getByRole('link', { name: /Bloc 0 · semaine 1\/7/ }).click();
   await page.getByRole('link', { name: 'Dupliquer le cycle' }).click();
 
@@ -98,8 +104,7 @@ test('dupliquer le cycle avec Deadlift +5 kg', async ({ page }) => {
 });
 
 test('menu d’une séance : déplacer puis supprimer', async ({ page }) => {
-  await page.goto('/#/calendrier');
-  await page.getByRole('button', { name: 'Créer le Bloc 0' }).click();
+  await loadExample(page);
   await page.getByRole('button', { name: 'Semaine', exact: true }).click();
   await nextWeeks(page, 1);
 

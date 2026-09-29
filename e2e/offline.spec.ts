@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import type { BrowserContext, Page } from '@playwright/test';
+import { loadExample } from './example';
 
 /** Charge l'app en ligne une fois, attend que le service worker la contrôle, puis coupe le réseau. */
 async function goOffline(page: Page, context: BrowserContext, url = '/') {
@@ -13,8 +14,7 @@ async function goOffline(page: Page, context: BrowserContext, url = '/') {
 test('séance complète en mode avion', async ({ page, context }) => {
   await goOffline(page, context);
   await page.reload(); // démarrage à froid sans réseau
-  await page.getByRole('button', { name: 'Créer le Bloc 0' }).click();
-  await expect(page.getByRole('status')).toHaveText('Bloc 0 créé : 28 séances');
+  await loadExample(page); // restauration d'une sauvegarde, sans réseau elle aussi
   await page.getByRole('button', { name: 'Semaine', exact: true }).click();
   await page.locator('.session-card-main', { has: page.locator('.session-name', { hasText: /^Deadlift (deload|RM|\d+%)$/ }) }).click();
 
@@ -62,7 +62,7 @@ test('même build servie dans un sous-dossier (type GitHub Pages), hors ligne', 
   const base = 'http://localhost:4175/cycle-de-force/';
   await goOffline(page, context, base);
   await page.goto(`${base}#/modeles`);
-  await expect(page.getByRole('listitem').filter({ hasText: /^Deadlift/ })).toBeVisible();
+  await expect(page.getByText('Aucun modèle pour l’instant')).toBeVisible();
   const scope = await page.evaluate(async () => (await navigator.serviceWorker.ready).scope);
   expect(scope).toBe(base);
 });

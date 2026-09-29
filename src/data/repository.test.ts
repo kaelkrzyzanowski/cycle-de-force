@@ -1,6 +1,7 @@
 import 'fake-indexeddb/auto';
 import { afterEach, describe, expect, it } from 'vitest';
 import { buildBackup, parseBackup } from '../domain/backup';
+import { exampleProgram } from '../fixtures';
 import { session, set, fixed } from '../domain/testUtils';
 import type { Session } from '../domain/types';
 import { openCdfDb } from './db';
@@ -13,38 +14,19 @@ const fresh = async () => (repo = await openRepository(`test-${++n}`));
 
 afterEach(() => repo?.close());
 
+/** Remplit la base avec le programme d'exemple des tests. */
+async function withExample(r: Repository) {
+  const { templates, exercises } = exampleProgram();
+  for (const t of templates) await r.saveTemplate(t);
+  for (const e of exercises) await r.saveExercise(e);
+}
+
 describe('repository IndexedDB', () => {
-  it('charge les 5 modèles natifs une seule fois', async () => {
+  it('démarre vierge : aucun modèle, exercice ni cycle', async () => {
     const r = await fresh();
-    expect(await r.ensureSeeded()).toEqual({ seeded: true });
-    expect(await r.listTemplates()).toHaveLength(5);
-    expect((await r.listExercises()).length).toBeGreaterThan(30);
-    expect(await r.ensureSeeded()).toEqual({ seeded: false });
-  });
-
-  it('ne réécrase pas un modèle natif modifié', async () => {
-    const r = await fresh();
-    await r.ensureSeeded();
-    const t = await r.getTemplate('tpl-deadlift');
-    await r.saveTemplate({ ...t!, name: 'Deadlift perso' });
-    await r.ensureSeeded();
-    expect((await r.getTemplate('tpl-deadlift'))?.name).toBe('Deadlift perso');
-  });
-
-  it('mise à jour du seed : ajoute la semaine de deload sans écraser les modifications', async () => {
-    const r = await fresh();
-    await r.ensureSeeded();
-    // État d'une base créée avant la version 2 : modèle natif modifié, sans deloadWeek.
-    const old = { ...(await r.getTemplate('tpl-deadlift'))!, name: 'Deadlift perso' };
-    delete old.deloadWeek;
-    await r.saveTemplate(old);
-    const db = await openCdfDb(`test-${n}`);
-    await db.put('meta', { key: 'seedVersion', value: 1 });
-    db.close();
-
-    expect(await r.ensureSeeded()).toEqual({ seeded: true });
-    expect(await r.getTemplate('tpl-deadlift')).toMatchObject({ name: 'Deadlift perso', deloadWeek: 5 });
-    expect((await r.getTemplate('tpl-sbd'))?.deloadWeek).toBeUndefined();
+    expect(await r.listTemplates()).toEqual([]);
+    expect(await r.listExercises()).toEqual([]);
+    expect(await r.listCycles()).toEqual([]);
   });
 
   it('réglages par défaut puis enregistrés', async () => {
@@ -86,7 +68,7 @@ describe('repository IndexedDB', () => {
 
   it('export puis restauration dans une base vidée = base identique', async () => {
     const r = await fresh();
-    await r.ensureSeeded();
+    await withExample(r);
     await r.saveSettings({ ...(await r.getSettings()), rounding: 2.5, lastBackupAt: '2026-09-20T08:00:00.000Z' });
     await r.applyChanges({
       saveCycles: [{ id: 'c1', name: 'Bloc 0', startDate: '2026-09-21', weeksCount: 7, max: { S: 170, B: 115, D: 210 }, weeklyPlan: [] }],
@@ -111,7 +93,7 @@ describe('repository IndexedDB', () => {
 
   it('restauration atomique : en cas d’erreur, rien n’est modifié', async () => {
     const r = await fresh();
-    await r.ensureSeeded();
+    await withExample(r);
     const before = await r.exportData();
     const bad = { ...before, sessions: [{ id: undefined } as unknown as Session] };
     await expect(r.replaceAll(bad, 'x')).rejects.toThrow();

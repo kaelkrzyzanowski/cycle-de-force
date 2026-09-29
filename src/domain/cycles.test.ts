@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { exampleCycle, nativeTemplates, TEMPLATE_IDS } from '../seed';
+import { exampleCycle, nativeTemplates, TEMPLATE_IDS } from '../fixtures';
 import {
   conflictDates,
   cycleEndDate,

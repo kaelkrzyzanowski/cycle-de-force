@@ -7,7 +7,7 @@ const config: CapacitorConfig = {
   appName: 'Cycle de force β',
   webDir: 'dist',
   android: {
-    backgroundColor: '#0e1013',
+    backgroundColor: '#121418',
   },
 };
 

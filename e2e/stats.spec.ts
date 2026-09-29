@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
+import { loadExample } from './example';
 
 /** Clique « Tout valider » tant qu'il en reste (chaque bouton disparaît une fois l'exercice validé). */
 async function validateAll(page: Page) {
@@ -12,8 +13,7 @@ async function validateAll(page: Page) {
 }
 
 test('stats : tonnage par semaine, charge max et e1RM, max S/B/D', async ({ page }) => {
-  await page.goto('/#/calendrier');
-  await page.getByRole('button', { name: 'Créer le Bloc 0' }).click();
+  await loadExample(page);
   await page.getByRole('button', { name: 'Semaine', exact: true }).click();
 
   // Semaine 1 : Deadlift entièrement validé.

@@ -1,7 +1,6 @@
 import type { BackupData } from '../domain/backup';
 import { DEFAULT_SETTINGS } from '../domain/types';
 import type { Cycle, Exercise, IsoDate, MaxChange, Session, SessionTemplate, Settings } from '../domain/types';
-import { seedData, SEED_VERSION } from '../seed';
 import { openCdfDb, DB_NAME } from './db';
 import type { CdfDb } from './db';
 
@@ -51,8 +50,6 @@ export interface Repository {
   replaceAll(data: BackupData, previousBackup: string): Promise<void>;
   getPreRestoreBackup(): Promise<string | undefined>;
 
-  /** Charge les modèles natifs et le catalogue au premier lancement. */
-  ensureSeeded(): Promise<{ seeded: boolean }>;
   close(): void;
 }
 
@@ -217,32 +214,6 @@ class IdbRepository implements Repository {
   async getPreRestoreBackup(): Promise<string | undefined> {
     const record = await this.db.get('meta', PRE_RESTORE_KEY);
     return record === undefined ? undefined : String(record.value);
-  }
-
-  async ensureSeeded(): Promise<{ seeded: boolean }> {
-    const tx = this.db.transaction(['meta', 'templates', 'exercises'], 'readwrite');
-    const current = await tx.objectStore('meta').get('seedVersion');
-    if (current && Number(current.value) >= SEED_VERSION) {
-      await tx.done;
-      return { seeded: false };
-    }
-    const { templates, exercises } = seedData();
-    const templateStore = tx.objectStore('templates');
-    const exerciseStore = tx.objectStore('exercises');
-    for (const t of templates) {
-      const existing = await templateStore.get(t.id);
-      // Ne pas écraser un modèle natif déjà modifié par l'utilisateur : seulement compléter les champs nouveaux.
-      if (!existing) await templateStore.put(t);
-      else if (existing.native && existing.deloadWeek === undefined && t.deloadWeek !== undefined) {
-        await templateStore.put({ ...existing, deloadWeek: t.deloadWeek });
-      }
-    }
-    for (const e of exercises) {
-      if (!(await exerciseStore.get(e.id))) await exerciseStore.put(e);
-    }
-    await tx.objectStore('meta').put({ key: 'seedVersion', value: SEED_VERSION });
-    await tx.done;
-    return { seeded: true };
   }
 
   close(): void {

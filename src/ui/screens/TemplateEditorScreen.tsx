@@ -18,7 +18,6 @@ import {
   weekAsSession,
 } from '../../domain/templates';
 import type { Exercise, Session, SessionTemplate } from '../../domain/types';
-import { nativeTemplates } from '../../seed';
 import { TextField } from '../components/fields';
 import { NumberField } from '../components/NumberField';
 import { Sheet } from '../components/Sheet';
@@ -45,7 +44,7 @@ export function TemplateEditorScreen({ id }: { id: string }) {
   return <Editor key={id} saved={data.template} catalogue={data.catalogue} />;
 }
 
-type Dialog = 'copy' | 'progression' | 'more' | 'reset' | 'delete' | { future: Session[] } | null;
+type Dialog = 'copy' | 'progression' | 'more' | 'delete' | { future: Session[] } | null;
 
 function Editor({ saved, catalogue }: { saved: SessionTemplate; catalogue: Exercise[] }) {
   const app = useApp();
@@ -238,21 +237,15 @@ function Editor({ saved, catalogue }: { saved: SessionTemplate; catalogue: Exerc
             <button type="button" class="choice" onClick={() => void duplicate()}>
               {S.templateEditor.duplicate}
             </button>
-            {template.native ? (
-              <button type="button" class="choice" onClick={() => setDialog('reset')}>
-                {S.templateEditor.reset}
-              </button>
-            ) : (
-              <button type="button" class="choice danger" onClick={() => setDialog('delete')}>
-                {S.templateEditor.delete}
-              </button>
-            )}
+            <button type="button" class="choice danger" onClick={() => setDialog('delete')}>
+              {S.templateEditor.delete}
+            </button>
           </div>
         </Sheet>
       )}
-      {(dialog === 'reset' || dialog === 'delete') && (
-        <Sheet title={dialog === 'reset' ? S.templateEditor.reset : S.templateEditor.delete} onClose={() => setDialog(null)}>
-          <p>{dialog === 'reset' ? S.templateEditor.resetConfirm : S.templateEditor.deleteConfirm}</p>
+      {dialog === 'delete' && (
+        <Sheet title={S.templateEditor.delete} onClose={() => setDialog(null)}>
+          <p>{S.templateEditor.deleteConfirm}</p>
           <div class="button-row">
             <button type="button" class="btn" onClick={() => setDialog(null)}>
               {S.common.cancel}
@@ -260,19 +253,7 @@ function Editor({ saved, catalogue }: { saved: SessionTemplate; catalogue: Exerc
             <button
               type="button"
               class="btn danger"
-              onClick={() => {
-                if (dialog === 'delete') {
-                  void remove();
-                  return;
-                }
-                const original = nativeTemplates().find((t) => t.id === template.id);
-                if (original) {
-                  change(original);
-                  setWeek(1);
-                  app.toast(S.templateEditor.resetDone);
-                }
-                setDialog(null);
-              }}
+              onClick={() => void remove()}
             >
               {S.templateEditor.confirm}
             </button>

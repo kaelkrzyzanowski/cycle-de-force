@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { exampleCycle, nativeTemplates } from '../seed';
+import { exampleCycle, nativeTemplates } from '../fixtures';
 import { generateCycleSessions } from './cycles';
 import { applyEdit, propagateEdits, pushEdit } from './sessionEdit';
 import type { SessionEdit } from './sessionEdit';

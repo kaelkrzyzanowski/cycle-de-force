@@ -11,7 +11,7 @@ export const DEFAULT_WEEKLY_PLAN: { weekday: Weekday; templateId: string }[] = [
   { weekday: 7, templateId: TEMPLATE_IDS.squat },
 ];
 
-/** Cycle d'exemple « Bloc 0 », proposé au premier lancement. */
+/** Cycle d'exemple « Bloc 0 » (données de test). */
 export function exampleCycle(id: string, startMonday: IsoDate): Cycle {
   return {
     id,

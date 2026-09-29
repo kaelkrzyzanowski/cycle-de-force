@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { plannedKg } from '../domain/load';
 import { parseSets } from './notation';
-import { DEFAULT_MAX, seedData, TEMPLATE_IDS } from '.';
+import { DEFAULT_MAX, exampleProgram, TEMPLATE_IDS } from '.';
 
 describe('parseSets', () => {
   it('lit la notation du cahier', () => {
@@ -23,7 +23,7 @@ describe('parseSets', () => {
 });
 
 describe('modèles natifs', () => {
-  const { templates, exercises } = seedData();
+  const { templates, exercises } = exampleProgram();
   const byId = (id: string) => {
     const t = templates.find((x) => x.id === id);
     if (!t) throw new Error(id);

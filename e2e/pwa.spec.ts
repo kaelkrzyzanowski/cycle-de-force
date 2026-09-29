@@ -1,10 +1,13 @@
 import { expect, test } from '@playwright/test';
 
-test('les 5 modèles natifs sont chargés au premier lancement', async ({ page }) => {
+test('premier lancement vierge : aucun modèle, accueil pour démarrer', async ({ page }) => {
   await page.goto('/#/modeles');
-  for (const name of ['Deadlift', 'SBD', 'Bench', 'Squat', 'Joker']) {
-    await expect(page.locator('.template-row .name', { hasText: new RegExp(`^${name}`) })).toBeVisible();
-  }
+  await expect(page.getByText('Aucun modèle pour l’instant')).toBeVisible();
+  await expect(page.locator('.template-row')).toHaveCount(0);
+  await page.goto('/#/calendrier');
+  await expect(page.getByRole('heading', { name: 'Bienvenue' })).toBeVisible();
+  await page.getByRole('link', { name: 'Créer mon premier modèle' }).click();
+  await expect(page.getByRole('button', { name: /Nouveau modèle/ })).toBeVisible();
 });
 
 test("l'app est installable et s'ouvre hors ligne", async ({ page, context }) => {
@@ -23,7 +26,7 @@ test("l'app est installable et s'ouvre hors ligne", async ({ page, context }) =>
   await context.setOffline(true);
   await page.goto('/#/modeles');
   await page.reload();
-  await expect(page.getByRole('listitem').filter({ hasText: /^Deadlift/ })).toBeVisible();
+  await expect(page.getByText('Aucun modèle pour l’instant')).toBeVisible();
   await page.getByRole('link', { name: 'Réglages' }).click();
   await expect(page.getByRole('heading', { name: 'Réglages' })).toBeVisible();
 });

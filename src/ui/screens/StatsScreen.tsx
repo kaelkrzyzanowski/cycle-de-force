@@ -32,7 +32,6 @@ interface Data {
   changes: MaxChange[];
 }
 
-const PREFERRED_EXERCISE = 'deadlift-sumo-inche-mur';
 /** Palette validée à 3 couleurs : au-delà de 3 RM, le graphique en montre un seul, au choix. */
 const MAX_COLORS = ['--series-1', '--series-2', '--series-3'] as const;
 /** Ordre validé (daltonisme) : l'échec ne touche jamais le validé ni le non réalisé. */
@@ -76,7 +75,7 @@ function Stats({ sessions, cycles, templates, changes }: Data) {
   const [maxShown, setMaxShown] = useState<string | null>(null);
   const { name: maxName } = useMaxNames();
   const [exerciseId, setExerciseId] = useState(
-    exercises.find((e) => e.exerciseId === PREFERRED_EXERCISE)?.exerciseId ?? exercises[0]?.exerciseId ?? '',
+    exercises[0]?.exerciseId ?? '',
   );
 
   const maxOf = maxOfCycles(cycles);

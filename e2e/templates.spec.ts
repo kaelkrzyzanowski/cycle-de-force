@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { mondayOf, todayIso } from '../src/domain/dates';
+import { loadExample } from './example';
 
 const monday = mondayOf(todayIso());
 
@@ -51,9 +52,10 @@ test('créer « Bench volume » sur 4 semaines, progression 65 → 80 %, et l’
   await page.getByLabel('Mardi').selectOption({ label: 'Bench volume' });
   for (const day of ['Jeudi', 'Samedi', 'Dimanche']) await page.getByLabel(day).selectOption('');
   await page.getByRole('button', { name: 'Suivant' }).click();
-  // Seul le RM utilisé par le planning est demandé.
-  await expect(page.getByRole('textbox', { name: 'Développé couché', exact: true })).toBeVisible();
+  // Seul le RM utilisé par le planning est demandé ; premier cycle : rien de prérempli.
   await expect(page.getByRole('textbox', { name: 'Squat', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Suivant' })).toBeDisabled();
+  await setNumber(page, 'Développé couché', '115');
   await page.getByRole('button', { name: 'Suivant' }).click();
   await expect(page.getByText('7 séances seront créées.')).toBeVisible();
   await page.getByRole('button', { name: 'Créer' }).click();
@@ -66,11 +68,12 @@ test('créer « Bench volume » sur 4 semaines, progression 65 → 80 %, et l’
   await page.locator('.session-card-main', { hasText: 'Bench volume' }).click();
   const set1 = page.locator('.set-pill').first();
   await expect(set1).toContainText('8 × 86 kg');
-  await expect(set1).toContainText(/75\s%\sB/);
+  await expect(set1).toContainText(/75\s%\sDéveloppé couché/);
   await page.screenshot({ path: 'test-results/screens/bench-volume.png' });
 });
 
 test('progression : la semaine de deload ne fait pas avancer le pourcentage', async ({ page }) => {
+  await loadExample(page, { withCycle: false });
   await page.goto('/#/modeles');
   await page.getByRole('link', { name: /^Bench/ }).click();
   await page.getByRole('button', { name: /Appliquer une progression/ }).click();
@@ -80,9 +83,8 @@ test('progression : la semaine de deload ne fait pas avancer le pourcentage', as
   await expect(prog).toContainText(/Sem\. 1 65 % · Sem\. 2 70 % · Sem\. 3 deload · Sem\. 4 75 % · Sem\. 5 80 % · Sem\. 6 85 % · Sem\. 7 85 %/);
 });
 
-test('modifier un modèle natif, mettre à jour les séances futures, puis le réinitialiser', async ({ page }) => {
-  await page.goto('/#/calendrier');
-  await page.getByRole('button', { name: 'Créer le Bloc 0' }).click();
+test('modifier un modèle, puis mettre à jour les séances futures', async ({ page }) => {
+  await loadExample(page);
   await page.goto('/#/modeles');
   await page.getByRole('link', { name: /^Deadlift/ }).click();
 
@@ -104,14 +106,4 @@ test('modifier un modèle natif, mettre à jour les séances futures, puis le r�
   await dialog.getByRole('button', { name: 'Mettre à jour ces séances' }).click();
   await expect(page.getByRole('status')).toHaveText('Modèle enregistré, 1 séance mise à jour');
   await page.screenshot({ path: 'test-results/screens/editeur-modele.png', fullPage: true });
-
-  // Réinitialiser le natif : la S7 revient à 8 reps, et la séance future est remise d'aplomb.
-  await page.getByRole('button', { name: 'Autres actions' }).click();
-  await page.getByRole('button', { name: 'Réinitialiser le modèle natif' }).click();
-  await page.getByRole('button', { name: 'Confirmer' }).click();
-  await page.getByRole('tab', { name: /^Sem\. 7/ }).click();
-  await expect(hackReps).toHaveValue('8');
-  await page.getByRole('button', { name: 'Enregistrer' }).click();
-  await page.getByRole('dialog').getByRole('button', { name: 'Mettre à jour ces séances' }).click();
-  await expect(page.getByRole('status')).toHaveText('Modèle enregistré, 1 séance mise à jour');
 });

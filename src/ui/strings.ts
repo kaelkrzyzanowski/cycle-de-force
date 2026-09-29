@@ -61,11 +61,19 @@ export const S = {
     daySessions: (n: number) => plural(n, 'séance', 'séances'),
   },
 
-  example: {
+  welcome: {
     title: 'Bienvenue',
-    text: 'Créer le cycle d’exemple « Bloc 0 » à partir de cette semaine ? 7 semaines, max S 170 / B 115 / D 210, Mar Deadlift · Jeu SBD · Sam Bench · Dim Squat.',
-    create: 'Créer le Bloc 0',
-    later: 'Plus tard',
+    text: 'L’app est vide : tu construis ton propre programme.',
+    steps: [
+      'Crée tes modèles de séance : exercices, séries, charges en kg ou en % de tes RM.',
+      'Crée un cycle (un bloc) : dates, planning de la semaine, puis tes RM.',
+      'Les séances apparaissent dans le calendrier : il ne reste qu’à les valider.',
+    ],
+    toTemplates: 'Créer mon premier modèle',
+    toCycle: 'Créer mon premier cycle',
+    restoreHint: 'Tu as déjà une sauvegarde ?',
+    toSettings: 'La restaurer dans les réglages',
+    hide: 'Masquer',
   },
 
   sessionCard: {
@@ -329,8 +337,8 @@ export const S = {
   },
   templates: {
     title: 'Modèles de séance',
-    native: 'Natif',
-    custom: 'Perso',
+    emptyTitle: 'Aucun modèle pour l’instant',
+    emptyText: 'Un modèle décrit une séance type semaine par semaine (exercices, séries, charges en kg ou en % d’un RM). Crée-en un, puis utilise-le dans un cycle.',
     weeks: (n: number) => plural(n, 'semaine', 'semaines'),
     exercisesWeek1: (n: number) => `${plural(n, 'exercice', 'exercices')} en S1`,
     new: 'Nouveau modèle',
@@ -378,9 +386,6 @@ export const S = {
     more: 'Autres actions',
     duplicate: 'Dupliquer ce modèle',
     duplicateName: (name: string) => `${name} (copie)`,
-    reset: 'Réinitialiser le modèle natif',
-    resetConfirm: 'Remettre ce modèle comme à l’origine ? Tes modifications du modèle seront perdues ; les séances déjà créées ne changent pas.',
-    resetDone: 'Modèle réinitialisé : enregistre pour confirmer.',
     delete: 'Supprimer ce modèle',
     deleteConfirm: 'Supprimer ce modèle ? Les séances déjà créées ne changent pas.',
     deleted: 'Modèle supprimé',

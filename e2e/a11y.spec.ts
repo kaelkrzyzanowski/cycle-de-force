@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
+import { loadExample } from './example';
 
 /** Violations WCAG 2.1 A/AA, résumées pour un message d'échec lisible. */
 async function audit(page: Page, where: string): Promise<string[]> {
@@ -11,8 +12,7 @@ async function audit(page: Page, where: string): Promise<string[]> {
 }
 
 async function seed(page: Page) {
-  await page.goto('/#/calendrier');
-  await page.getByRole('button', { name: 'Créer le Bloc 0' }).click();
+  await loadExample(page);
   await page.getByRole('button', { name: 'Semaine', exact: true }).click();
   await page.locator('.session-card-main', { has: page.locator('.session-name', { hasText: /^Deadlift (deload|RM|\d+%)$/ }) }).click();
   const pills = page.locator('.set-pill');

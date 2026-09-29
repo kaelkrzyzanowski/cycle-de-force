@@ -13,6 +13,7 @@ import type { Route, Tab } from './router';
 import { S } from './strings';
 import { applyTheme } from './theme';
 import { CalendarScreen } from './screens/CalendarScreen';
+import { ChronoScreen } from './screens/ChronoScreen';
 import { CycleScreen } from './screens/CycleScreen';
 import { DuplicateCycleScreen } from './screens/DuplicateCycleScreen';
 import { DuplicateWeekScreen } from './screens/DuplicateWeekScreen';
@@ -27,6 +28,7 @@ import { TodayScreen } from './screens/TodayScreen';
 const TABS: { tab: Tab; icon: IconName; label: string; href: string }[] = [
   { tab: 'calendar', icon: 'calendar', label: S.nav.calendar, href: href.calendar() },
   { tab: 'today', icon: 'today', label: S.nav.today, href: href.today() },
+  { tab: 'chrono', icon: 'chrono', label: S.nav.chrono, href: href.chrono() },
   { tab: 'templates', icon: 'templates', label: S.nav.templates, href: href.templates() },
   { tab: 'stats', icon: 'stats', label: S.nav.stats, href: href.stats() },
 ];
@@ -34,6 +36,7 @@ const TABS: { tab: Tab; icon: IconName; label: string; href: string }[] = [
 const TITLES: Record<Route['name'], string> = {
   calendar: S.calendar.title,
   today: S.today.title,
+  chrono: S.chrono.title,
   templates: S.templates.title,
   stats: S.stats.title,
   settings: S.settings.title,
@@ -51,6 +54,8 @@ function Screen({ route }: { route: Route }) {
       return <CalendarScreen />;
     case 'today':
       return <TodayScreen />;
+    case 'chrono':
+      return <ChronoScreen />;
     case 'templates':
       return <TemplatesScreen />;
     case 'stats':

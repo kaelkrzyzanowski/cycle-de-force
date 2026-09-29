@@ -1,10 +1,10 @@
 import { isRealized } from './load';
 import { DEFAULT_SETTINGS } from './types';
-import type { Cycle, Exercise, IsoDate, MaxChange, Session, SessionTemplate, Settings } from './types';
+import type { Activity, Cycle, Exercise, IsoDate, MaxChange, Session, SessionTemplate, Settings } from './types';
 
 export const BACKUP_APP = 'cycle-de-force';
 /** Version du format de fichier. À incrémenter avec une migration dans BACKUP_MIGRATIONS. */
-export const BACKUP_SCHEMA_VERSION = 1;
+export const BACKUP_SCHEMA_VERSION = 2;
 
 export interface BackupData {
   settings: Settings;
@@ -13,6 +13,7 @@ export interface BackupData {
   cycles: Cycle[];
   sessions: Session[];
   maxChanges: MaxChange[];
+  activities: Activity[];
 }
 
 export interface BackupCounts {
@@ -22,6 +23,7 @@ export interface BackupCounts {
   templates: number;
   exercises: number;
   maxChanges: number;
+  activities: number;
 }
 
 export interface BackupFile {
@@ -43,6 +45,7 @@ export function countBackup(data: BackupData): BackupCounts {
     templates: data.templates.length,
     exercises: data.exercises.length,
     maxChanges: data.maxChanges.length,
+    activities: data.activities.length,
   };
 }
 
@@ -60,7 +63,12 @@ type Json = Record<string, unknown>;
 export type Migration = (file: Json) => Json;
 
 /** Migrations du format : l'entrée N transforme un fichier de version N-1 en version N. */
-export const BACKUP_MIGRATIONS: Record<number, Migration> = {};
+export const BACKUP_MIGRATIONS: Record<number, Migration> = {
+  2: (file) => {
+    const data = (file['data'] as Json | undefined) ?? {};
+    return { ...file, data: { ...data, activities: data['activities'] ?? [] } };
+  },
+};
 
 export type BackupError = 'NOT_JSON' | 'WRONG_APP' | 'TOO_NEW' | 'INVALID';
 
@@ -74,6 +82,7 @@ const isRecord = (v: unknown): v is Json => typeof v === 'object' && v !== null 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const LIFT = new Set(['S', 'B', 'D']);
 const STATUS = new Set(['PLANNED', 'VALIDATED', 'FAILED', 'NOT_DONE', 'CLUSTER']);
+const ACTIVITY_TYPE = new Set(['RUNNING', 'CYCLING', 'WALKING', 'SWIMMING', 'OTHER']);
 
 function check(cond: boolean, what: string): asserts cond {
   if (!cond) throw new Invalid(what);
@@ -154,6 +163,19 @@ function checkData(data: unknown): asserts data is BackupData {
   });
   checkArray(data, 'maxChanges', (m, w) => {
     check(isStr(m['cycleId']) && LIFT.has(String(m['lift'])) && isNum(m['from']) && isNum(m['to']) && isStr(m['at']), w);
+  });
+  checkArray(data, 'activities', (a, w) => {
+    check(
+      isStr(a['date']) &&
+        ISO_DATE.test(a['date']) &&
+        ACTIVITY_TYPE.has(String(a['type'])) &&
+        isNum(a['distanceKm']) &&
+        a['distanceKm'] > 0 &&
+        isNum(a['durationSec']) &&
+        a['durationSec'] > 0 &&
+        optStr(a['note']),
+      w,
+    );
   });
 }
 

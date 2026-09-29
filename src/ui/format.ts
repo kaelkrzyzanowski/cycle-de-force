@@ -55,3 +55,10 @@ export function parseDecimal(text: string): number | null {
   const n = Number(text.replace(',', '.').replace(/\s/g, ''));
   return text.trim() === '' || !Number.isFinite(n) ? null : n;
 }
+
+/** « 42 min 15 s » (ou « 42 min » si les secondes sont nulles). */
+export function formatDuration(sec: number): string {
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return s > 0 ? `${m}${NBSP}min${NBSP}${s}${NBSP}s` : `${m}${NBSP}min`;
+}

@@ -102,6 +102,18 @@ export interface Exercise {
   defaultLift?: Lift;
 }
 
+export type ActivityType = 'RUNNING' | 'CYCLING' | 'WALKING' | 'SWIMMING' | 'OTHER';
+
+/** Activité cardio libre (hors force) : un fait déjà réalisé, saisi à la main. */
+export interface Activity {
+  id: string;
+  type: ActivityType;
+  date: IsoDate;
+  distanceKm: number; // > 0
+  durationSec: number; // > 0, entier
+  note?: string;
+}
+
 export type Rounding = 0 | 0.5 | 1 | 1.25 | 2.5;
 export type ThemePref = 'dark' | 'light' | 'system';
 

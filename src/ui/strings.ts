@@ -60,6 +60,40 @@ export const S = {
     noCycle: 'Aucun cycle en cours',
     actions: 'Actions du calendrier',
     daySessions: (n: number) => plural(n, 'séance', 'séances'),
+    addActivityOn: (day: string) => `Ajouter une activité le ${day}`,
+  },
+
+  activityTypes: {
+    RUNNING: 'Course à pied',
+    CYCLING: 'Vélo',
+    WALKING: 'Marche',
+    SWIMMING: 'Natation',
+    OTHER: 'Autre',
+  },
+
+  activitySheet: {
+    addTitle: (day: string) => `Ajouter une activité · ${day}`,
+    editTitle: (day: string) => `Activité · ${day}`,
+    type: 'Type',
+    date: 'Date',
+    distance: 'Distance',
+    minutes: 'Minutes',
+    seconds: 'Secondes',
+    note: 'Note',
+    pace: (v: string) => `${v} min/km`,
+    speed: (v: string) => `${v} km/h`,
+    save: 'Enregistrer',
+    delete: 'Supprimer',
+    confirmDelete: 'Supprimer cette activité ?',
+    confirmDeleteButton: 'Supprimer définitivement',
+    added: 'Activité ajoutée',
+    updated: 'Activité mise à jour',
+    deleted: 'Activité supprimée',
+  },
+
+  activityCard: {
+    actions: (label: string) => `Activité ${label}`,
+    summary: (distance: string, duration: string) => `${distance} km · ${duration}`,
   },
 
   example: {
@@ -294,8 +328,8 @@ export const S = {
     restore: 'Restaurer une sauvegarde…',
     restoreTitle: 'Restaurer une sauvegarde',
     preview: (when: string) => `Sauvegarde du ${when}`,
-    counts: (cycles: number, sessions: number, sets: number) =>
-      `${plural(cycles, 'cycle', 'cycles')} · ${plural(sessions, 'séance', 'séances')} · ${plural(sets, 'série réalisée', 'séries réalisées')}`,
+    counts: (cycles: number, sessions: number, sets: number, activities: number) =>
+      `${plural(cycles, 'cycle', 'cycles')} · ${plural(sessions, 'séance', 'séances')} · ${plural(sets, 'série réalisée', 'séries réalisées')} · ${plural(activities, 'activité', 'activités')}`,
     migrated: (v: number) => `Fichier d’une ancienne version (${v}) : il sera converti.`,
     warning: 'Toutes les données actuelles seront remplacées. Une copie de l’état actuel est gardée et téléchargeable ci-dessous.',
     confirm: 'Remplacer toutes mes données',

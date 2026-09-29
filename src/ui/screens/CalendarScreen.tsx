@@ -3,10 +3,11 @@ import { cycleWeekOf, findCycleForDate, generateCycleSessions } from '../../doma
 import { addDays, mondayOf, todayIso } from '../../domain/dates';
 import { newId } from '../../domain/ids';
 import { deriveSessionStatus } from '../../domain/sessionStatus';
-import type { Cycle, IsoDate, Session, SessionTemplate } from '../../domain/types';
+import type { Activity, Cycle, IsoDate, Session, SessionTemplate } from '../../domain/types';
 import { sessionLabel } from '../../domain/templates';
 import { exampleCycle } from '../../seed';
 import { commit, templatesById } from '../actions';
+import { ActivityCard, ActivityDot } from '../components/ActivityCard';
 import { NEUTRAL_COLOR, SessionCard, SessionDot } from '../components/SessionCard';
 import { Sheet } from '../components/Sheet';
 import { useSwipe } from '../components/useSwipe';
@@ -15,6 +16,7 @@ import { formatDayLong, formatMonthYear, formatRange } from '../format';
 import { href, navigate } from '../router';
 import { S } from '../strings';
 import { AddSessionSheet } from '../sheets/AddSessionSheet';
+import { ActivitySheet } from '../sheets/ActivitySheet';
 import { SessionActionsSheet } from '../sheets/SessionActionsSheet';
 
 type View = 'month' | 'week';
@@ -40,6 +42,7 @@ function visibleRange(view: View, selected: IsoDate): { from: IsoDate; to: IsoDa
 
 interface CalendarData {
   sessions: Session[];
+  activities: Activity[];
   cycles: Cycle[];
   templates: SessionTemplate[];
   exampleDismissed: boolean;
@@ -50,9 +53,14 @@ export function CalendarScreen() {
   const today = todayIso();
   const [view, setViewState] = useState<View>(memory.view);
   const [selected, setSelectedState] = useState<IsoDate>(memory.selected ?? today);
-  const [sheet, setSheet] = useState<{ kind: 'add'; date: IsoDate } | { kind: 'session'; session: Session } | { kind: 'menu' } | null>(
-    null,
-  );
+  const [sheet, setSheet] = useState<
+    | { kind: 'add'; date: IsoDate }
+    | { kind: 'session'; session: Session }
+    | { kind: 'menu' }
+    | { kind: 'addActivity'; date: IsoDate }
+    | { kind: 'activity'; activity: Activity }
+    | null
+  >(null);
   const [selection, setSelection] = useState<Set<string> | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -85,6 +93,7 @@ export function CalendarScreen() {
   const data = useData<CalendarData>(
     async (repo) => ({
       sessions: await repo.listSessionsBetween(from, to),
+      activities: await repo.listActivitiesBetween(from, to),
       cycles: await repo.listCycles(),
       templates: await repo.listTemplates(),
       exampleDismissed: (await repo.getFlag('exampleOffer')) === 'dismissed',
@@ -106,6 +115,8 @@ export function CalendarScreen() {
   const maxOf = (s: Session) => data.cycles.find((c) => c.id === s.cycleId)?.max ?? { S: 0, B: 0, D: 0 };
   const byDay = new Map<IsoDate, Session[]>();
   for (const s of data.sessions) byDay.set(s.date, [...(byDay.get(s.date) ?? []), s]);
+  const byDayActivities = new Map<IsoDate, Activity[]>();
+  for (const a of data.activities) byDayActivities.set(a.date, [...(byDayActivities.get(a.date) ?? []), a]);
 
   const cycle = findCycleForDate(data.cycles, selected);
   const cycleWeek = cycle ? cycleWeekOf(cycle, selected) : null;
@@ -120,24 +131,30 @@ export function CalendarScreen() {
     app.refresh();
   };
 
-  const cards = (day: IsoDate) =>
-    (byDay.get(day) ?? []).map((s) => (
-      <SessionCard
-        key={s.id}
-        session={s}
-        label={labelOf(s)}
-        color={colorOf(s)}
-        max={maxOf(s)}
-        rounding={app.settings.rounding}
-        today={today}
-        onOpen={() => navigate(href.session(s.id))}
-        onActions={() => setSheet({ kind: 'session', session: s })}
-        selectionMode={selection !== null}
-        selected={selection?.has(s.id) ?? false}
-        onToggleSelect={() => toggleSelect(s.id)}
-        onEnterSelection={() => startSelection(s.id)}
-      />
-    ));
+  const cards = (day: IsoDate) => (
+    <>
+      {(byDay.get(day) ?? []).map((s) => (
+        <SessionCard
+          key={s.id}
+          session={s}
+          label={labelOf(s)}
+          color={colorOf(s)}
+          max={maxOf(s)}
+          rounding={app.settings.rounding}
+          today={today}
+          onOpen={() => navigate(href.session(s.id))}
+          onActions={() => setSheet({ kind: 'session', session: s })}
+          selectionMode={selection !== null}
+          selected={selection?.has(s.id) ?? false}
+          onToggleSelect={() => toggleSelect(s.id)}
+          onEnterSelection={() => startSelection(s.id)}
+        />
+      ))}
+      {(byDayActivities.get(day) ?? []).map((a) => (
+        <ActivityCard key={a.id} activity={a} onOpen={() => setSheet({ kind: 'activity', activity: a })} />
+      ))}
+    </>
+  );
 
   const addButton = (day: IsoDate) => (
     <button
@@ -220,6 +237,7 @@ export function CalendarScreen() {
             selected={selected}
             today={today}
             byDay={byDay}
+            byDayActivities={byDayActivities}
             colorOf={colorOf}
             labelOf={labelOf}
             onSelect={select}
@@ -245,7 +263,9 @@ export function CalendarScreen() {
             <h3>{formatDayLong(selected)}</h3>
             {addButton(selected)}
           </div>
-          {(byDay.get(selected) ?? []).length === 0 && <p class="muted">{S.calendar.noSessions}</p>}
+          {(byDay.get(selected) ?? []).length === 0 && (byDayActivities.get(selected) ?? []).length === 0 && (
+            <p class="muted">{S.calendar.noSessions}</p>
+          )}
           {cards(selected)}
         </section>
       )}
@@ -278,11 +298,16 @@ export function CalendarScreen() {
       {sheet?.kind === 'session' && (
         <SessionActionsSheet session={sheet.session} label={labelOf(sheet.session)} cycles={data.cycles} onClose={() => setSheet(null)} />
       )}
+      {sheet?.kind === 'addActivity' && <ActivitySheet date={sheet.date} onClose={() => setSheet(null)} />}
+      {sheet?.kind === 'activity' && <ActivitySheet activity={sheet.activity} onClose={() => setSheet(null)} />}
       {sheet?.kind === 'menu' && (
         <Sheet title={S.calendar.actions} onClose={() => setSheet(null)}>
           <div class="choice-list">
             <button type="button" class="choice" onClick={() => setSheet({ kind: 'add', date: selected })}>
               {S.calendar.addSessionOn(formatDayLong(selected))}
+            </button>
+            <button type="button" class="choice" onClick={() => setSheet({ kind: 'addActivity', date: selected })}>
+              {S.calendar.addActivityOn(formatDayLong(selected))}
             </button>
             <button type="button" class="choice" onClick={() => navigate(href.newCycle())}>
               {S.cycleForm.newTitle}
@@ -308,12 +333,13 @@ interface GridProps {
   selected: IsoDate;
   today: IsoDate;
   byDay: ReadonlyMap<IsoDate, Session[]>;
+  byDayActivities: ReadonlyMap<IsoDate, Activity[]>;
   colorOf: (s: Session) => string;
   labelOf: (s: Session) => string;
   onSelect: (d: IsoDate) => void;
 }
 
-function MonthGrid({ from, month, selected, today, byDay, colorOf, labelOf, onSelect }: GridProps) {
+function MonthGrid({ from, month, selected, today, byDay, byDayActivities, colorOf, labelOf, onSelect }: GridProps) {
   const days = Array.from({ length: 42 }, (_, i) => addDays(from, i));
   // Ne pas afficher une 6e ligne entièrement hors du mois.
   const visible = days.slice(35).some((d) => d.startsWith(month)) ? days : days.slice(0, 35);
@@ -330,6 +356,7 @@ function MonthGrid({ from, month, selected, today, byDay, colorOf, labelOf, onSe
         <div key={r} class="month-row" role="row">
           {visible.slice(r * 7, r * 7 + 7).map((day) => {
             const sessions = byDay.get(day) ?? [];
+            const activities = byDayActivities.get(day) ?? [];
             const classes = [
               'month-cell',
               day.startsWith(month) ? '' : 'is-outside',
@@ -343,13 +370,16 @@ function MonthGrid({ from, month, selected, today, byDay, colorOf, labelOf, onSe
                 role="gridcell"
                 class={classes}
                 aria-selected={day === selected}
-                aria-label={`${formatDayLong(day)}, ${S.calendar.daySessions(sessions.length)}`}
+                aria-label={`${formatDayLong(day)}, ${S.calendar.daySessions(sessions.length + activities.length)}`}
                 onClick={() => onSelect(day)}
               >
                 <span class="month-day num">{Number(day.slice(8))}</span>
                 <span class="dots">
                   {sessions.map((s) => (
                     <SessionDot key={s.id} color={colorOf(s)} status={deriveSessionStatus(s, today)} name={labelOf(s)} />
+                  ))}
+                  {activities.map((a) => (
+                    <ActivityDot key={a.id} activity={a} />
                   ))}
                 </span>
               </button>

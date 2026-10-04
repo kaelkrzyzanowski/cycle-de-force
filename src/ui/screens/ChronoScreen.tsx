@@ -24,14 +24,38 @@ function ClockCard() {
   );
 }
 
-/** État du chronomètre conservé en mémoire : reste en cours en changeant d'onglet. */
+/**
+ * État du chronomètre, sauvegardé à chaque action : le temps écoulé se déduit de l'horloge,
+ * donc il continue de compter app en arrière-plan, écran verrouillé, ou app fermée puis rouverte.
+ */
 interface StopwatchMemory {
   running: boolean;
   startedAt: number | null; // Date.now() au dernier départ/reprise
   accumulatedMs: number;
   laps: number[]; // temps écoulé (ms) à chaque tour, le plus récent en premier
 }
+const STORAGE_KEY = 'cdf-stopwatch';
 const memory: StopwatchMemory = { running: false, startedAt: null, accumulatedMs: 0, laps: [] };
+
+try {
+  const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? 'null') as Partial<StopwatchMemory> | null;
+  if (saved && typeof saved.accumulatedMs === 'number' && Array.isArray(saved.laps)) {
+    memory.running = saved.running === true && typeof saved.startedAt === 'number';
+    memory.startedAt = memory.running ? (saved.startedAt as number) : null;
+    memory.accumulatedMs = saved.accumulatedMs;
+    memory.laps = saved.laps.filter((l): l is number => typeof l === 'number');
+  }
+} catch {
+  // stockage indisponible ou illisible : chronomètre à zéro
+}
+
+function save(): void {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(memory));
+  } catch {
+    // stockage indisponible : le chrono reste fonctionnel tant que l'app est ouverte
+  }
+}
 
 function elapsedMs(): number {
   return memory.accumulatedMs + (memory.running && memory.startedAt !== null ? Date.now() - memory.startedAt : 0);
@@ -40,6 +64,10 @@ function elapsedMs(): number {
 function StopwatchCard() {
   const [, setTick] = useState(0);
   const bump = () => setTick((t) => t + 1);
+  const update = () => {
+    save();
+    bump();
+  };
 
   useEffect(() => {
     if (!memory.running) return;
@@ -50,24 +78,24 @@ function StopwatchCard() {
   const start = () => {
     memory.running = true;
     memory.startedAt = Date.now();
-    bump();
+    update();
   };
   const pause = () => {
     memory.accumulatedMs = elapsedMs();
     memory.running = false;
     memory.startedAt = null;
-    bump();
+    update();
   };
   const reset = () => {
     memory.running = false;
     memory.startedAt = null;
     memory.accumulatedMs = 0;
     memory.laps = [];
-    bump();
+    update();
   };
   const lap = () => {
     memory.laps = [elapsedMs(), ...memory.laps];
-    bump();
+    update();
   };
 
   return (

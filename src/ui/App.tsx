@@ -9,7 +9,7 @@ import { countdown, installCountdownAlarm } from './countdownStore';
 import type { ToastAction } from './context';
 import { Icon } from './Icon';
 import type { IconName } from './Icon';
-import { goBack, href, tabOf, useRoute } from './router';
+import { goBack, href, navigate, tabOf, useRoute } from './router';
 import type { Route, Tab } from './router';
 import { S } from './strings';
 import { applyTheme } from './theme';
@@ -25,6 +25,9 @@ import { StatsScreen } from './screens/StatsScreen';
 import { TemplateEditorScreen } from './screens/TemplateEditorScreen';
 import { TemplatesScreen } from './screens/TemplatesScreen';
 import { TodayScreen } from './screens/TodayScreen';
+import { TrackScreen } from './screens/TrackScreen';
+import { installStepsSync } from './stepsSync';
+import { recording, resumeRecording } from './trackStore';
 
 const TABS: { tab: Tab; icon: IconName; label: string; href: string }[] = [
   { tab: 'calendar', icon: 'calendar', label: S.nav.calendar, href: href.calendar() },
@@ -47,6 +50,7 @@ const TITLES: Record<Route['name'], string> = {
   duplicateCycle: S.duplicateCycle.title,
   duplicateWeek: S.duplicateWeek.title,
   template: S.templateEditor.title,
+  track: S.track.title,
 };
 
 function Screen({ route }: { route: Route }) {
@@ -75,6 +79,8 @@ function Screen({ route }: { route: Route }) {
       return <DuplicateWeekScreen from={route.from} />;
     case 'template':
       return <TemplateEditorScreen id={route.id} />;
+    case 'track':
+      return <TrackScreen />;
   }
 }
 
@@ -92,10 +98,16 @@ export function App() {
       const repo = await getRepository();
       await repo.ensureSeeded();
       setBoot({ state: 'ready', repo, settings: await repo.getSettings() });
+      // Activité GPS en cours au lancement (app relancée depuis la notification…) : on la rouvre.
+      resumeRecording();
+      if (recording.get() && !recording.get()?.finished && (location.hash === '' || location.hash === '#/')) navigate(href.track(), true);
       if (isNative) {
         // Copie automatique au lancement, puis à chaque passage en arrière-plan (fin de séance, verrouillage…).
         void runAutoBackup(repo);
-        void loadNative().then((native) => native.onAppStateChange((active) => !active && void runAutoBackup(repo)));
+        void loadNative().then((native) => {
+          native.onAppStateChange((active) => !active && void runAutoBackup(repo));
+          installStepsSync(repo, () => setDataVersion((v) => v + 1), native.onAppStateChange);
+        });
       }
     })().catch((err: unknown) => {
       console.error(err);

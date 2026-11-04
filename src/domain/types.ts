@@ -112,6 +112,22 @@ export interface Activity {
   distanceKm: number; // > 0
   durationSec: number; // > 0, entier
   note?: string;
+  /** Tracé GPS d'une activité enregistrée dans l'app. */
+  track?: TrackPoint[];
+}
+
+/** Point GPS : latitude, longitude (degrés), instant (ms depuis 1970) et numéro de segment (pauses). */
+export interface TrackPoint {
+  lat: number;
+  lon: number;
+  t: number;
+  seg: number;
+}
+
+/** Pas comptés un jour donné par le podomètre du téléphone. */
+export interface DailySteps {
+  date: IsoDate;
+  steps: number;
 }
 
 export type Rounding = 0 | 0.5 | 1 | 1.25 | 2.5;
@@ -123,6 +139,8 @@ export interface Settings {
   weekStartsOn: 1;
   lastBackupAt?: string;
   backupReminderDays: number;
+  /** Objectif quotidien du podomètre. */
+  stepGoal: number;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -130,4 +148,5 @@ export const DEFAULT_SETTINGS: Settings = {
   theme: 'dark',
   weekStartsOn: 1,
   backupReminderDays: 7,
+  stepGoal: 10_000,
 };

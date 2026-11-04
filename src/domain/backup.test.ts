@@ -19,7 +19,10 @@ function sampleData(): BackupData {
   ex.sets = [validateSet(ex.sets[0]!, cycle.max, 1), recordSet(ex.sets[1]!, 'FAILED', { reps: 3, kg: 168 }, cycle.max, 1)];
   ex.rir = 1;
   first.note = 'Dos un peu raide';
-  const activities: Activity[] = [{ id: 'a1', type: 'RUNNING', date: '2026-09-22', distanceKm: 8.4, durationSec: 2520 }];
+  const activities: Activity[] = [
+    { id: 'a1', type: 'RUNNING', date: '2026-09-22', distanceKm: 8.4, durationSec: 2520 },
+    { id: 'a2', type: 'WALKING', date: '2026-09-23', distanceKm: 0.01, durationSec: 10, track: [{ lat: 48.1, lon: 2.1, t: 1, seg: 0 }] },
+  ];
   return {
     settings: { ...DEFAULT_SETTINGS, lastBackupAt: '2026-09-20T08:00:00.000Z' },
     templates,
@@ -28,6 +31,7 @@ function sampleData(): BackupData {
     sessions,
     maxChanges: [{ id: 'm1', cycleId: 'c0', lift: 'D', from: 210, to: 215, at: '2026-09-24T10:00:00Z' }],
     activities,
+    steps: [{ date: '2026-09-22', steps: 9876 }],
   };
 }
 
@@ -36,8 +40,8 @@ describe('format de sauvegarde', () => {
   const file = buildBackup(data, '2026-09-24T12:00:00.000Z');
 
   it('porte un en-tête avec les comptes', () => {
-    expect(file).toMatchObject({ app: 'cycle-de-force', schemaVersion: 2, exportedAt: '2026-09-24T12:00:00.000Z' });
-    expect(file.counts).toEqual({ cycles: 1, sessions: 28, realizedSets: 2, templates: 5, exercises: 40, maxChanges: 1, activities: 1 });
+    expect(file).toMatchObject({ app: 'cycle-de-force', schemaVersion: 3, exportedAt: '2026-09-24T12:00:00.000Z' });
+    expect(file.counts).toEqual({ cycles: 1, sessions: 28, realizedSets: 2, templates: 5, exercises: 40, maxChanges: 1, activities: 2 });
   });
 
   it('JSON aller-retour = données identiques', () => {
@@ -107,6 +111,23 @@ describe('format de sauvegarde', () => {
       expect(parsed.migratedFrom).toBe(1);
       expect(parsed.backup.data.activities).toEqual([]);
     }
+  });
+
+  it('migre un fichier v2 (sans pas) vers v3 avec une liste vide', () => {
+    const v2 = structuredClone(file) as unknown as { schemaVersion: number; data: Record<string, unknown> };
+    v2.schemaVersion = 2;
+    delete v2.data['steps'];
+    const parsed = parseBackup(JSON.stringify(v2));
+    expect(parsed.ok && parsed.backup.data.steps).toEqual([]);
+  });
+
+  it('refuse un tracé GPS ou des pas invalides', () => {
+    const badTrack = structuredClone(file) as unknown as { data: { activities: Record<string, unknown>[] } };
+    badTrack.data.activities[1]!['track'] = [{ lat: 'nord', lon: 2, t: 1, seg: 0 }];
+    expect(parseBackup(JSON.stringify(badTrack))).toMatchObject({ ok: false, error: 'INVALID' });
+    const badSteps = structuredClone(file) as unknown as { data: { steps: unknown[] } };
+    badSteps.data.steps = [{ date: '22/09', steps: 10 }];
+    expect(parseBackup(JSON.stringify(badSteps))).toMatchObject({ ok: false, error: 'INVALID' });
   });
 
   it('refuse une activité invalide', () => {

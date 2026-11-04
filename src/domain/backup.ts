@@ -1,10 +1,10 @@
 import { isRealized } from './load';
 import { DEFAULT_SETTINGS } from './types';
-import type { Activity, Cycle, Exercise, IsoDate, MaxChange, Session, SessionTemplate, Settings } from './types';
+import type { Activity, Cycle, DailySteps, Exercise, IsoDate, MaxChange, Session, SessionTemplate, Settings } from './types';
 
 export const BACKUP_APP = 'cycle-de-force';
 /** Version du format de fichier. À incrémenter avec une migration dans BACKUP_MIGRATIONS. */
-export const BACKUP_SCHEMA_VERSION = 2;
+export const BACKUP_SCHEMA_VERSION = 3;
 
 export interface BackupData {
   settings: Settings;
@@ -14,6 +14,7 @@ export interface BackupData {
   sessions: Session[];
   maxChanges: MaxChange[];
   activities: Activity[];
+  steps: DailySteps[];
 }
 
 export interface BackupCounts {
@@ -67,6 +68,10 @@ export const BACKUP_MIGRATIONS: Record<number, Migration> = {
   2: (file) => {
     const data = (file['data'] as Json | undefined) ?? {};
     return { ...file, data: { ...data, activities: data['activities'] ?? [] } };
+  },
+  3: (file) => {
+    const data = (file['data'] as Json | undefined) ?? {};
+    return { ...file, data: { ...data, steps: data['steps'] ?? [] } };
   },
 };
 
@@ -176,7 +181,19 @@ function checkData(data: unknown): asserts data is BackupData {
         optStr(a['note']),
       w,
     );
+    const track = a['track'];
+    check(
+      track === undefined ||
+        (Array.isArray(track) &&
+          track.every((p) => isRecord(p) && isNum(p['lat']) && isNum(p['lon']) && isNum(p['t']) && isNum(p['seg']))),
+      `${w} : tracé GPS`,
+    );
   });
+  const steps = data['steps'];
+  check(Array.isArray(steps), 'steps manquant');
+  steps.forEach((d, i) =>
+    check(isRecord(d) && isStr(d['date']) && ISO_DATE.test(d['date']) && isNum(d['steps']) && d['steps'] >= 0, `steps[${i}]`),
+  );
 }
 
 export function parseBackup(

@@ -82,6 +82,21 @@ export function formatShortDuration(sec: number): string {
   return s === 0 ? `${m}${NBSP}min` : `${m}${NBSP}min${NBSP}${pad2(s)}`;
 }
 
+/** Durée d'activité : « 12:34 » ou « 1:02:03 ». */
+export function formatClock(ms: number): string {
+  const totalSec = Math.floor(ms / 1000);
+  const h = Math.floor(totalSec / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
+  const s = totalSec % 60;
+  return h > 0 ? `${h}:${pad2(m)}:${pad2(s)}` : `${m}:${pad2(s)}`;
+}
+
+/** Allure en minutes par km : « 5:30 ». */
+export function formatPace(minPerKm: number): string {
+  const totalSec = Math.round(minPerKm * 60);
+  return `${Math.floor(totalSec / 60)}:${pad2(totalSec % 60)}`;
+}
+
 /** Chronomètre : « 12:34.5 » (ou « 1:12:34.5 » à partir d'une heure). */
 export function formatStopwatch(ms: number): string {
   const centis = Math.floor((ms % 1000) / 100);

@@ -1,6 +1,7 @@
 import { useState } from 'preact/hooks';
 import { todayIso } from '../../domain/dates';
 import {
+  averageSteps,
   bucketOf,
   dataRange,
   distanceByBucket,
@@ -10,10 +11,11 @@ import {
   PERIODS,
   periodStart,
   realizedSessions,
+  stepsByBucket,
   tonnageByBucket,
 } from '../../domain/stats';
 import type { Bucket, Period } from '../../domain/stats';
-import type { Activity, Cycle, IsoDate, Session } from '../../domain/types';
+import type { Activity, Cycle, DailySteps, IsoDate, Session } from '../../domain/types';
 import { ColumnChart } from '../charts/ColumnChart';
 import { LineChart } from '../charts/LineChart';
 import { ChartCard, Legend, StatTile } from '../charts/parts';
@@ -25,6 +27,7 @@ interface Data {
   sessions: Session[];
   cycles: Cycle[];
   activities: Activity[];
+  steps: DailySteps[];
 }
 
 const PREFERRED_EXERCISE = 'deadlift-sumo-inche-mur';
@@ -32,6 +35,7 @@ const ALL = ['0000-01-01', '9999-12-31'] as const;
 
 const kg = (v: number) => `${formatKg(v)} kg`;
 const km = (v: number) => `${formatKg(v)} km`;
+const int = new Intl.NumberFormat('fr-FR');
 
 /** Graduation courte et libellé complet d'une semaine (lundi) ou d'un mois. */
 const bucketLabel = (start: IsoDate, bucket: Bucket) => (bucket === 'week' ? formatDayShort(start) : formatMonthShort(start));
@@ -44,6 +48,7 @@ export function StatsScreen() {
       sessions: await repo.listSessionsBetween(...ALL),
       cycles: await repo.listCycles(),
       activities: await repo.listActivitiesBetween(...ALL),
+      steps: await repo.listStepsBetween(...ALL),
     }),
     [],
   );
@@ -51,14 +56,16 @@ export function StatsScreen() {
   return <Stats {...data} />;
 }
 
-function Stats({ sessions, cycles, activities }: Data) {
+function Stats({ sessions, cycles, activities, steps }: Data) {
   const { settings } = useApp();
   const { rounding } = settings;
   const today = todayIso();
   const [period, setPeriod] = useState<Period>('3m');
   const bucket = bucketOf(period);
   const range = dataRange(sessions, activities);
-  const from = periodStart(period, today, range?.first ?? null);
+  const firstSteps = steps.find((d) => d.steps > 0)?.date;
+  const first = [range?.first, firstSteps].filter((d): d is IsoDate => d !== undefined).sort()[0] ?? null;
+  const from = periodStart(period, today, first);
   // Une séance validée d'avance (date future) compte aussi.
   const to = range && range.last > today ? range.last : today;
   const maxOf = maxOfCycles(cycles);
@@ -68,6 +75,8 @@ function Stats({ sessions, cycles, activities }: Data) {
   const inPeriod = activities.filter((a) => a.date >= from && a.date <= to);
   const distance = distanceByBucket(inPeriod, from, to, bucket);
   const totalKm = Math.round(inPeriod.reduce((t, a) => t + a.distanceKm, 0) * 10) / 10;
+  const stepsAvg = averageSteps(steps, from, to);
+  const stepsSeries = stepsByBucket(steps, from, to, bucket);
 
   const exercises = exercisesWithData(done);
   const [chosen, setChosen] = useState(PREFERRED_EXERCISE);
@@ -87,10 +96,11 @@ function Stats({ sessions, cycles, activities }: Data) {
 
       {done.length === 0 && inPeriod.length === 0 && <p class="card muted">{S.stats.empty}</p>}
 
-      <div class="tiles">
+      <div class={`tiles${stepsAvg !== null ? ' four' : ''}`}>
         <StatTile label={S.stats.tileSessions} value={String(done.length)} />
         <StatTile label={S.stats.tileTonnage} value={formatTonnage(tonnage.reduce((t, b) => t + b.tonnage, 0))} />
         <StatTile label={S.stats.tileCardio} value={km(totalKm)} />
+        {stepsAvg !== null && <StatTile label={S.stats.tileSteps} value={int.format(stepsAvg)} />}
       </div>
 
       <ChartCard
@@ -157,6 +167,23 @@ function Stats({ sessions, cycles, activities }: Data) {
           </>
         )}
       </ChartCard>
+
+      {stepsAvg !== null && (
+        <ChartCard
+          title={S.stats.steps}
+          subtitle={S.stats.stepsSub(per)}
+          table={{
+            head: [S.stats.colPeriod, S.stats.colSteps],
+            rows: stepsSeries.filter((b) => b.average > 0).map((b) => [bucketTitle(b.start, bucket), int.format(b.average)]),
+          }}
+        >
+          <ColumnChart
+            ariaLabel={`${S.stats.steps}, ${S.stats.stepsSub(per).toLowerCase()}`}
+            formatValue={(v) => `${int.format(v)} pas`}
+            data={stepsSeries.map((b) => ({ key: b.start, label: bucketLabel(b.start, bucket), value: b.average, tip: bucketTitle(b.start, bucket) }))}
+          />
+        </ChartCard>
+      )}
 
       {inPeriod.length > 0 && (
         <ChartCard

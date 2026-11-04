@@ -119,6 +119,17 @@ describe('repository IndexedDB', () => {
     expect(await r.getPreRestoreBackup()).toBeUndefined();
   });
 
+  it('pas par jour : écriture, lecture par période, export', async () => {
+    const r = await fresh();
+    await r.saveSteps([
+      { date: '2026-11-02', steps: 8000 },
+      { date: '2026-11-03', steps: 4200 },
+    ]);
+    await r.saveSteps([{ date: '2026-11-03', steps: 6100 }]);
+    expect(await r.listStepsBetween('2026-11-03', '2026-11-30')).toEqual([{ date: '2026-11-03', steps: 6100 }]);
+    expect((await r.exportData()).steps).toHaveLength(2);
+  });
+
   it('drapeaux', async () => {
     const r = await fresh();
     expect(await r.getFlag('exampleOffer')).toBeUndefined();

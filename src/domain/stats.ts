@@ -1,7 +1,7 @@
 import { addDays, mondayOf } from './dates';
 import { displayKg, displayReps, isRealized } from './load';
 import { setsTotals } from './totals';
-import type { Activity, Cycle, IsoDate, Maxes, Rounding, Session } from './types';
+import type { Activity, Cycle, DailySteps, IsoDate, Maxes, Rounding, Session } from './types';
 
 const NO_MAX: Maxes = { S: 0, B: 0, D: 0 };
 const round1 = (n: number): number => Math.round(n * 10) / 10;
@@ -111,6 +111,28 @@ export function distanceByBucket(activities: readonly Activity[], from: IsoDate,
     totals.set(key, round2((totals.get(key) ?? 0) + a.distanceKm));
   }
   return [...totals].map(([start, km]) => ({ start, km }));
+}
+
+/**
+ * Moyenne de pas par jour de chaque semaine ou mois de la période, sur les jours comptés
+ * (un jour sans relevé, podomètre arrêté, ne fait pas baisser la moyenne).
+ */
+export function stepsByBucket(days: readonly DailySteps[], from: IsoDate, to: IsoDate, bucket: Bucket): { start: IsoDate; average: number }[] {
+  const acc = new Map(bucketsBetween(from, to, bucket).map((k) => [k, { total: 0, days: 0 }]));
+  for (const d of days) {
+    if (d.date < from || d.date > to || d.steps <= 0) continue;
+    const slot = acc.get(bucketKey(d.date, bucket));
+    if (!slot) continue;
+    slot.total += d.steps;
+    slot.days++;
+  }
+  return [...acc].map(([start, v]) => ({ start, average: v.days ? Math.round(v.total / v.days) : 0 }));
+}
+
+/** Moyenne de pas par jour compté sur la période, ou null sans relevé. */
+export function averageSteps(days: readonly DailySteps[], from: IsoDate, to: IsoDate): number | null {
+  const counted = days.filter((d) => d.date >= from && d.date <= to && d.steps > 0);
+  return counted.length ? Math.round(counted.reduce((t, d) => t + d.steps, 0) / counted.length) : null;
 }
 
 export interface ExercisePoint {

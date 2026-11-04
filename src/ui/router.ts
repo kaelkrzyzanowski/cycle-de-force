@@ -10,6 +10,7 @@ export type Route =
   | { name: 'templates' }
   | { name: 'stats' }
   | { name: 'settings' }
+  | { name: 'track' }
   | { name: 'session'; id: string }
   | { name: 'newCycle' }
   | { name: 'cycle'; id: string }
@@ -24,6 +25,7 @@ export const href = {
   templates: () => '#/modeles',
   stats: () => '#/stats',
   settings: () => '#/reglages',
+  track: () => '#/activite',
   session: (id: string) => `#/seance/${id}`,
   newCycle: () => '#/cycle/nouveau',
   cycle: (id: string) => `#/cycle/${id}`,
@@ -45,6 +47,8 @@ export function parseRoute(hash: string): Route {
       return { name: 'stats' };
     case 'reglages':
       return { name: 'settings' };
+    case 'activite':
+      return { name: 'track' };
     case 'seance':
       return a ? { name: 'session', id: a } : { name: 'calendar' };
     case 'cycle':
@@ -73,6 +77,8 @@ export function tabOf(route: Route): Tab | null {
       return null;
     case 'template':
       return 'templates';
+    case 'track':
+      return 'today';
     default:
       return 'calendar';
   }

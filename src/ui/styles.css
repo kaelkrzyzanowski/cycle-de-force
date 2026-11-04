@@ -1304,3 +1304,145 @@ legend {
     animation: none;
   }
 }
+
+/* Activité GPS */
+.chip-row.two {
+  grid-template-columns: repeat(2, 1fr);
+}
+.dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  vertical-align: middle;
+}
+.btn.big {
+  min-height: 64px;
+  font-size: 1.2rem;
+}
+.track-status {
+  margin: 0;
+  font-weight: 600;
+}
+.track-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin: 0;
+}
+.track-metrics > div {
+  padding: 12px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+.track-metrics .is-main {
+  grid-column: 1 / -1;
+  text-align: center;
+}
+.track-metrics dt {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+.track-metrics dd {
+  margin: 2px 0 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+.track-metrics .is-main dd {
+  font-size: 3rem;
+}
+.track-metrics small {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.track-map {
+  height: 280px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  /* Leaflet place ses calques au-dessus : on les garde sous la barre du bas et les feuilles. */
+  position: relative;
+  z-index: 0;
+}
+
+/* Podomètre */
+.steps-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 16px;
+  align-items: center;
+}
+.steps-ring {
+  width: 104px;
+  height: 104px;
+}
+.steps-ring .track {
+  stroke: var(--surface-2);
+}
+.steps-ring .progress {
+  stroke: var(--accent);
+  transition: stroke-dashoffset 0.4s ease;
+}
+.steps-ring.is-reached .progress {
+  stroke: var(--st-validated);
+}
+.steps-count {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+}
+.steps-week {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  align-items: end;
+  height: 64px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.steps-week li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  gap: 2px;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+.steps-week .bar {
+  width: 100%;
+  max-width: 22px;
+  min-height: 2px;
+  border-radius: 3px 3px 0 0;
+  background: var(--series-1);
+}
+.steps-week .bar.is-reached {
+  background: var(--st-validated);
+}
+.tiles.four {
+  grid-template-columns: repeat(2, 1fr);
+}
+.switch-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: var(--tap);
+  cursor: pointer;
+}
+.switch-row input {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--accent);
+}
+.track-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-color: var(--accent);
+}

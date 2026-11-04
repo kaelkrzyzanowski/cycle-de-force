@@ -1,6 +1,6 @@
 import type { BackupData } from '../domain/backup';
 import { DEFAULT_SETTINGS } from '../domain/types';
-import type { Activity, Cycle, Exercise, IsoDate, MaxChange, Session, SessionTemplate, Settings } from '../domain/types';
+import type { Activity, Cycle, DailySteps, Exercise, IsoDate, MaxChange, Session, SessionTemplate, Settings } from '../domain/types';
 import { seedData, SEED_VERSION } from '../seed';
 import { openCdfDb, DB_NAME } from './db';
 import type { CdfDb } from './db';
@@ -38,6 +38,10 @@ export interface Repository {
 
   /** Activités entre deux dates incluses, triées par date. */
   listActivitiesBetween(from: IsoDate, to: IsoDate): Promise<Activity[]>;
+
+  /** Pas par jour entre deux dates incluses, triés par date. */
+  listStepsBetween(from: IsoDate, to: IsoDate): Promise<DailySteps[]>;
+  saveSteps(days: readonly DailySteps[]): Promise<void>;
 
   /** Applique plusieurs écritures en une seule transaction : tout ou rien. */
   applyChanges(changes: Changes): Promise<void>;
@@ -175,6 +179,14 @@ class IdbRepository implements Repository {
     return this.db.getAllFromIndex('activities', 'byDate', IDBKeyRange.bound(from, to));
   }
 
+  listStepsBetween(from: IsoDate, to: IsoDate): Promise<DailySteps[]> {
+    return this.db.getAll('steps', IDBKeyRange.bound(from, to));
+  }
+  async saveSteps(days: readonly DailySteps[]): Promise<void> {
+    const tx = this.db.transaction('steps', 'readwrite');
+    await Promise.all([...days.map((d) => tx.store.put(d)), tx.done]);
+  }
+
   async applyChanges(changes: Changes): Promise<void> {
     const tx = this.db.transaction(['cycles', 'sessions', 'maxChanges', 'activities'], 'readwrite');
     const sessions = tx.objectStore('sessions');
@@ -198,8 +210,11 @@ class IdbRepository implements Repository {
   }
 
   async exportData(): Promise<BackupData> {
-    const tx = this.db.transaction(['settings', 'templates', 'exercises', 'cycles', 'sessions', 'maxChanges', 'activities'], 'readonly');
-    const [settings, templates, exercises, cycles, sessions, maxChanges, activities] = await Promise.all([
+    const tx = this.db.transaction(
+      ['settings', 'templates', 'exercises', 'cycles', 'sessions', 'maxChanges', 'activities', 'steps'],
+      'readonly',
+    );
+    const [settings, templates, exercises, cycles, sessions, maxChanges, activities, steps] = await Promise.all([
       tx.objectStore('settings').get(SETTINGS_KEY),
       tx.objectStore('templates').getAll(),
       tx.objectStore('exercises').getAll(),
@@ -207,6 +222,7 @@ class IdbRepository implements Repository {
       tx.objectStore('sessions').getAll(),
       tx.objectStore('maxChanges').getAll(),
       tx.objectStore('activities').getAll(),
+      tx.objectStore('steps').getAll(),
     ]);
     await tx.done;
     return {
@@ -217,11 +233,12 @@ class IdbRepository implements Repository {
       sessions: sessions.sort(byDate),
       maxChanges,
       activities: activities.sort((a, b) => a.date.localeCompare(b.date)),
+      steps,
     };
   }
 
   async replaceAll(data: BackupData, previousBackup: string): Promise<void> {
-    const stores = ['settings', 'templates', 'exercises', 'cycles', 'sessions', 'maxChanges', 'activities', 'meta'] as const;
+    const stores = ['settings', 'templates', 'exercises', 'cycles', 'sessions', 'maxChanges', 'activities', 'steps', 'meta'] as const;
     const tx = this.db.transaction([...stores], 'readwrite');
     await atomically(tx, (push) => {
       for (const name of stores) if (name !== 'meta') push(tx.objectStore(name).clear());
@@ -232,6 +249,7 @@ class IdbRepository implements Repository {
       for (const s of data.sessions) push(tx.objectStore('sessions').put(s));
       for (const m of data.maxChanges) push(tx.objectStore('maxChanges').put(m));
       for (const a of data.activities) push(tx.objectStore('activities').put(a));
+      for (const d of data.steps) push(tx.objectStore('steps').put(d));
       push(tx.objectStore('meta').put({ key: PRE_RESTORE_KEY, value: previousBackup }));
     });
   }

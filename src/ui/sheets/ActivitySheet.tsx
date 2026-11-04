@@ -6,6 +6,7 @@ import { commit } from '../actions';
 import { DateField, RadioList, TextField } from '../components/fields';
 import { NumberField } from '../components/NumberField';
 import { Sheet } from '../components/Sheet';
+import { TrackMap } from '../components/TrackMap';
 import { useApp } from '../context';
 import { formatDayMedium, formatDuration, formatKg } from '../format';
 import { S } from '../strings';
@@ -39,6 +40,7 @@ export function ActivitySheet({ date: dateProp, activity: existing, onClose }: P
       distanceKm,
       durationSec,
       ...(note.trim() ? { note: note.trim() } : {}),
+      ...(existing?.track ? { track: existing.track } : {}),
     };
     if (await commit(app, { saveActivities: [activity] }, editing ? S.activitySheet.updated : S.activitySheet.added)) onClose();
   };
@@ -50,6 +52,7 @@ export function ActivitySheet({ date: dateProp, activity: existing, onClose }: P
   return (
     <Sheet title={editing ? S.activitySheet.editTitle(formatDayMedium(date)) : S.activitySheet.addTitle(formatDayMedium(date))} onClose={onClose}>
       <div class="stack">
+        {existing?.track && existing.track.length > 1 && <TrackMap points={existing.track} />}
         <RadioList<ActivityType>
           label={S.activitySheet.type}
           value={type}

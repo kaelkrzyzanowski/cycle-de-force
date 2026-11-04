@@ -6,6 +6,8 @@ import { templatesById } from '../actions';
 import { BackupReminder } from '../components/BackupReminder';
 import { MaxCard } from '../components/MaxCard';
 import { NEUTRAL_COLOR, SessionCard } from '../components/SessionCard';
+import { StepsCard } from '../components/StepsCard';
+import { TrackCard } from '../components/TrackCard';
 import { useApp, useData } from '../context';
 import { formatDayLong } from '../format';
 import { href, navigate } from '../router';
@@ -51,6 +53,7 @@ export function TodayScreen() {
     <div class="stack">
       <BackupReminder hasData={data.cycles.length > 0} />
       <h2>{formatDayLong(today)}</h2>
+      <StepsCard />
       {data.today.map(card)}
       {data.today.length === 0 && (
         <>
@@ -66,6 +69,7 @@ export function TodayScreen() {
           </a>
         </>
       )}
+      <TrackCard />
       {cycle && <MaxCard cycle={cycle} />}
     </div>
   );

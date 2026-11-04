@@ -1,9 +1,9 @@
 import { openDB } from 'idb';
 import type { DBSchema, IDBPDatabase, IDBPTransaction, StoreNames } from 'idb';
-import type { Activity, Cycle, Exercise, MaxChange, Session, SessionTemplate, Settings } from '../domain/types';
+import type { Activity, Cycle, DailySteps, Exercise, MaxChange, Session, SessionTemplate, Settings } from '../domain/types';
 
 export const DB_NAME = 'cycle-de-force';
-export const DB_VERSION = 2;
+export const DB_VERSION = 3;
 
 export interface MetaRecord {
   key: string;
@@ -17,6 +17,7 @@ export interface CdfSchema extends DBSchema {
   sessions: { key: string; value: Session; indexes: { byDate: string; byCycle: string } };
   maxChanges: { key: string; value: MaxChange; indexes: { byCycle: string } };
   activities: { key: string; value: Activity; indexes: { byDate: string } };
+  steps: { key: string; value: DailySteps };
   settings: { key: string; value: Settings };
   meta: { key: string; value: MetaRecord };
 }
@@ -39,6 +40,9 @@ const MIGRATIONS: Record<number, (db: CdfDb, tx: UpgradeTx) => void> = {
   },
   2: (db) => {
     db.createObjectStore('activities', { keyPath: 'id' }).createIndex('byDate', 'date');
+  },
+  3: (db) => {
+    db.createObjectStore('steps', { keyPath: 'date' });
   },
 };
 

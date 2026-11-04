@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'preact/hooks';
 import type { Rounding, ThemePref } from '../../domain/types';
+import { errorCode, Tracker } from '../../platform/tracker';
+import type { StepStatus } from '../../platform/tracker';
 import { BackupSection } from '../components/BackupSection';
+import { NumberField } from '../components/NumberField';
 import { useApp } from '../context';
 import { formatKg } from '../format';
 import { S } from '../strings';
@@ -9,6 +12,53 @@ const THEMES: ThemePref[] = ['dark', 'light', 'system'];
 const ROUNDINGS: Rounding[] = [0, 0.5, 1, 1.25, 2.5];
 
 type Persisted = 'yes' | 'no' | 'unknown';
+
+/** Podomètre (app Android) : marche / arrêt du comptage en arrière-plan et objectif quotidien. */
+function StepsSettings() {
+  const { settings, updateSettings, toast } = useApp();
+  const [status, setStatus] = useState<StepStatus | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    void Tracker.stepStatus().then(setStatus, () => undefined);
+  }, []);
+  if (!status?.available) return null;
+
+  const toggle = async (on: boolean) => {
+    setMessage(null);
+    try {
+      if (on) await Tracker.startSteps();
+      else await Tracker.stopSteps();
+      setStatus(await Tracker.stepStatus());
+      toast(on ? S.steps.enabled : S.steps.disabled);
+    } catch (err) {
+      setMessage(errorCode(err) === 'NO_SENSOR' ? S.steps.noSensor : S.steps.denied);
+    }
+  };
+
+  return (
+    <section class="card stack tight">
+      <h2 class="card-title">{S.steps.tracking}</h2>
+      <label class="switch-row">
+        <input type="checkbox" checked={status.enabled} onChange={(e) => void toggle(e.currentTarget.checked)} />
+        <span>{S.steps.trackingOn}</span>
+      </label>
+      {message && (
+        <p class="warning" role="alert">
+          {message}
+        </p>
+      )}
+      <NumberField
+        label={S.steps.goalLabel}
+        value={settings.stepGoal}
+        onChange={(stepGoal) => stepGoal > 0 && void updateSettings({ stepGoal })}
+        step={500}
+        min={500}
+        max={100_000}
+      />
+    </section>
+  );
+}
 
 export function SettingsScreen() {
   const { settings, updateSettings } = useApp();
@@ -52,6 +102,8 @@ export function SettingsScreen() {
           ))}
         </div>
       </section>
+
+      <StepsSettings />
 
       <section class="card field">
         <span>{S.settings.storage}</span>

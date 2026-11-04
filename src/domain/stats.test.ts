@@ -3,6 +3,8 @@ import { exampleCycle, nativeTemplates, TEMPLATE_IDS } from '../seed';
 import { generateCycleSessions } from './cycles';
 import { mapExercise, recordSet, validateExercise } from './sets';
 import {
+  averageSteps,
+  stepsByBucket,
   bucketOf,
   bucketsBetween,
   distanceByBucket,
@@ -105,6 +107,21 @@ describe('périodes', () => {
     expect(months).toHaveLength(12);
     expect(months.at(0)).toBe('2025-12-01');
     expect(months.at(-1)).toBe('2026-11-01');
+  });
+
+  it('pas : moyenne par jour compté, par semaine et sur la période', () => {
+    const days = [
+      { date: '2026-10-27', steps: 8000 },
+      { date: '2026-10-28', steps: 0 },
+      { date: '2026-10-29', steps: 12_000 },
+      { date: '2026-11-03', steps: 5000 },
+    ];
+    expect(stepsByBucket(days, '2026-10-26', today, 'week')).toEqual([
+      { start: '2026-10-26', average: 10_000 },
+      { start: '2026-11-02', average: 5000 },
+    ]);
+    expect(averageSteps(days, '2026-10-26', today)).toBe(8333);
+    expect(averageSteps([], '2026-10-26', today)).toBeNull();
   });
 
   it('distance cardio par semaine', () => {

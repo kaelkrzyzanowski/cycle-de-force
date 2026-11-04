@@ -391,6 +391,9 @@ export function CalendarScreen() {
             <button type="button" class="choice" onClick={() => setSheet({ kind: 'addActivity', date: selected })}>
               {S.calendar.addActivityOn(formatDayLong(selected))}
             </button>
+            <button type="button" class="choice" onClick={() => navigate(href.track())}>
+              {S.track.record}
+            </button>
             <button type="button" class="choice" onClick={() => navigate(href.newCycle())}>
               {S.cycleForm.newTitle}
             </button>

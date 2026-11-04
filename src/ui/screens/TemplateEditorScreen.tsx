@@ -28,6 +28,7 @@ import { formatKg } from '../format';
 import { href, navigate } from '../router';
 import { S } from '../strings';
 import { PrescriptionEditor, useCatalogue } from '../session/EditSession';
+import { saveTemplateWithRename } from '../actions';
 
 const FAR_FUTURE = '9999-12-31';
 
@@ -53,6 +54,7 @@ function Editor({ saved, catalogue }: { saved: SessionTemplate; catalogue: Exerc
   const [template, setTemplate] = useState(saved);
   const [week, setWeek] = useState(1);
   const [dirty, setDirty] = useState(false);
+  const [savedName, setSavedName] = useState(saved.name);
   const [dialog, setDialog] = useState<Dialog>(null);
   const { known, resolve, newExercises } = useCatalogue(catalogue);
 
@@ -66,14 +68,15 @@ function Editor({ saved, catalogue }: { saved: SessionTemplate; catalogue: Exerc
     if (next) change({ ...template, weeks: { ...template.weeks, [week]: sessionAsWeek(next) } });
   };
 
-  const persist = async (t: SessionTemplate) => {
+  const persist = async (t: SessionTemplate, oldName = t.name) => {
     const used = new Set(Object.values(t.weeks).flatMap((w) => w.map((e) => e.exerciseId)));
     await Promise.all(newExercises.filter((e) => used.has(e.id)).map((e) => app.repo.saveExercise(e)));
-    await app.repo.saveTemplate(t);
+    return saveTemplateWithRename(app, t, oldName);
   };
 
   const save = async () => {
-    await persist(template);
+    await persist(template, savedName);
+    setSavedName(template.name);
     setDirty(false);
     const untouched = untouchedFutureSessions(template, await app.repo.listSessionsBetween(todayIso(), FAR_FUTURE), todayIso());
     const future = refreshFromTemplate(template, untouched, newId);

@@ -3,6 +3,7 @@ import { newId } from '../../domain/ids';
 import { emptyTemplate, TEMPLATE_COLORS } from '../../domain/templates';
 import type { SessionTemplate } from '../../domain/types';
 import { TEMPLATE_IDS } from '../../seed';
+import { saveTemplateWithRename } from '../actions';
 import { TextField } from '../components/fields';
 import { NumberField } from '../components/NumberField';
 import { Sheet } from '../components/Sheet';
@@ -21,6 +22,7 @@ export function TemplatesScreen() {
   const app = useApp();
   const templates = useData((repo) => repo.listTemplates(), []);
   const [creating, setCreating] = useState(false);
+  const [renaming, setRenaming] = useState<SessionTemplate | null>(null);
   const [name, setName] = useState('');
   const [weeks, setWeeks] = useState(7);
 
@@ -36,11 +38,35 @@ export function TemplatesScreen() {
     navigate(href.template(template.id));
   };
 
+  const rename = async (template: SessionTemplate) => {
+    const next = { ...template, name: name.trim() };
+    try {
+      const n = await saveTemplateWithRename(app, next, template.name);
+      setRenaming(null);
+      app.refresh();
+      app.toast(S.templates.renamed(next.name, n));
+    } catch (err) {
+      console.error(err);
+      app.toast(S.saveError);
+    }
+  };
+
   return (
     <div class="stack">
       <ul class="stack" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
         {sorted.map((t) => (
-          <li key={t.id}>
+          <li key={t.id} class="template-item">
+            <button
+              type="button"
+              class="icon-btn template-rename"
+              aria-label={S.templates.rename(t.name)}
+              onClick={() => {
+                setRenaming(t);
+                setName(t.name);
+              }}
+            >
+              ✎
+            </button>
             <a class="card template-row link-card" href={href.template(t.id)}>
               <span class="swatch" style={{ background: t.color }} />
               <div>
@@ -61,10 +87,31 @@ export function TemplatesScreen() {
       </ul>
 
       <div class="button-row sticky-actions">
-        <button type="button" class="btn primary" onClick={() => setCreating(true)}>
+        <button type="button" class="btn primary" onClick={() => {
+            setName('');
+            setCreating(true);
+          }}>
           + {S.templates.new}
         </button>
       </div>
+
+      {renaming && (
+        <Sheet title={S.templates.renameTitle} onClose={() => setRenaming(null)}>
+          <form
+            class="stack"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (name.trim() !== '') void rename(renaming);
+            }}
+          >
+            <TextField label={S.templates.newName} value={name} onChange={setName} />
+            <p class="muted">{S.templates.renameHint}</p>
+            <button type="submit" class="btn primary" disabled={name.trim() === ''}>
+              {S.templates.confirmRename}
+            </button>
+          </form>
+        </Sheet>
+      )}
 
       {creating && (
         <Sheet title={S.templates.new} onClose={() => setCreating(false)}>

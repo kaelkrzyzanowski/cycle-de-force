@@ -124,6 +124,10 @@ export const S = {
 
   sessionActions: {
     open: 'Ouvrir',
+    rename: 'Renommer',
+    newName: 'Nom de la séance',
+    confirmRename: 'Renommer',
+    renamed: (name: string) => `Séance renommée « ${name} »`,
     move: 'Déplacer à une autre date',
     duplicate: 'Dupliquer à une autre date',
     delete: 'Supprimer',
@@ -398,6 +402,12 @@ export const S = {
     newWeeks: 'Nombre de semaines',
     create: 'Créer le modèle',
     created: (name: string) => `Modèle « ${name} » créé`,
+    rename: (name: string) => `Renommer ${name}`,
+    renameTitle: 'Renommer le modèle',
+    renameHint: 'Les séances de ce modèle qui portent encore son nom sont renommées aussi.',
+    confirmRename: 'Renommer',
+    renamed: (name: string, n: number) =>
+      n > 0 ? `Modèle renommé « ${name} » · ${plural(n, 'séance', 'séances')} renommée${n > 1 ? 's' : ''}` : `Modèle renommé « ${name} »`,
   },
 
   templateEditor: {

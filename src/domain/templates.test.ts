@@ -11,6 +11,7 @@ import {
   emptyTemplate,
   progressionValues,
   refreshFromTemplate,
+  renameTemplateSessions,
   sessionAsWeek,
   sessionLabel,
   waveWeek,
@@ -136,6 +137,34 @@ describe('numéro de semaine de la vague (S0 = deload)', () => {
     expect(sessionLabel({ ...base, cycleWeek: null }, t(TEMPLATE_IDS.deadlift))).toBe('Deadlift');
     expect(sessionLabel({ templateId: TEMPLATE_IDS.sbd, name: 'SBD', cycleWeek: 2, exercises: [] }, t(TEMPLATE_IDS.sbd))).toBe('SBD');
     expect(sessionLabel({ ...base, cycleWeek: 1 }, undefined)).toBe('Deadlift');
+  });
+
+  it('une séance renommée garde exactement son nom, sans suffixe calculé', () => {
+    const week1 = weekAsSession(t(TEMPLATE_IDS.deadlift), 1);
+    expect(sessionLabel(week1, t(TEMPLATE_IDS.deadlift))).toBe('Deadlift 80%');
+    expect(sessionLabel({ ...week1, name: 'Soulevé lourd' }, t(TEMPLATE_IDS.deadlift))).toBe('Soulevé lourd');
+  });
+});
+
+describe('renommage', () => {
+  const templates = new Map(nativeTemplates().map((t) => [t.id, t]));
+  const sessions = generateCycleSessions(exampleCycle('c0', '2026-09-21'), templates, newId);
+
+  it('renomme les séances du modèle qui portent encore son nom, pas celles renommées à la main', () => {
+    const bench = sessions.filter((s) => s.templateId === TEMPLATE_IDS.bench);
+    const custom = { ...bench[0]!, name: 'DC lourd' };
+    const list = [custom, ...sessions.filter((s) => s.id !== custom.id)];
+    const renamed = renameTemplateSessions(list, TEMPLATE_IDS.bench, 'Bench', 'Développé couché');
+    expect(renamed).toHaveLength(bench.length - 1);
+    expect(renamed.every((s) => s.name === 'Développé couché' && s.templateId === TEMPLATE_IDS.bench)).toBe(true);
+    expect(renameTemplateSessions(list, TEMPLATE_IDS.bench, 'Bench', 'Bench')).toEqual([]);
+  });
+
+  it('la mise à jour depuis le modèle garde le nom de la séance', () => {
+    const s5 = { ...sessions.filter((s) => s.templateId === TEMPLATE_IDS.bench)[4]!, name: 'DC lourd' };
+    const [fresh] = refreshFromTemplate(copyWeek(bench(), 1, [5]), [s5], newId);
+    expect(fresh?.name).toBe('DC lourd');
+    expect(refreshFromTemplate(bench(), [s5], newId)).toEqual([]);
   });
 });
 

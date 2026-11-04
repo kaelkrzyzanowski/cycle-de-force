@@ -46,12 +46,14 @@ function topPercentOf(session: Pick<Session, 'exercises'>, lift: Lift): { pct: n
  * Nom affiché d'une séance de vague, d'après le % le plus haut du mouvement principal ce jour-là :
  * « Squat deload » (semaine de repos), « Bench RM » (test au RM) ou « Deadlift 80 % ». Repli sur le
  * nom brut si le modèle n'a pas de vague numérotée ou qu'aucune donnée en % n'est disponible.
+ * Une séance renommée (nom différent de son modèle) garde exactement le nom choisi.
  */
 export function sessionLabel(
   session: Pick<Session, 'name' | 'cycleWeek' | 'templateId' | 'exercises'>,
-  template: Pick<SessionTemplate, 'id' | 'deloadWeek' | 'weeksCount' | 'weeks'> | undefined,
+  template: Pick<SessionTemplate, 'id' | 'name' | 'deloadWeek' | 'weeksCount' | 'weeks'> | undefined,
 ): string {
   if (!template?.deloadWeek || session.templateId !== template.id || session.cycleWeek === null) return session.name;
+  if (session.name !== template.name) return session.name;
   if (waveWeek(template, session.cycleWeek) === 0) return `${session.name} deload`;
   const lift = mainLiftOf(template);
   const top = lift && topPercentOf(session, lift);
@@ -184,9 +186,19 @@ export function untouchedFutureSessions(template: SessionTemplate, sessions: rea
  * Ne renvoie que les séances dont le contenu change réellement.
  */
 export function refreshFromTemplate(template: SessionTemplate, sessions: readonly Session[], newId: NewId): Session[] {
-  const content = (s: Session) => JSON.stringify([s.name, sessionAsWeek(s)]);
+  const content = (s: Session) => JSON.stringify(sessionAsWeek(s));
   return sessions.flatMap((s) => {
     const fresh = sessionFromTemplate(template, s.cycleWeek ?? 1, { date: s.date, cycleId: s.cycleId, cycleWeek: s.cycleWeek }, newId);
-    return content(fresh) === content(s) ? [] : [{ ...fresh, id: s.id }];
+    // Le nom n'est pas une prescription : une séance renommée garde son nom.
+    return content(fresh) === content(s) ? [] : [{ ...fresh, id: s.id, name: s.name }];
   });
+}
+
+/**
+ * Renommer un modèle renomme aussi ses séances qui portent encore son ancien nom ;
+ * celles renommées à la main gardent leur nom. Renvoie les séances modifiées.
+ */
+export function renameTemplateSessions(sessions: readonly Session[], templateId: string, oldName: string, newName: string): Session[] {
+  if (oldName === newName) return [];
+  return sessions.filter((s) => s.templateId === templateId && s.name === oldName).map((s) => ({ ...s, name: newName }));
 }

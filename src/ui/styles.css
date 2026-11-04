@@ -201,6 +201,20 @@ main {
 .template-row .name {
   font-weight: 600;
 }
+.template-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.template-item .template-row {
+  flex: 1;
+  min-width: 0;
+}
+.template-rename {
+  order: 1;
+  font-size: 1.2rem;
+  color: var(--text-muted);
+}
 .badge {
   display: inline-block;
   margin-left: 8px;

@@ -3,18 +3,19 @@ import { exampleCycle, nativeTemplates, TEMPLATE_IDS } from '../seed';
 import { generateCycleSessions } from './cycles';
 import { mapExercise, recordSet, validateExercise } from './sets';
 import {
+  bucketOf,
+  bucketsBetween,
+  distanceByBucket,
+  dataRange,
   e1rm,
   exerciseProgress,
   exercisesWithData,
-  maxHistory,
   maxOfCycles,
-  statusBreakdown,
-  tonnageByCycle,
-  tonnageBySession,
-  tonnageByWeek,
-  volumeByTemplate,
+  periodStart,
+  realizedSessions,
+  tonnageByBucket,
 } from './stats';
-import type { Cycle, Session } from './types';
+import type { Activity, Cycle, Session } from './types';
 
 let n = 0;
 const newId = () => `s${++n}`;
@@ -61,33 +62,57 @@ describe('tonnage', () => {
   // S2 : 2×4×147 + (3×4 + 2)×179 + mêmes accessoires
   const s2 = 1176 + 14 * 179 + 1920 + 1500 + 1296 + 2340;
 
-  it('par séance', () => {
-    const list = tonnageBySession(sessions, maxOf, 1);
-    expect(list).toHaveLength(28);
-    expect(list[0]).toMatchObject({ date: '2026-09-22', name: 'Deadlift', tonnage: s1 });
-    expect(list.filter((x) => x.tonnage > 0).map((x) => x.tonnage)).toEqual([s1, s2]);
-  });
-
-  it('par semaine du cycle, semaines vides comprises', () => {
-    const weeks = tonnageByWeek(cycle, sessions, 1);
-    expect(weeks).toHaveLength(7);
-    expect(weeks.map((w) => w.tonnage)).toEqual([s1, s2, 0, 0, 0, 0, 0]);
-  });
-
-  it('par cycle et par modèle', () => {
-    const other: Cycle = { ...cycle, id: 'c1', name: 'Vide', startDate: '2026-11-09' };
-    expect(tonnageByCycle([other, cycle], sessions, 1).map((c) => [c.name, c.tonnage])).toEqual([
-      ['Bloc 0', s1 + s2],
-      ['Vide', 0],
+  it('par semaine calendaire, semaines vides comprises', () => {
+    const weeks = tonnageByBucket(sessions, maxOf, 1, '2026-09-14', '2026-10-11', 'week');
+    expect(weeks).toEqual([
+      { start: '2026-09-14', tonnage: 0 },
+      { start: '2026-09-21', tonnage: s1 },
+      { start: '2026-09-28', tonnage: s2 },
+      { start: '2026-10-05', tonnage: 0 },
     ]);
-    expect(volumeByTemplate(sessions, maxOf, 1)).toEqual([{ templateId: TEMPLATE_IDS.deadlift, tonnage: s1 + s2, sessions: 2 }]);
   });
 
-  it('répartition des statuts', () => {
-    const counts = statusBreakdown(sessions);
-    expect(counts.FAILED).toBe(1);
-    expect(counts.VALIDATED).toBe(2 * 18 - 1); // 18 séries par séance Deadlift (2 + 4 + 4 × 3)
-    expect(counts.CLUSTER + counts.NOT_DONE).toBe(0);
+  it('par mois', () => {
+    expect(tonnageByBucket(sessions, maxOf, 1, '2026-09-01', '2026-10-31', 'month')).toEqual([
+      { start: '2026-09-01', tonnage: s1 + s2 },
+      { start: '2026-10-01', tonnage: 0 },
+    ]);
+  });
+
+  it('séances réalisées de la période et première donnée', () => {
+    expect(realizedSessions(sessions, '2026-09-01', '2026-12-31').map((s) => s.date)).toEqual(['2026-09-22', '2026-09-29']);
+    expect(realizedSessions(sessions, '2026-09-23', '2026-12-31')).toHaveLength(1);
+    expect(dataRange(sessions, [])).toEqual({ first: '2026-09-22', last: '2026-09-29' });
+    expect(dataRange([], [])).toBeNull();
+  });
+});
+
+describe('périodes', () => {
+  const today = '2026-11-04'; // mercredi
+
+  it('début de période aligné sur la semaine ou le mois', () => {
+    expect(periodStart('4w', today, null)).toBe('2026-10-12');
+    expect(periodStart('3m', today, null)).toBe('2026-08-10');
+    expect(periodStart('12m', today, null)).toBe('2025-12-01');
+    expect(periodStart('all', today, '2024-03-17')).toBe('2024-03-01');
+    expect(periodStart('all', today, null)).toBe('2026-11-01');
+  });
+
+  it('découpage en semaines (4 ou 13) et en mois (12)', () => {
+    expect(bucketsBetween(periodStart('4w', today, null), today, bucketOf('4w'))).toHaveLength(4);
+    expect(bucketsBetween(periodStart('3m', today, null), today, bucketOf('3m'))).toHaveLength(13);
+    const months = bucketsBetween(periodStart('12m', today, null), today, bucketOf('12m'));
+    expect(months).toHaveLength(12);
+    expect(months.at(0)).toBe('2025-12-01');
+    expect(months.at(-1)).toBe('2026-11-01');
+  });
+
+  it('distance cardio par semaine', () => {
+    const run = (date: string, distanceKm: number): Activity => ({ id: date, type: 'RUNNING', date, distanceKm, durationSec: 1800 });
+    expect(distanceByBucket([run('2026-10-27', 5), run('2026-11-01', 7.5), run('2026-11-03', 4)], '2026-10-26', today, 'week')).toEqual([
+      { start: '2026-10-26', km: 12.5 },
+      { start: '2026-11-02', km: 4 },
+    ]);
   });
 });
 
@@ -106,22 +131,5 @@ describe('progression d’un exercice', () => {
     const names = exercisesWithData(sessions).map((e) => e.name);
     expect(names).toContain('Deadlift Sumo + Inche mur');
     expect(names).not.toContain('Squat 420');
-  });
-});
-
-describe('évolution des max théoriques', () => {
-  it('max de départ de chaque cycle, puis chaque changement', () => {
-    const c0 = { ...exampleCycle('c0', '2026-09-21'), max: { S: 170, B: 115, D: 215 } };
-    const c1 = { ...exampleCycle('c1', '2026-11-09'), name: 'Bloc 1', max: { S: 175, B: 117.5, D: 220 } };
-    const history = maxHistory(
-      [c1, c0],
-      [{ id: 'm1', cycleId: 'c0', lift: 'D', from: 210, to: 215, at: '2026-10-01T09:00:00Z' }],
-    );
-    expect(history.D).toEqual([
-      { date: '2026-09-21', value: 210, cycleName: 'Bloc 0' },
-      { date: '2026-10-01', value: 215, cycleName: 'Bloc 0' },
-      { date: '2026-11-09', value: 220, cycleName: 'Bloc 1' },
-    ]);
-    expect(history.S.map((p) => p.value)).toEqual([170, 175]);
   });
 });

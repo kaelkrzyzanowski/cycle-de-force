@@ -32,6 +32,7 @@ const dayLong = fmt({ weekday: 'long', day: 'numeric', month: 'long' });
 const dayMedium = fmt({ weekday: 'short', day: 'numeric', month: 'short' });
 const dayShort = fmt({ day: 'numeric', month: 'short' });
 const monthYear = fmt({ month: 'long', year: 'numeric' });
+const monthShort = fmt({ month: 'short', year: '2-digit' });
 
 export const capitalize = (s: string): string => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -43,6 +44,8 @@ export const formatDayMedium = (iso: IsoDate): string => dayMedium.format(utc(is
 export const formatDayShort = (iso: IsoDate): string => dayShort.format(utc(iso));
 /** « Septembre 2026 » */
 export const formatMonthYear = (iso: IsoDate): string => capitalize(monthYear.format(utc(iso)));
+/** « nov. 26 » */
+export const formatMonthShort = (iso: IsoDate): string => monthShort.format(utc(iso));
 
 /** « 21 – 27 sept. » ou « 28 sept. – 4 oct. » */
 export function formatRange(from: IsoDate, to: IsoDate): string {

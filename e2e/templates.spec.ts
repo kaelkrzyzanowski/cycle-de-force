@@ -112,3 +112,24 @@ test('modifier un modèle natif, mettre à jour les séances futures, puis le r�
   await page.getByRole('dialog').getByRole('button', { name: 'Mettre à jour ces séances' }).click();
   await expect(page.getByRole('status')).toHaveText('Modèle enregistré, 1 séance mise à jour');
 });
+
+test('renommer un modèle depuis la liste, puis une séance depuis le calendrier', async ({ page }) => {
+  await page.goto('/#/calendrier');
+  await page.getByRole('button', { name: 'Créer le Bloc 0' }).click();
+  await page.goto('/#/modeles');
+  await page.getByRole('button', { name: 'Renommer Bench' }).click();
+  await page.getByRole('textbox', { name: 'Nom du modèle' }).fill('Développé couché');
+  await page.getByRole('button', { name: 'Renommer', exact: true }).click();
+  await expect(page.getByRole('status')).toHaveText('Modèle renommé « Développé couché » · 7 séances renommées');
+  await expect(page.getByRole('link', { name: /^Développé couché/ })).toBeVisible();
+
+  await page.goto('/#/calendrier');
+  await page.getByRole('button', { name: 'Semaine', exact: true }).click();
+  const actions = page.getByRole('button', { name: /^Actions sur la séance Développé couché/ }).first();
+  await actions.click();
+  await page.getByRole('button', { name: 'Renommer', exact: true }).click();
+  await page.getByRole('textbox', { name: 'Nom de la séance' }).fill('DC lourd');
+  await page.getByRole('textbox', { name: 'Nom de la séance' }).press('Enter');
+  await expect(page.getByRole('status')).toHaveText('Séance renommée « DC lourd »');
+  await expect(page.locator('.session-name', { hasText: /^DC lourd$/ })).toBeVisible();
+});

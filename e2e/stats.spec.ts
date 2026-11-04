@@ -11,7 +11,7 @@ async function validateAll(page: Page) {
   }
 }
 
-test('stats : tonnage par semaine, charge max et e1RM, max S/B/D', async ({ page }) => {
+test('stats : période, tuiles, tonnage par semaine, charge max et e1RM', async ({ page }) => {
   await page.goto('/#/calendrier');
   await page.getByRole('button', { name: 'Créer le Bloc 0' }).click();
   await page.getByRole('button', { name: 'Semaine', exact: true }).click();
@@ -32,25 +32,20 @@ test('stats : tonnage par semaine, charge max et e1RM, max S/B/D', async ({ page
   await page.getByRole('textbox', { name: 'Reps réalisées' }).press('Enter');
   await page.getByRole('dialog').getByRole('button', { name: /Échec/ }).click();
 
-  // Max D 210 → 215.
-  await page.goto('/#/aujourdhui');
-  await page.getByRole('button', { name: 'Modifier les max' }).click();
-  await page.getByRole('textbox', { name: 'Deadlift', exact: true }).fill('215');
-  await page.getByRole('textbox', { name: 'Deadlift', exact: true }).press('Enter');
-  await page.getByRole('button', { name: 'Enregistrer les max' }).click();
-
   await page.goto('/#/stats');
-  await expect(page.locator('.stat-tile').first()).toContainText(/22\s?330\skg/); // S1 11 592 + S2 10 738
+  await expect(page.getByRole('button', { name: '3 mois' })).toHaveAttribute('aria-pressed', 'true');
+  const tiles = page.locator('.stat-tile');
+  await expect(tiles.nth(0)).toContainText('2');
+  await expect(tiles.nth(1)).toContainText(/22\s?330\skg/); // S1 11 592 + S2 10 738
+  await expect(tiles.nth(2)).toContainText(/0\skm/);
 
-  // Tonnage par semaine du cycle en cours : infobulle au tap sur S2.
-  const weekCard = page.locator('.chart-card', { has: page.getByRole('heading', { name: 'Tonnage par semaine' }) });
-  const weekChart = weekCard.getByRole('img', { name: /Tonnage par semaine/ });
-  const box = (await weekChart.boundingBox())!;
-  await weekChart.click({ position: { x: 40 + ((box.width - 48) / 7) * 1.5, y: box.height / 2 } });
-  await expect(weekCard.locator('.chart-tip')).toContainText(/10\s?738\skg/);
-  await expect(weekCard.locator('.chart-tip')).toContainText('Bloc 0 · Sem. 2');
-  await weekCard.getByText('Voir les données').click();
-  await expect(weekCard.locator('tbody tr')).toHaveCount(7);
+  // Tonnage par semaine : deux semaines travaillées dans le tableau.
+  const tonnageCard = page.locator('.chart-card', { has: page.getByRole('heading', { name: 'Tonnage' }) });
+  await expect(tonnageCard.locator('.chart-subtitle')).toHaveText('Par semaine');
+  await tonnageCard.getByText('Voir les données').click();
+  await expect(tonnageCard.locator('tbody tr')).toHaveCount(2);
+  await expect(tonnageCard.locator('tbody tr td')).toHaveText([/11\s?592/, /10\s?738/]);
+  await expect(page.locator('.chart-card', { has: page.getByRole('heading', { name: 'Cardio' }) })).toHaveCount(0);
 
   // Charge max et e1RM : « Deadlift Sumo + Inche mur » choisi par défaut.
   const exCard = page.locator('.chart-card', { has: page.getByRole('heading', { name: 'Charge max et e1RM' }) });
@@ -61,17 +56,11 @@ test('stats : tonnage par semaine, charge max et e1RM, max S/B/D', async ({ page
   await expect(exCard.locator('tbody tr').nth(1).locator('td')).toHaveText(['179', '202,9']); // 4 × 179
   await expect(exCard.locator('.line')).toHaveCount(2);
 
-  // Max théoriques : D passe de 210 à 215.
-  const maxCard = page.locator('.chart-card', { has: page.getByRole('heading', { name: 'Max théoriques' }) });
-  await expect(maxCard.locator('.legend')).toContainText(/Squat.*Bench.*Deadlift/);
-  await maxCard.getByText('Voir les données').click();
-  await expect(maxCard.locator('tbody tr').first().locator('td')).toHaveText(['Bloc 0', '170', '115', '210']);
-  await expect(maxCard.locator('tbody tr').last().locator('td')).toHaveText(['Bloc 0', '170', '115', '215']);
-
-  // Statuts : 35 validées, 1 échec.
-  const statusCard = page.locator('.chart-card', { has: page.getByRole('heading', { name: 'Statuts des séries' }) });
-  await expect(statusCard.getByRole('button', { name: /Bloc 0 · Échec : 1/ })).toBeVisible();
-  await expect(statusCard.getByRole('button', { name: /Bloc 0 · Validé : 35/ })).toBeVisible();
+  // « Tout » : regroupement par mois, même total.
+  await page.getByRole('button', { name: 'Tout' }).click();
+  await expect(tonnageCard.locator('.chart-subtitle')).toHaveText('Par mois');
+  await expect(tiles.nth(1)).toContainText(/22\s?330\skg/);
+  await expect(page.locator('.chart-card')).toHaveCount(2);
 
   await page.screenshot({ path: 'test-results/screens/stats.png', fullPage: true });
   await page.emulateMedia({ colorScheme: 'light' });

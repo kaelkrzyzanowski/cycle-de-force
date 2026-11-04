@@ -211,7 +211,6 @@ main {
   min-width: 0;
 }
 .template-rename {
-  order: 1;
   font-size: 1.2rem;
   color: var(--text-muted);
 }
@@ -1156,71 +1155,6 @@ legend {
   color: var(--on-status);
   font-size: 10px;
   font-weight: 900;
-}
-.stack-rows,
-.hbars {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.stack-head,
-.hbar-head {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 4px;
-  font-size: 0.9rem;
-}
-.stack-bar {
-  display: flex;
-  gap: 2px;
-  height: 32px;
-}
-.stack-seg {
-  min-width: 4px;
-  border: 0;
-  padding: 0;
-  color: var(--on-status);
-  font-size: 0.75rem;
-  font-weight: 700;
-  cursor: pointer;
-  overflow: visible;
-  white-space: nowrap;
-}
-.stack-seg:first-child {
-  border-radius: 4px 0 0 4px;
-}
-.stack-seg:last-child {
-  border-radius: 0 4px 4px 0;
-}
-.stack-seg:only-child {
-  border-radius: 4px;
-}
-.stack-seg.is-active {
-  outline: 2px solid var(--text);
-  outline-offset: 1px;
-}
-.stack-tip {
-  margin-top: 4px;
-  font-size: 0.85rem;
-}
-.dot-swatch {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-}
-.hbar-track {
-  height: 12px;
-}
-.hbar {
-  height: 100%;
-  min-width: 4px;
-  border-radius: 0 4px 4px 0;
-  background: var(--series-1);
 }
 .chart-table summary {
   min-height: var(--tap);

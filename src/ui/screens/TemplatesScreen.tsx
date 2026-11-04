@@ -56,17 +56,6 @@ export function TemplatesScreen() {
       <ul class="stack" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
         {sorted.map((t) => (
           <li key={t.id} class="template-item">
-            <button
-              type="button"
-              class="icon-btn template-rename"
-              aria-label={S.templates.rename(t.name)}
-              onClick={() => {
-                setRenaming(t);
-                setName(t.name);
-              }}
-            >
-              ✎
-            </button>
             <a class="card template-row link-card" href={href.template(t.id)}>
               <span class="swatch" style={{ background: t.color }} />
               <div>
@@ -82,6 +71,17 @@ export function TemplatesScreen() {
                 ›
               </span>
             </a>
+            <button
+              type="button"
+              class="icon-btn template-rename"
+              aria-label={S.templates.rename(t.name)}
+              onClick={() => {
+                setRenaming(t);
+                setName(t.name);
+              }}
+            >
+              ✎
+            </button>
           </li>
         ))}
       </ul>

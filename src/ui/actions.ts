@@ -1,6 +1,6 @@
 import type { Changes } from '../data/repository';
 import type { SessionTemplate } from '../domain/types';
-import type { AppContextValue } from './context';
+import type { AppContextValue, ToastAction } from './context';
 import { S } from './strings';
 
 export function templatesById(list: readonly SessionTemplate[]): Map<string, SessionTemplate> {
@@ -8,11 +8,11 @@ export function templatesById(list: readonly SessionTemplate[]): Map<string, Ses
 }
 
 /** Écrit un lot de changements, rafraîchit l'affichage et confirme par un toast. */
-export async function commit(app: AppContextValue, changes: Changes, message: string): Promise<boolean> {
+export async function commit(app: AppContextValue, changes: Changes, message: string, action?: ToastAction): Promise<boolean> {
   try {
     await app.repo.applyChanges(changes);
     app.refresh();
-    app.toast(message);
+    app.toast(message, action);
     navigator.vibrate?.(15);
     return true;
   } catch (err) {

@@ -1275,6 +1275,42 @@ legend {
   outline-offset: 2px;
 }
 
+/* Glisser-déposer d'une séance dans le calendrier */
+.session-card.is-dragging {
+  opacity: 0.4;
+}
+.month-cell.is-drop-target,
+.week-day.is-drop-target {
+  outline: 3px solid var(--accent);
+  outline-offset: -3px;
+  background: var(--surface-2);
+}
+.week-day.is-drop-target {
+  border-radius: var(--radius);
+}
+.drag-ghost {
+  position: fixed;
+  z-index: 50;
+  pointer-events: none;
+  transform: translate(-50%, calc(-100% - 28px));
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-width: 70vw;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-left: 6px solid var(--tpl);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.45);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.drag-ghost-target {
+  color: var(--accent);
+  font-size: 0.85rem;
+}
+
 /* Minuteur */
 .chip-row {
   display: grid;

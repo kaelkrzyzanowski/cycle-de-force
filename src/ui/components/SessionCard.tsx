@@ -4,7 +4,8 @@ import { sessionTotals } from '../../domain/totals';
 import type { Maxes, Rounding, Session } from '../../domain/types';
 import { formatTonnage } from '../format';
 import { S } from '../strings';
-import { useLongPress } from './useLongPress';
+import { usePressDrag } from './usePressDrag';
+import type { DragHandlers } from './usePressDrag';
 
 export const STATUS_GLYPH: Record<SessionStatus, string> = {
   PLANNED: '',
@@ -41,6 +42,9 @@ interface CardProps {
   selected?: boolean;
   onToggleSelect?: () => void;
   onEnterSelection?: () => void;
+  /** Glisser-déposer après un appui long (déplacer la séance vers un autre jour). */
+  drag?: DragHandlers;
+  dragging?: boolean;
 }
 
 export function SessionCard({
@@ -56,17 +60,19 @@ export function SessionCard({
   selected = false,
   onToggleSelect,
   onEnterSelection,
+  drag,
+  dragging = false,
 }: CardProps) {
   const status = deriveSessionStatus(session, today);
   const tap = () => (selectionMode ? onToggleSelect?.() : onOpen());
   const longPress = () => (selectionMode ? onToggleSelect?.() : (onEnterSelection ?? onActions)());
-  const press = useLongPress(tap, longPress);
+  const press = usePressDrag(tap, longPress, selectionMode ? undefined : drag);
   const totals = sessionTotals(session, max, rounding);
   const main = session.exercises.slice(0, 3).map((e) => e.name);
   const more = session.exercises.length - main.length;
 
   return (
-    <article class={`session-card st-${status}${selected ? ' is-selected' : ''}`} style={{ '--tpl': color }}>
+    <article class={`session-card st-${status}${selected ? ' is-selected' : ''}${dragging ? ' is-dragging' : ''}`} style={{ '--tpl': color }}>
       {selectionMode && (
         <span class="session-select" aria-hidden="true">
           <input type="checkbox" checked={selected} readOnly tabIndex={-1} />

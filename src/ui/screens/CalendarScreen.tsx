@@ -1,5 +1,5 @@
-import { useState } from 'preact/hooks';
-import { cycleWeekOf, findCycleForDate, generateCycleSessions } from '../../domain/cycles';
+import { useEffect, useRef, useState } from 'preact/hooks';
+import { cycleWeekOf, findCycleForDate, generateCycleSessions, moveSession } from '../../domain/cycles';
 import { addDays, mondayOf, todayIso } from '../../domain/dates';
 import { newId } from '../../domain/ids';
 import { deriveSessionStatus } from '../../domain/sessionStatus';
@@ -10,9 +10,10 @@ import { commit, templatesById } from '../actions';
 import { ActivityCard, ActivityDot } from '../components/ActivityCard';
 import { NEUTRAL_COLOR, SessionCard, SessionDot } from '../components/SessionCard';
 import { Sheet } from '../components/Sheet';
+import type { DragHandlers } from '../components/usePressDrag';
 import { useSwipe } from '../components/useSwipe';
 import { useApp, useData } from '../context';
-import { formatDayLong, formatMonthYear, formatRange } from '../format';
+import { formatDayLong, formatDayMedium, formatMonthYear, formatRange } from '../format';
 import { href, navigate } from '../router';
 import { S } from '../strings';
 import { AddSessionSheet } from '../sheets/AddSessionSheet';
@@ -48,6 +49,25 @@ interface CalendarData {
   exampleDismissed: boolean;
 }
 
+/** Séance en cours de glisser-déposer : position du doigt et jour survolé. */
+interface DragState {
+  session: Session;
+  x: number;
+  y: number;
+  target: IsoDate | null;
+}
+
+const AUTOSCROLL_EDGE = 80;
+const AUTOSCROLL_STEP = 14;
+/** Hauteur de la barre de navigation basse, à ne pas compter comme zone visible. */
+const NAV_ALLOWANCE = 72;
+
+/** Jour (case du mois ou de la semaine) sous le doigt, s'il y en a un. */
+function dropDateAt(x: number, y: number): IsoDate | null {
+  const el = document.elementFromPoint(x, y)?.closest<HTMLElement>('[data-drop-date]');
+  return el?.dataset['dropDate'] ?? null;
+}
+
 export function CalendarScreen() {
   const app = useApp();
   const today = todayIso();
@@ -63,6 +83,25 @@ export function CalendarScreen() {
   >(null);
   const [selection, setSelection] = useState<Set<string> | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [drag, setDrag] = useState<DragState | null>(null);
+  /** Vrai pendant un glisser-déposer : le balayage horizontal ne doit pas changer de mois. */
+  const dragging = useRef(false);
+  const pointer = useRef({ x: 0, y: 0 });
+
+  // Près du haut ou du bas de l'écran, la page défile pour atteindre les autres jours ;
+  // le jour sous le doigt change alors sans qu'il bouge : on le recalcule.
+  const isDragging = drag !== null;
+  useEffect(() => {
+    if (!isDragging) return;
+    const id = window.setInterval(() => {
+      const { x, y } = pointer.current;
+      const delta = y < AUTOSCROLL_EDGE ? -AUTOSCROLL_STEP : y > innerHeight - AUTOSCROLL_EDGE - NAV_ALLOWANCE ? AUTOSCROLL_STEP : 0;
+      if (delta === 0) return;
+      scrollBy(0, delta);
+      setDrag((d) => d && { ...d, target: dropDateAt(x, y) });
+    }, 30);
+    return () => window.clearInterval(id);
+  }, [isDragging]);
 
   const startSelection = (id: string) => setSelection(new Set([id]));
   const toggleSelect = (id: string) =>
@@ -103,8 +142,8 @@ export function CalendarScreen() {
 
   const step = (delta: number) => select(view === 'week' ? addDays(selected, 7 * delta) : shiftMonth(selected, delta));
   const swipe = useSwipe(
-    () => step(-1),
-    () => step(1),
+    () => !dragging.current && step(-1),
+    () => !dragging.current && step(1),
   );
 
   if (!data) return <p class="muted">{S.loading}</p>;
@@ -131,6 +170,35 @@ export function CalendarScreen() {
     app.refresh();
   };
 
+  const moveTo = (s: Session, date: IsoDate) =>
+    commit(app, { saveSessions: [moveSession(s, date, data.cycles)] }, S.sessionActions.moved(formatDayMedium(date)), {
+      label: S.session.undo,
+      run: () => void commit(app, { saveSessions: [s] }, S.calendar.moveUndone),
+    });
+  const endDrag = () => {
+    setDrag(null);
+    // Laisser passer le « touchend » qui suit sans déclencher de changement de mois.
+    window.setTimeout(() => (dragging.current = false), 0);
+  };
+  const dragFor = (s: Session): DragHandlers => ({
+    start: (x, y) => {
+      dragging.current = true;
+      pointer.current = { x, y };
+      setDrag({ session: s, x, y, target: dropDateAt(x, y) });
+    },
+    move: (x, y) => {
+      pointer.current = { x, y };
+      setDrag((d) => d && { ...d, x, y, target: dropDateAt(x, y) });
+    },
+    end: (x, y) => {
+      const target = dropDateAt(x, y);
+      endDrag();
+      if (target && target !== s.date) void moveTo(s, target);
+    },
+    cancel: endDrag,
+  });
+  const dropTarget = drag && drag.target !== drag.session.date ? drag.target : null;
+
   const cards = (day: IsoDate) => (
     <>
       {(byDay.get(day) ?? []).map((s) => (
@@ -148,6 +216,8 @@ export function CalendarScreen() {
           selected={selection?.has(s.id) ?? false}
           onToggleSelect={() => toggleSelect(s.id)}
           onEnterSelection={() => startSelection(s.id)}
+          drag={dragFor(s)}
+          dragging={drag?.session.id === s.id}
         />
       ))}
       {(byDayActivities.get(day) ?? []).map((a) => (
@@ -238,6 +308,7 @@ export function CalendarScreen() {
             today={today}
             byDay={byDay}
             byDayActivities={byDayActivities}
+            dropTarget={dropTarget}
             colorOf={colorOf}
             labelOf={labelOf}
             onSelect={select}
@@ -245,7 +316,11 @@ export function CalendarScreen() {
         ) : (
           <ol class="week-list">
             {Array.from({ length: 7 }, (_, i) => addDays(from, i)).map((day) => (
-              <li key={day} class={`week-day${day === today ? ' is-today' : ''}`}>
+              <li
+                key={day}
+                data-drop-date={day}
+                class={`week-day${day === today ? ' is-today' : ''}${day === dropTarget ? ' is-drop-target' : ''}`}
+              >
                 <div class="week-day-header">
                   <h3>{formatDayLong(day)}</h3>
                   {addButton(day)}
@@ -268,6 +343,13 @@ export function CalendarScreen() {
           )}
           {cards(selected)}
         </section>
+      )}
+
+      {drag && (
+        <div class="drag-ghost" style={{ left: `${drag.x}px`, top: `${drag.y}px`, '--tpl': colorOf(drag.session) }} aria-hidden="true">
+          {labelOf(drag.session)}
+          {dropTarget && <span class="drag-ghost-target">→ {formatDayMedium(dropTarget)}</span>}
+        </div>
       )}
 
       {!selection && (
@@ -334,12 +416,14 @@ interface GridProps {
   today: IsoDate;
   byDay: ReadonlyMap<IsoDate, Session[]>;
   byDayActivities: ReadonlyMap<IsoDate, Activity[]>;
+  /** Jour survolé pendant un glisser-déposer. */
+  dropTarget: IsoDate | null;
   colorOf: (s: Session) => string;
   labelOf: (s: Session) => string;
   onSelect: (d: IsoDate) => void;
 }
 
-function MonthGrid({ from, month, selected, today, byDay, byDayActivities, colorOf, labelOf, onSelect }: GridProps) {
+function MonthGrid({ from, month, selected, today, byDay, byDayActivities, dropTarget, colorOf, labelOf, onSelect }: GridProps) {
   const days = Array.from({ length: 42 }, (_, i) => addDays(from, i));
   // Ne pas afficher une 6e ligne entièrement hors du mois.
   const visible = days.slice(35).some((d) => d.startsWith(month)) ? days : days.slice(0, 35);
@@ -362,12 +446,14 @@ function MonthGrid({ from, month, selected, today, byDay, byDayActivities, color
               day.startsWith(month) ? '' : 'is-outside',
               day === today ? 'is-today' : '',
               day === selected ? 'is-selected' : '',
+              day === dropTarget ? 'is-drop-target' : '',
             ].join(' ');
             return (
               <button
                 key={day}
                 type="button"
                 role="gridcell"
+                data-drop-date={day}
                 class={classes}
                 aria-selected={day === selected}
                 aria-label={`${formatDayLong(day)}, ${S.calendar.daySessions(sessions.length + activities.length)}`}

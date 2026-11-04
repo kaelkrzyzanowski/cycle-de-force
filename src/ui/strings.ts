@@ -62,6 +62,8 @@ export const S = {
     actions: 'Actions du calendrier',
     daySessions: (n: number) => plural(n, 'séance', 'séances'),
     addActivityOn: (day: string) => `Ajouter une activité le ${day}`,
+    moveUndone: 'Déplacement annulé',
+    dragHint: 'Astuce : dans le calendrier, maintenez une séance puis glissez-la sur un autre jour.',
   },
 
   activityTypes: {

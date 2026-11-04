@@ -69,6 +69,7 @@ export function SessionActionsSheet({
       {(mode === 'move' || mode === 'duplicate') && (
         <div class="stack">
           <DateField label={S.sessionActions.targetDate} value={date} onChange={setDate} />
+          {mode === 'move' && <p class="muted">{S.calendar.dragHint}</p>}
           <div class="button-row">
             <button type="button" class="btn" onClick={() => setMode('menu')}>
               {S.common.cancel}

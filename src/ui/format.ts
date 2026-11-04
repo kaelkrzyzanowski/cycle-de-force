@@ -65,6 +65,20 @@ export function formatDuration(sec: number): string {
 
 const pad2 = (n: number): string => String(n).padStart(2, '0');
 
+/** Minuteur : « 1:30 » (secondes arrondies au-dessus : on ne voit « 0:00 » qu'à la fin). */
+export function formatCountdown(ms: number): string {
+  const totalSec = Math.ceil(ms / 1000);
+  return `${Math.floor(totalSec / 60)}:${pad2(totalSec % 60)}`;
+}
+
+/** Durée courte lisible : « 30 s », « 1 min », « 1 min 30 ». */
+export function formatShortDuration(sec: number): string {
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  if (m === 0) return `${s}${NBSP}s`;
+  return s === 0 ? `${m}${NBSP}min` : `${m}${NBSP}min${NBSP}${pad2(s)}`;
+}
+
 /** Chronomètre : « 12:34.5 » (ou « 1:12:34.5 » à partir d'une heure). */
 export function formatStopwatch(ms: number): string {
   const centis = Math.floor((ms % 1000) / 100);

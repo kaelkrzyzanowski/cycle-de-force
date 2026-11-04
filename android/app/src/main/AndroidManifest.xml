@@ -40,4 +40,6 @@
     <!-- Copie automatique dans Documents : nécessaire seulement jusqu'à Android 10 -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="29" />
+    <!-- Minuteur : sonnerie à l'heure exacte même app fermée (accordée d'office hors Play Store, Android 13+) -->
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
 </manifest>

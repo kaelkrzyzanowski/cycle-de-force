@@ -2,6 +2,7 @@
 import { App } from '@capacitor/app';
 import { SystemBars, SystemBarsStyle } from '@capacitor/core';
 import { Directory, Encoding, Filesystem } from '@capacitor/filesystem';
+import { LocalNotifications } from '@capacitor/local-notifications';
 import { Share } from '@capacitor/share';
 import { KeepAwake } from '@capacitor-community/keep-awake';
 import { AUTO_BACKUP_DIR, AUTO_BACKUP_KEEP, backupsToPrune, fallbackBackupName } from '../domain/autoBackup';
@@ -77,6 +78,40 @@ export function keepAwake(on: boolean): void {
 /** Icônes de la barre d'état lisibles sur le thème courant. */
 export function setSystemBarsTheme(theme: 'dark' | 'light'): void {
   void SystemBars.setStyle({ style: theme === 'dark' ? SystemBarsStyle.Dark : SystemBarsStyle.Light }).catch(() => undefined);
+}
+
+const TIMER_NOTIFICATION_ID = 7001;
+const TIMER_CHANNEL = 'minuteur';
+
+/** Demande l'autorisation d'afficher des notifications (Android 13+) ; vrai si accordée. */
+export async function ensureNotificationPermission(): Promise<boolean> {
+  try {
+    let { display } = await LocalNotifications.checkPermissions();
+    if (display === 'prompt' || display === 'prompt-with-rationale') ({ display } = await LocalNotifications.requestPermissions());
+    return display === 'granted';
+  } catch {
+    return false;
+  }
+}
+
+/** Sonnerie de fin du minuteur, déclenchée par Android même app en arrière-plan ou fermée. */
+export async function scheduleTimerAlarm(at: number, title: string, body: string): Promise<void> {
+  try {
+    await LocalNotifications.createChannel({ id: TIMER_CHANNEL, name: title, importance: 5, vibration: true, visibility: 1 });
+    await LocalNotifications.schedule({
+      notifications: [{ id: TIMER_NOTIFICATION_ID, title, body, channelId: TIMER_CHANNEL, schedule: { at: new Date(at), allowWhileIdle: true } }],
+    });
+  } catch {
+    // Notifications refusées ou indisponibles : le minuteur sonne seulement app ouverte.
+  }
+}
+
+export async function cancelTimerAlarm(): Promise<void> {
+  try {
+    await LocalNotifications.cancel({ notifications: [{ id: TIMER_NOTIFICATION_ID }] });
+  } catch {
+    // rien de programmé
+  }
 }
 
 /** Appelé à chaque retour au premier plan / passage en arrière-plan de l'app. */

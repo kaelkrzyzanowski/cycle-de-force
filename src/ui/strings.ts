@@ -373,6 +373,16 @@ export const S = {
     lap: 'Tour',
     laps: 'Tours',
     lapNumber: (n: number) => `Tour ${n}`,
+    timer: 'Minuteur',
+    timerPresets: 'Durées rapides',
+    timerMinutes: 'Minutes',
+    timerSeconds: 'Secondes',
+    timerStop: 'Arrêter',
+    timerAgain: 'Relancer',
+    timerAdd: (label: string) => `+${label}`,
+    timerFinished: 'Temps écoulé !',
+    timerDone: 'Minuteur terminé',
+    timerDoneBody: 'Le temps de repos est écoulé.',
   },
 
   templates: {

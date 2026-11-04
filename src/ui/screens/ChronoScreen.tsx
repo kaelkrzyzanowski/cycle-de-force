@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'preact/hooks';
-import { capitalize, formatStopwatch } from '../format';
+import { COUNTDOWN_PRESETS_SEC, countdownPhase, remainingMs } from '../../domain/countdown';
+import { NumberField } from '../components/NumberField';
+import { countdown, useCountdown } from '../countdownStore';
+import { capitalize, formatCountdown, formatShortDuration, formatStopwatch } from '../format';
 import { S } from '../strings';
 
 const dateFmt = new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -20,6 +23,104 @@ function ClockCard() {
       <p class="muted" style={{ textAlign: 'center' }}>
         {capitalize(dateFmt.format(now))}
       </p>
+    </section>
+  );
+}
+
+function TimerCard() {
+  const state = useCountdown();
+  const now = Date.now();
+  const phase = countdownPhase(state, now);
+  const left = remainingMs(state, now);
+  const durationSec = Math.round(state.durationMs / 1000);
+  const setDuration = (min: number, sec: number) => countdown.setDuration((min * 60 + sec) * 1000);
+
+  return (
+    <section class={`card stack timer-card${phase === 'done' ? ' is-done' : ''}`}>
+      <h2 class="card-title">{S.chrono.timer}</h2>
+      <p class="num timer-display" role="timer" aria-live={phase === 'done' ? 'assertive' : 'off'}>
+        {phase === 'done' ? S.chrono.timerFinished : formatCountdown(left)}
+      </p>
+
+      {phase === 'idle' && (
+        <>
+          <div class="field">
+            <span id="timer-presets">{S.chrono.timerPresets}</span>
+            <div class="chip-row" role="group" aria-labelledby="timer-presets">
+              {COUNTDOWN_PRESETS_SEC.map((sec) => (
+                <button
+                  key={sec}
+                  type="button"
+                  class="chip"
+                  aria-pressed={durationSec === sec}
+                  onClick={() => countdown.setDuration(sec * 1000)}
+                >
+                  {formatShortDuration(sec)}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div class="button-row start">
+            <NumberField
+              label={S.chrono.timerMinutes}
+              value={Math.floor(durationSec / 60)}
+              onChange={(m) => setDuration(m, durationSec % 60)}
+              min={0}
+              max={99}
+              buttons={false}
+            />
+            <NumberField
+              label={S.chrono.timerSeconds}
+              value={durationSec % 60}
+              onChange={(s) => setDuration(Math.floor(durationSec / 60), s)}
+              min={0}
+              max={59}
+              buttons={false}
+            />
+          </div>
+        </>
+      )}
+
+      <div class="button-row">
+        {phase === 'idle' && (
+          <button type="button" class="btn primary" disabled={durationSec === 0} onClick={countdown.start}>
+            {S.chrono.start}
+          </button>
+        )}
+        {phase === 'running' && (
+          <>
+            <button type="button" class="btn" onClick={countdown.reset}>
+              {S.chrono.timerStop}
+            </button>
+            <button type="button" class="btn" onClick={() => countdown.add(30_000)}>
+              {S.chrono.timerAdd(formatShortDuration(30))}
+            </button>
+            <button type="button" class="btn primary" onClick={countdown.pause}>
+              {S.chrono.pause}
+            </button>
+          </>
+        )}
+        {phase === 'paused' && (
+          <>
+            <button type="button" class="btn" onClick={countdown.reset}>
+              {S.chrono.timerStop}
+            </button>
+            <button type="button" class="btn primary" onClick={countdown.start}>
+              {S.chrono.resume}
+            </button>
+          </>
+        )}
+        {phase === 'done' && (
+          <>
+            <button type="button" class="btn" onClick={countdown.reset}>
+              {S.common.close}
+            </button>
+            <button type="button" class="btn primary" onClick={countdown.start}>
+              {S.chrono.timerAgain}
+            </button>
+          </>
+        )}
+      </div>
     </section>
   );
 }
@@ -145,6 +246,7 @@ export function ChronoScreen() {
   return (
     <div class="stack">
       <ClockCard />
+      <TimerCard />
       <StopwatchCard />
     </div>
   );

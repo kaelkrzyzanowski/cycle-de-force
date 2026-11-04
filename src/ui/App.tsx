@@ -5,6 +5,7 @@ import type { Settings } from '../domain/types';
 import { isNative, loadNative } from '../platform';
 import { runAutoBackup } from './backupIO';
 import { AppContext } from './context';
+import { countdown, installCountdownAlarm } from './countdownStore';
 import type { ToastAction } from './context';
 import { Icon } from './Icon';
 import type { IconName } from './Icon';
@@ -111,6 +112,11 @@ export function App() {
     window.clearTimeout(toastTimer.current);
     toastTimer.current = window.setTimeout(() => setToastState(null), action ? 6000 : 3500);
   }, []);
+
+  useEffect(() => installCountdownAlarm(), []);
+  // Le minuteur sonne aussi depuis les autres onglets : on le signale.
+  const onChrono = route.name === 'chrono';
+  useEffect(() => (onChrono ? undefined : countdown.onDone(() => toast(S.chrono.timerDone))), [onChrono, toast]);
 
   if (boot.state === 'loading') {
     return (

@@ -37,7 +37,7 @@ async function auditAllScreens(page: Page, theme: string): Promise<string[]> {
   await at('/#/calendrier', 'calendrier mois');
   await page.getByRole('button', { name: 'Semaine', exact: true }).click();
   found.push(...(await audit(page, `${theme} calendrier semaine`)));
-  await page.getByRole('button', { name: 'Actions du calendrier' }).click();
+  await page.getByRole('button', { name: /^Ajouter le / }).first().click();
   found.push(...(await audit(page, `${theme} menu calendrier`)));
   await page.keyboard.press('Escape');
 

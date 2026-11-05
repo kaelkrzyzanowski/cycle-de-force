@@ -76,7 +76,7 @@ export function CalendarScreen() {
   const [sheet, setSheet] = useState<
     | { kind: 'add'; date: IsoDate }
     | { kind: 'session'; session: Session }
-    | { kind: 'menu' }
+    | { kind: 'menu'; date: IsoDate }
     | { kind: 'addActivity'; date: IsoDate }
     | { kind: 'activity'; activity: Activity }
     | null
@@ -230,8 +230,8 @@ export function CalendarScreen() {
     <button
       type="button"
       class="icon-btn add-btn"
-      aria-label={S.calendar.addSessionOn(formatDayLong(day))}
-      onClick={() => setSheet({ kind: 'add', date: day })}
+      aria-label={S.calendar.addOn(formatDayLong(day))}
+      onClick={() => setSheet({ kind: 'menu', date: day })}
     >
       +
     </button>
@@ -352,12 +352,6 @@ export function CalendarScreen() {
         </div>
       )}
 
-      {!selection && (
-        <button type="button" class="fab" aria-label={S.calendar.actions} onClick={() => setSheet({ kind: 'menu' })}>
-          +
-        </button>
-      )}
-
       {confirmDelete && selection && (
         <Sheet title={S.sessionSelection.confirmTitle(selection.size)} onClose={() => setConfirmDelete(false)}>
           <div class="stack">
@@ -383,13 +377,13 @@ export function CalendarScreen() {
       {sheet?.kind === 'addActivity' && <ActivitySheet date={sheet.date} onClose={() => setSheet(null)} />}
       {sheet?.kind === 'activity' && <ActivitySheet activity={sheet.activity} onClose={() => setSheet(null)} />}
       {sheet?.kind === 'menu' && (
-        <Sheet title={S.calendar.actions} onClose={() => setSheet(null)}>
+        <Sheet title={formatDayLong(sheet.date)} onClose={() => setSheet(null)}>
           <div class="choice-list">
-            <button type="button" class="choice" onClick={() => setSheet({ kind: 'add', date: selected })}>
-              {S.calendar.addSessionOn(formatDayLong(selected))}
+            <button type="button" class="choice" onClick={() => setSheet({ kind: 'add', date: sheet.date })}>
+              {S.calendar.addSession}
             </button>
-            <button type="button" class="choice" onClick={() => setSheet({ kind: 'addActivity', date: selected })}>
-              {S.calendar.addActivityOn(formatDayLong(selected))}
+            <button type="button" class="choice" onClick={() => setSheet({ kind: 'addActivity', date: sheet.date })}>
+              {S.calendar.addActivity}
             </button>
             <button type="button" class="choice" onClick={() => navigate(href.track())}>
               {S.track.record}
@@ -397,7 +391,7 @@ export function CalendarScreen() {
             <button type="button" class="choice" onClick={() => navigate(href.newCycle())}>
               {S.cycleForm.newTitle}
             </button>
-            <button type="button" class="choice" onClick={() => navigate(href.duplicateWeek(mondayOf(selected)))}>
+            <button type="button" class="choice" onClick={() => navigate(href.duplicateWeek(mondayOf(sheet.date)))}>
               {S.duplicateWeek.title}
             </button>
             {cycle && (

@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 test('ajouter, modifier puis supprimer une activité cardio', async ({ page }) => {
   await page.goto('/#/calendrier');
-  await page.getByRole('button', { name: 'Actions du calendrier' }).click();
+  await page.getByRole('button', { name: /^Ajouter le / }).first().click();
   await page.getByRole('button', { name: /Ajouter une activité/ }).click();
 
   const sheet = page.getByRole('dialog');

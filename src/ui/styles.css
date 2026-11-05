@@ -772,21 +772,6 @@ legend {
 .day-panel {
   padding-top: 4px;
 }
-.fab {
-  position: fixed;
-  right: max(16px, env(safe-area-inset-right));
-  bottom: calc(var(--nav-h) + env(safe-area-inset-bottom) + 16px);
-  z-index: 20;
-  width: 60px;
-  height: 60px;
-  border: 0;
-  border-radius: 50%;
-  background: var(--accent);
-  color: var(--accent-contrast);
-  font-size: 2rem;
-  box-shadow: 0 6px 20px rgb(0 0 0 / 0.4);
-  cursor: pointer;
-}
 
 /* Séance */
 .totals-bar {

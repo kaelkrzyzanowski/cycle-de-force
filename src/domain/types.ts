@@ -130,6 +130,14 @@ export interface DailySteps {
   steps: number;
 }
 
+/** Âge, poids et taille à 0 tant qu'ils ne sont pas renseignés ; sexe NA = non précisé. */
+export interface Profile {
+  sex: 'M' | 'F' | 'NA';
+  ageYears: number;
+  weightKg: number;
+  heightCm: number;
+}
+
 export type Rounding = 0 | 0.5 | 1 | 1.25 | 2.5;
 export type ThemePref = 'dark' | 'light' | 'system';
 
@@ -141,6 +149,8 @@ export interface Settings {
   backupReminderDays: number;
   /** Objectif quotidien du podomètre. */
   stepGoal: number;
+  /** Pour estimer les calories des activités. */
+  profile?: Profile;
 }
 
 export const DEFAULT_SETTINGS: Settings = {

@@ -1294,7 +1294,7 @@ legend {
 .chip-row.two {
   grid-template-columns: repeat(2, 1fr);
 }
-.dot {
+.type-dot {
   display: inline-block;
   width: 10px;
   height: 10px;
@@ -1324,6 +1324,13 @@ legend {
 .track-metrics .is-main {
   grid-column: 1 / -1;
   text-align: center;
+}
+.track-metrics .is-wide {
+  grid-column: 1 / -1;
+}
+.track-metrics dd.profile-hint {
+  font-size: 0.95rem;
+  font-weight: 500;
 }
 .track-metrics dt {
   color: var(--text-muted);

@@ -1,5 +1,6 @@
 import { useState } from 'preact/hooks';
 import { ACTIVITY_COLORS, averageSpeedKmh, paceMinPerKm } from '../../domain/activities';
+import { activityKcal, isCompleteProfile } from '../../domain/calories';
 import { newId } from '../../domain/ids';
 import type { ActivityType } from '../../domain/types';
 import { isNative } from '../../platform';
@@ -17,6 +18,8 @@ import { recording, useRecording } from '../trackStore';
 const GPS_TYPES: readonly ActivityType[] = ['RUNNING', 'WALKING', 'CYCLING', 'OTHER'];
 
 function Metrics({ type, elapsed, km }: { type: ActivityType; elapsed: number; km: number }) {
+  const { profile } = useApp().settings;
+  const kcal = activityKcal(profile, { type, distanceKm: km, durationSec: elapsed / 1000 });
   const pace = paceMinPerKm(km, elapsed / 1000);
   const speed = averageSpeedKmh(km, elapsed / 1000);
   const bySpeed = type === 'CYCLING';
@@ -38,6 +41,18 @@ function Metrics({ type, elapsed, km }: { type: ActivityType; elapsed: number; k
           {bySpeed ? (speed === null ? '—' : formatKg(Math.round(speed * 10) / 10)) : pace === null || km < 0.05 ? '—' : formatPace(pace)}{' '}
           <small>{bySpeed ? S.track.speedUnit : S.track.paceUnit}</small>
         </dd>
+      </div>
+      <div class="is-wide">
+        <dt>{S.track.calories}</dt>
+        {isCompleteProfile(profile) ? (
+          <dd class="num">
+            {kcal ?? 0} <small>{S.track.caloriesUnit}</small>
+          </dd>
+        ) : (
+          <dd class="profile-hint">
+            <a href={href.settings()}>{S.track.caloriesHint}</a>
+          </dd>
+        )}
       </div>
     </dl>
   );
@@ -78,7 +93,7 @@ export function TrackScreen() {
         <div class="chip-row two" role="group" aria-label={S.track.type}>
           {GPS_TYPES.map((t) => (
             <button key={t} type="button" class="chip" aria-pressed={type === t} onClick={() => setType(t)}>
-              <span class="dot" style={{ background: ACTIVITY_COLORS[t] }} /> {S.activityTypes[t]}
+              <span class="type-dot" style={{ background: ACTIVITY_COLORS[t] }} /> {S.activityTypes[t]}
             </button>
           ))}
         </div>
@@ -159,7 +174,7 @@ export function TrackScreen() {
   return (
     <div class="stack">
       <p class="track-status">
-        <span class="dot" style={{ background: ACTIVITY_COLORS[rec.type] }} /> {S.activityTypes[rec.type]}
+        <span class="type-dot" style={{ background: ACTIVITY_COLORS[rec.type] }} /> {S.activityTypes[rec.type]}
         {!running && <strong> · {S.track.paused}</strong>}
         {running && points.length === 0 && <span class="muted"> · {S.track.waitingFix}</span>}
       </p>

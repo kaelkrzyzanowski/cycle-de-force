@@ -1,4 +1,5 @@
 import { useState } from 'preact/hooks';
+import { activityKcal, isCompleteProfile } from '../../domain/calories';
 import { todayIso } from '../../domain/dates';
 import {
   averageSteps,
@@ -20,7 +21,7 @@ import { ColumnChart } from '../charts/ColumnChart';
 import { LineChart } from '../charts/LineChart';
 import { ChartCard, Legend, StatTile } from '../charts/parts';
 import { useApp, useData } from '../context';
-import { formatDayMedium, formatDayShort, formatKg, formatMonthShort, formatMonthYear, formatTonnage } from '../format';
+import { formatDayMedium, formatDayShort, formatKcal, formatKg, formatMonthShort, formatMonthYear, formatTonnage } from '../format';
 import { S } from '../strings';
 
 interface Data {
@@ -58,7 +59,7 @@ export function StatsScreen() {
 
 function Stats({ sessions, cycles, activities, steps }: Data) {
   const { settings } = useApp();
-  const { rounding } = settings;
+  const { rounding, profile } = settings;
   const today = todayIso();
   const [period, setPeriod] = useState<Period>('3m');
   const bucket = bucketOf(period);
@@ -75,6 +76,7 @@ function Stats({ sessions, cycles, activities, steps }: Data) {
   const inPeriod = activities.filter((a) => a.date >= from && a.date <= to);
   const distance = distanceByBucket(inPeriod, from, to, bucket);
   const totalKm = Math.round(inPeriod.reduce((t, a) => t + a.distanceKm, 0) * 10) / 10;
+  const totalKcal = inPeriod.reduce((t, a) => t + (activityKcal(profile, a) ?? 0), 0);
   const stepsAvg = averageSteps(steps, from, to);
   const stepsSeries = stepsByBucket(steps, from, to, bucket);
 
@@ -96,11 +98,12 @@ function Stats({ sessions, cycles, activities, steps }: Data) {
 
       {done.length === 0 && inPeriod.length === 0 && <p class="card muted">{S.stats.empty}</p>}
 
-      <div class={`tiles${stepsAvg !== null ? ' four' : ''}`}>
+      <div class={`tiles${(stepsAvg !== null) !== isCompleteProfile(profile) ? ' four' : ''}`}>
         <StatTile label={S.stats.tileSessions} value={String(done.length)} />
         <StatTile label={S.stats.tileTonnage} value={formatTonnage(tonnage.reduce((t, b) => t + b.tonnage, 0))} />
         <StatTile label={S.stats.tileCardio} value={km(totalKm)} />
         {stepsAvg !== null && <StatTile label={S.stats.tileSteps} value={int.format(stepsAvg)} />}
+        {isCompleteProfile(profile) && <StatTile label={S.stats.tileCalories} value={formatKcal(totalKcal)} />}
       </div>
 
       <ChartCard

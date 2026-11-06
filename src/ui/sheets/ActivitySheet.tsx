@@ -1,5 +1,6 @@
 import { useState } from 'preact/hooks';
 import { ACTIVITY_COLORS, ACTIVITY_TYPES, averageSpeedKmh, isValidActivity, paceMinPerKm } from '../../domain/activities';
+import { activityKcal } from '../../domain/calories';
 import { newId } from '../../domain/ids';
 import type { Activity, ActivityType, IsoDate } from '../../domain/types';
 import { commit } from '../actions';
@@ -8,7 +9,7 @@ import { NumberField } from '../components/NumberField';
 import { Sheet } from '../components/Sheet';
 import { TrackMap } from '../components/TrackMap';
 import { useApp } from '../context';
-import { formatDayMedium, formatDuration, formatKg } from '../format';
+import { formatDayMedium, formatDuration, formatKcal, formatKg } from '../format';
 import { S } from '../strings';
 
 type Props = ({ date: IsoDate; activity?: undefined } | { activity: Activity; date?: undefined }) & { onClose: () => void };
@@ -30,6 +31,7 @@ export function ActivitySheet({ date: dateProp, activity: existing, onClose }: P
   const valid = isValidActivity(distanceKm, durationSec);
   const pace = paceMinPerKm(distanceKm, durationSec);
   const speed = averageSpeedKmh(distanceKm, durationSec);
+  const kcal = activityKcal(app.settings.profile, { type, distanceKm, durationSec });
 
   const save = async () => {
     if (!valid) return;
@@ -72,6 +74,7 @@ export function ActivitySheet({ date: dateProp, activity: existing, onClose }: P
         {pace !== null && speed !== null && (
           <p class="muted num">
             {S.activitySheet.pace(formatKg(pace))} · {S.activitySheet.speed(formatKg(speed))} · {formatDuration(durationSec)}
+            {kcal !== null && ` · ${formatKcal(kcal)}`}
           </p>
         )}
         <TextField label={S.activitySheet.note} value={note} onChange={setNote} />

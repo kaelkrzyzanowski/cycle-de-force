@@ -12,6 +12,10 @@ export function formatTonnage(kg: number): string {
   return `${intFormat.format(kg)}${NBSP}kg`;
 }
 
+export function formatKcal(kcal: number): string {
+  return `${intFormat.format(kcal)}${NBSP}kcal`;
+}
+
 /** Règle de charge lisible : « 70 % D », « PDC +20 kg », « » pour une charge fixe. */
 export function formatRule(rule: LoadRule): string {
   switch (rule.kind) {

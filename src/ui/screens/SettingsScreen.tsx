@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'preact/hooks';
-import type { Rounding, ThemePref } from '../../domain/types';
+import type { Profile, Rounding, ThemePref } from '../../domain/types';
 import { errorCode, Tracker } from '../../platform/tracker';
 import type { StepStatus } from '../../platform/tracker';
 import { BackupSection } from '../components/BackupSection';
@@ -12,6 +12,37 @@ const THEMES: ThemePref[] = ['dark', 'light', 'system'];
 const ROUNDINGS: Rounding[] = [0, 0.5, 1, 1.25, 2.5];
 
 type Persisted = 'yes' | 'no' | 'unknown';
+
+const SEXES: Profile['sex'][] = ['M', 'F', 'NA'];
+
+/** Âge, taille, poids et sexe : base de l'estimation des calories. */
+function ProfileSettings() {
+  const { settings, updateSettings } = useApp();
+  const profile: Profile = settings.profile ?? { sex: 'NA', ageYears: 0, heightCm: 0, weightKg: 0 };
+  const set = (patch: Partial<Profile>) => void updateSettings({ profile: { ...profile, ...patch } });
+
+  return (
+    <section class="card stack tight">
+      <h2 class="card-title">{S.profile.title}</h2>
+      <p class="muted" style={{ margin: 0 }}>
+        {S.profile.hint}
+      </p>
+      <div class="button-row start">
+        <NumberField label={S.profile.age} value={profile.ageYears} onChange={(ageYears) => set({ ageYears })} max={120} suffix="ans" buttons={false} />
+        <NumberField label={S.profile.height} value={profile.heightCm} onChange={(heightCm) => set({ heightCm })} max={250} suffix="cm" buttons={false} />
+        <NumberField label={S.profile.weight} value={profile.weightKg} onChange={(weightKg) => set({ weightKg })} max={300} suffix="kg" buttons={false} />
+      </div>
+      <span id="sex-label">{S.profile.sex}</span>
+      <div class="segmented" role="group" aria-labelledby="sex-label">
+        {SEXES.map((sex) => (
+          <button key={sex} type="button" aria-pressed={profile.sex === sex} onClick={() => set({ sex })}>
+            {S.profile.sexes[sex]}
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+}
 
 /** Podomètre (app Android) : marche / arrêt du comptage en arrière-plan et objectif quotidien. */
 function StepsSettings() {
@@ -102,6 +133,8 @@ export function SettingsScreen() {
           ))}
         </div>
       </section>
+
+      <ProfileSettings />
 
       <StepsSettings />
 

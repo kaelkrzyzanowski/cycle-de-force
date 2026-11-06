@@ -1,6 +1,8 @@
 import { ACTIVITY_COLORS, ACTIVITY_GLYPH, averageSpeedKmh, paceMinPerKm } from '../../domain/activities';
+import { activityKcal } from '../../domain/calories';
 import type { Activity } from '../../domain/types';
-import { formatDuration, formatKg } from '../format';
+import { useApp } from '../context';
+import { formatDuration, formatKcal, formatKg } from '../format';
 import { S } from '../strings';
 
 /** Pastille du calendrier pour une activité cardio, même contrat visuel que SessionDot. */
@@ -17,6 +19,7 @@ export function ActivityCard({ activity, onOpen }: { activity: Activity; onOpen:
   const pace = paceMinPerKm(activity.distanceKm, activity.durationSec);
   const speed = averageSpeedKmh(activity.distanceKm, activity.durationSec);
   const label = S.activityTypes[activity.type];
+  const kcal = activityKcal(useApp().settings.profile, activity);
 
   return (
     <article class="session-card" style={{ '--tpl': ACTIVITY_COLORS[activity.type] }}>
@@ -27,6 +30,7 @@ export function ActivityCard({ activity, onOpen }: { activity: Activity; onOpen:
         <span class="session-exercises muted">
           {formatKg(activity.distanceKm)}{' '}km · {formatDuration(activity.durationSec)}
           {pace !== null && speed !== null && ` · ${S.activitySheet.pace(formatKg(pace))} · ${S.activitySheet.speed(formatKg(speed))}`}
+          {kcal !== null && ` · ${formatKcal(kcal)}`}
         </span>
         {activity.note && <span class="session-tonnage muted">{activity.note}</span>}
       </button>

@@ -61,3 +61,21 @@ test('activité GPS : un refus de localisation est expliqué', async ({ browser 
   await expect(page.getByRole('alert')).toContainText('Autorisation de localisation refusée');
   await context.close();
 });
+
+test('activité GPS : les calories s’affichent en direct une fois le profil renseigné', async ({ page }) => {
+  await page.route('https://tile.openstreetmap.org/**', (route) => route.abort());
+  await page.goto('/#/activite');
+  await page.getByRole('button', { name: 'Démarrer' }).click();
+  await expect(page.locator('.track-metrics')).toContainText('Renseigne ton âge');
+  await page.getByRole('link', { name: /Renseigne ton âge/ }).click();
+
+  await page.getByRole('textbox', { name: 'Âge' }).fill('35');
+  await page.getByRole('textbox', { name: 'Âge' }).press('Tab');
+  await page.getByRole('textbox', { name: 'Taille' }).fill('180');
+  await page.getByRole('textbox', { name: 'Taille' }).press('Tab');
+  await page.getByRole('textbox', { name: 'Poids' }).fill('80');
+  await page.getByRole('textbox', { name: 'Poids' }).press('Tab');
+
+  await page.goto('/#/activite');
+  await expect(page.locator('.track-metrics .is-wide dd')).toContainText(/\d+\s*kcal/);
+});

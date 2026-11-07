@@ -1,9 +1,10 @@
 import { openDB } from 'idb';
 import type { DBSchema, IDBPDatabase, IDBPTransaction, StoreNames } from 'idb';
+import type { CustomFood, FoodDay } from '../domain/nutrition';
 import type { Activity, Cycle, DailySteps, Exercise, MaxChange, Session, SessionTemplate, Settings } from '../domain/types';
 
 export const DB_NAME = 'cycle-de-force';
-export const DB_VERSION = 3;
+export const DB_VERSION = 4;
 
 export interface MetaRecord {
   key: string;
@@ -18,6 +19,8 @@ export interface CdfSchema extends DBSchema {
   maxChanges: { key: string; value: MaxChange; indexes: { byCycle: string } };
   activities: { key: string; value: Activity; indexes: { byDate: string } };
   steps: { key: string; value: DailySteps };
+  foodDays: { key: string; value: FoodDay };
+  customFoods: { key: string; value: CustomFood };
   settings: { key: string; value: Settings };
   meta: { key: string; value: MetaRecord };
 }
@@ -43,6 +46,10 @@ const MIGRATIONS: Record<number, (db: CdfDb, tx: UpgradeTx) => void> = {
   },
   3: (db) => {
     db.createObjectStore('steps', { keyPath: 'date' });
+  },
+  4: (db) => {
+    db.createObjectStore('foodDays', { keyPath: 'date' });
+    db.createObjectStore('customFoods', { keyPath: 'id' });
   },
 };
 

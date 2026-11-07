@@ -18,6 +18,7 @@ import { ChronoScreen } from './screens/ChronoScreen';
 import { CycleScreen } from './screens/CycleScreen';
 import { DuplicateCycleScreen } from './screens/DuplicateCycleScreen';
 import { DuplicateWeekScreen } from './screens/DuplicateWeekScreen';
+import { JournalScreen } from './screens/JournalScreen';
 import { NewCycleScreen } from './screens/NewCycleScreen';
 import { SessionScreen } from './screens/SessionScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
@@ -33,6 +34,7 @@ const TABS: { tab: Tab; icon: IconName; label: string; href: string }[] = [
   { tab: 'calendar', icon: 'calendar', label: S.nav.calendar, href: href.calendar() },
   { tab: 'today', icon: 'today', label: S.nav.today, href: href.today() },
   { tab: 'chrono', icon: 'chrono', label: S.nav.chrono, href: href.chrono() },
+  { tab: 'journal', icon: 'journal', label: S.nav.journal, href: href.journal() },
   { tab: 'templates', icon: 'templates', label: S.nav.templates, href: href.templates() },
   { tab: 'stats', icon: 'stats', label: S.nav.stats, href: href.stats() },
 ];
@@ -43,6 +45,7 @@ const TITLES: Record<Route['name'], string> = {
   chrono: S.chrono.title,
   templates: S.templates.title,
   stats: S.stats.title,
+  journal: S.journal.title,
   settings: S.settings.title,
   session: S.session.title,
   newCycle: S.cycleForm.newTitle,
@@ -65,6 +68,8 @@ function Screen({ route }: { route: Route }) {
       return <TemplatesScreen />;
     case 'stats':
       return <StatsScreen />;
+    case 'journal':
+      return <JournalScreen />;
     case 'settings':
       return <SettingsScreen />;
     case 'session':

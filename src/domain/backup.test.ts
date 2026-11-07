@@ -32,6 +32,19 @@ function sampleData(): BackupData {
     maxChanges: [{ id: 'm1', cycleId: 'c0', lift: 'D', from: 210, to: 215, at: '2026-09-24T10:00:00Z' }],
     activities,
     steps: [{ date: '2026-09-22', steps: 9876 }],
+    foodDays: [
+      {
+        date: '2026-09-22',
+        meals: {
+          matin: [{ id: 'f1', foodId: 'flocons_avoine', name: 'Flocons d’avoine', grams: 60, state: 'cru', kcal: 225 }],
+          midi: [{ id: 'f2', foodId: null, name: 'Sandwich', kcal: 450 }],
+          soir: [],
+          col1: [],
+          col2: [],
+        },
+      },
+    ],
+    customFoods: [{ id: 'cf1', name: 'Galette', category: 'feculents', cru: 200, custom: true }],
   };
 }
 
@@ -40,8 +53,8 @@ describe('format de sauvegarde', () => {
   const file = buildBackup(data, '2026-09-24T12:00:00.000Z');
 
   it('porte un en-tête avec les comptes', () => {
-    expect(file).toMatchObject({ app: 'cycle-de-force', schemaVersion: 3, exportedAt: '2026-09-24T12:00:00.000Z' });
-    expect(file.counts).toEqual({ cycles: 1, sessions: 28, realizedSets: 2, templates: 5, exercises: 40, maxChanges: 1, activities: 2 });
+    expect(file).toMatchObject({ app: 'cycle-de-force', schemaVersion: 4, exportedAt: '2026-09-24T12:00:00.000Z' });
+    expect(file.counts).toEqual({ cycles: 1, sessions: 28, realizedSets: 2, templates: 5, exercises: 40, maxChanges: 1, activities: 2, foodDays: 1 });
   });
 
   it('JSON aller-retour = données identiques', () => {
@@ -119,6 +132,24 @@ describe('format de sauvegarde', () => {
     delete v2.data['steps'];
     const parsed = parseBackup(JSON.stringify(v2));
     expect(parsed.ok && parsed.backup.data.steps).toEqual([]);
+  });
+
+  it('migre un fichier v3 (sans journal calorique) vers v4 avec des listes vides', () => {
+    const v3 = structuredClone(file) as unknown as { schemaVersion: number; data: Record<string, unknown> };
+    v3.schemaVersion = 3;
+    delete v3.data['foodDays'];
+    delete v3.data['customFoods'];
+    const parsed = parseBackup(JSON.stringify(v3));
+    expect(parsed.ok && [parsed.backup.data.foodDays, parsed.backup.data.customFoods]).toEqual([[], []]);
+  });
+
+  it('refuse un journal calorique invalide', () => {
+    const badMeal = structuredClone(file) as unknown as { data: { foodDays: { meals: Record<string, unknown> }[] } };
+    badMeal.data.foodDays[0]!.meals['midi'] = [{ id: 'x', foodId: null, name: 'Sandwich', kcal: 'beaucoup' }];
+    expect(parseBackup(JSON.stringify(badMeal))).toMatchObject({ ok: false, error: 'INVALID' });
+    const badFood = structuredClone(file) as unknown as { data: { customFoods: Record<string, unknown>[] } };
+    badFood.data.customFoods[0]!['category'] = 'desserts';
+    expect(parseBackup(JSON.stringify(badFood))).toMatchObject({ ok: false, error: 'INVALID' });
   });
 
   it('refuse un tracé GPS ou des pas invalides', () => {

@@ -68,6 +68,7 @@ async function auditAllScreens(page: Page, theme: string): Promise<string[]> {
   await at('/#/semaine/dupliquer', 'dupliquer semaine');
   await at('/#/stats', 'stats');
   await at('/#/activite', 'activité GPS');
+  await at('/#/journal', 'journal calorique');
   await at('/#/reglages', 'réglages');
   return found;
 }

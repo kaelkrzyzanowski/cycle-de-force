@@ -6,6 +6,7 @@ const PATHS = {
   menu: 'M12 5h.01M12 12h.01M12 19h.01',
   back: 'M15 18l-6-6 6-6',
   chrono: 'M9 2h6M12 2v3M12 21a8 8 0 1 0 0-16 8 8 0 0 0 0 16M12 13l3-3',
+  journal: 'M6 3v7a2 2 0 0 0 4 0V3M8 10v11M17 21V3c-2.2 1.2-3 3.5-3 7v3h3',
 } as const;
 
 export type IconName = keyof typeof PATHS;

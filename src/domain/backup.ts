@@ -1,10 +1,12 @@
 import { isRealized } from './load';
+import { FOOD_CATEGORIES, MEALS } from './nutrition';
+import type { CustomFood, FoodDay } from './nutrition';
 import { DEFAULT_SETTINGS } from './types';
 import type { Activity, Cycle, DailySteps, Exercise, IsoDate, MaxChange, Session, SessionTemplate, Settings } from './types';
 
 export const BACKUP_APP = 'cycle-de-force';
 /** Version du format de fichier. À incrémenter avec une migration dans BACKUP_MIGRATIONS. */
-export const BACKUP_SCHEMA_VERSION = 3;
+export const BACKUP_SCHEMA_VERSION = 4;
 
 export interface BackupData {
   settings: Settings;
@@ -15,6 +17,8 @@ export interface BackupData {
   maxChanges: MaxChange[];
   activities: Activity[];
   steps: DailySteps[];
+  foodDays: FoodDay[];
+  customFoods: CustomFood[];
 }
 
 export interface BackupCounts {
@@ -25,6 +29,7 @@ export interface BackupCounts {
   exercises: number;
   maxChanges: number;
   activities: number;
+  foodDays: number;
 }
 
 export interface BackupFile {
@@ -47,6 +52,7 @@ export function countBackup(data: BackupData): BackupCounts {
     exercises: data.exercises.length,
     maxChanges: data.maxChanges.length,
     activities: data.activities.length,
+    foodDays: data.foodDays.length,
   };
 }
 
@@ -72,6 +78,10 @@ export const BACKUP_MIGRATIONS: Record<number, Migration> = {
   3: (file) => {
     const data = (file['data'] as Json | undefined) ?? {};
     return { ...file, data: { ...data, steps: data['steps'] ?? [] } };
+  },
+  4: (file) => {
+    const data = (file['data'] as Json | undefined) ?? {};
+    return { ...file, data: { ...data, foodDays: data['foodDays'] ?? [], customFoods: data['customFoods'] ?? [] } };
   },
 };
 
@@ -193,6 +203,26 @@ function checkData(data: unknown): asserts data is BackupData {
   check(Array.isArray(steps), 'steps manquant');
   steps.forEach((d, i) =>
     check(isRecord(d) && isStr(d['date']) && ISO_DATE.test(d['date']) && isNum(d['steps']) && d['steps'] >= 0, `steps[${i}]`),
+  );
+  const foodDays = data['foodDays'];
+  check(Array.isArray(foodDays), 'foodDays manquant');
+  foodDays.forEach((d, i) => {
+    const w = `foodDays[${i}]`;
+    check(isRecord(d) && isStr(d['date']) && ISO_DATE.test(d['date']) && isRecord(d['meals']), w);
+    const meals = d['meals'] as Json;
+    for (const m of MEALS) {
+      const items = meals[m];
+      check(Array.isArray(items), `${w} : repas ${m}`);
+      for (const it of items) {
+        check(
+          isRecord(it) && isStr(it['id']) && isStr(it['name']) && isNum(it['kcal']) && (it['foodId'] === null || isStr(it['foodId'])) && optNum(it['grams']),
+          `${w} : aliment`,
+        );
+      }
+    }
+  });
+  checkArray(data, 'customFoods', (f, w) =>
+    check(isStr(f['name']) && FOOD_CATEGORIES.includes(f['category'] as never) && isNum(f['cru']) && optNum(f['cuit']), w),
   );
 }
 

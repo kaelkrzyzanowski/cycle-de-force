@@ -151,6 +151,8 @@ export interface Settings {
   stepGoal: number;
   /** Pour estimer les calories des activités. */
   profile?: Profile;
+  /** Objectif du journal calorique (kcal par jour). */
+  kcalGoal: number;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -159,4 +161,5 @@ export const DEFAULT_SETTINGS: Settings = {
   weekStartsOn: 1,
   backupReminderDays: 7,
   stepGoal: 10_000,
+  kcalGoal: 2000,
 };

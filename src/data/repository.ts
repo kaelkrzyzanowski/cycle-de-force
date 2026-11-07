@@ -1,4 +1,6 @@
 import type { BackupData } from '../domain/backup';
+import { hasFood } from '../domain/nutrition';
+import type { CustomFood, FoodDay } from '../domain/nutrition';
 import { DEFAULT_SETTINGS } from '../domain/types';
 import type { Activity, Cycle, DailySteps, Exercise, IsoDate, MaxChange, Session, SessionTemplate, Settings } from '../domain/types';
 import { seedData, SEED_VERSION } from '../seed';
@@ -42,6 +44,14 @@ export interface Repository {
   /** Pas par jour entre deux dates incluses, triés par date. */
   listStepsBetween(from: IsoDate, to: IsoDate): Promise<DailySteps[]>;
   saveSteps(days: readonly DailySteps[]): Promise<void>;
+
+  /** Journal calorique : jours entre deux dates incluses, triés par date. */
+  listFoodDays(from: IsoDate, to: IsoDate): Promise<FoodDay[]>;
+  /** Un jour sans aliment est supprimé. */
+  saveFoodDay(day: FoodDay): Promise<void>;
+  listCustomFoods(): Promise<CustomFood[]>;
+  saveCustomFood(food: CustomFood): Promise<void>;
+  deleteCustomFood(id: string): Promise<void>;
 
   /** Applique plusieurs écritures en une seule transaction : tout ou rien. */
   applyChanges(changes: Changes): Promise<void>;
@@ -187,6 +197,23 @@ class IdbRepository implements Repository {
     await Promise.all([...days.map((d) => tx.store.put(d)), tx.done]);
   }
 
+  listFoodDays(from: IsoDate, to: IsoDate): Promise<FoodDay[]> {
+    return this.db.getAll('foodDays', IDBKeyRange.bound(from, to));
+  }
+  async saveFoodDay(day: FoodDay): Promise<void> {
+    if (hasFood(day)) await this.db.put('foodDays', day);
+    else await this.db.delete('foodDays', day.date);
+  }
+  listCustomFoods(): Promise<CustomFood[]> {
+    return this.db.getAll('customFoods');
+  }
+  async saveCustomFood(food: CustomFood): Promise<void> {
+    await this.db.put('customFoods', food);
+  }
+  deleteCustomFood(id: string): Promise<void> {
+    return this.db.delete('customFoods', id);
+  }
+
   async applyChanges(changes: Changes): Promise<void> {
     const tx = this.db.transaction(['cycles', 'sessions', 'maxChanges', 'activities'], 'readwrite');
     const sessions = tx.objectStore('sessions');
@@ -211,10 +238,10 @@ class IdbRepository implements Repository {
 
   async exportData(): Promise<BackupData> {
     const tx = this.db.transaction(
-      ['settings', 'templates', 'exercises', 'cycles', 'sessions', 'maxChanges', 'activities', 'steps'],
+      ['settings', 'templates', 'exercises', 'cycles', 'sessions', 'maxChanges', 'activities', 'steps', 'foodDays', 'customFoods'],
       'readonly',
     );
-    const [settings, templates, exercises, cycles, sessions, maxChanges, activities, steps] = await Promise.all([
+    const [settings, templates, exercises, cycles, sessions, maxChanges, activities, steps, foodDays, customFoods] = await Promise.all([
       tx.objectStore('settings').get(SETTINGS_KEY),
       tx.objectStore('templates').getAll(),
       tx.objectStore('exercises').getAll(),
@@ -223,6 +250,8 @@ class IdbRepository implements Repository {
       tx.objectStore('maxChanges').getAll(),
       tx.objectStore('activities').getAll(),
       tx.objectStore('steps').getAll(),
+      tx.objectStore('foodDays').getAll(),
+      tx.objectStore('customFoods').getAll(),
     ]);
     await tx.done;
     return {
@@ -234,11 +263,13 @@ class IdbRepository implements Repository {
       maxChanges,
       activities: activities.sort((a, b) => a.date.localeCompare(b.date)),
       steps,
+      foodDays,
+      customFoods,
     };
   }
 
   async replaceAll(data: BackupData, previousBackup: string): Promise<void> {
-    const stores = ['settings', 'templates', 'exercises', 'cycles', 'sessions', 'maxChanges', 'activities', 'steps', 'meta'] as const;
+    const stores = ['settings', 'templates', 'exercises', 'cycles', 'sessions', 'maxChanges', 'activities', 'steps', 'foodDays', 'customFoods', 'meta'] as const;
     const tx = this.db.transaction([...stores], 'readwrite');
     await atomically(tx, (push) => {
       for (const name of stores) if (name !== 'meta') push(tx.objectStore(name).clear());
@@ -250,6 +281,8 @@ class IdbRepository implements Repository {
       for (const m of data.maxChanges) push(tx.objectStore('maxChanges').put(m));
       for (const a of data.activities) push(tx.objectStore('activities').put(a));
       for (const d of data.steps) push(tx.objectStore('steps').put(d));
+      for (const d of data.foodDays) push(tx.objectStore('foodDays').put(d));
+      for (const f of data.customFoods) push(tx.objectStore('customFoods').put(f));
       push(tx.objectStore('meta').put({ key: PRE_RESTORE_KEY, value: previousBackup }));
     });
   }

@@ -130,6 +130,19 @@ describe('repository IndexedDB', () => {
     expect((await r.exportData()).steps).toHaveLength(2);
   });
 
+  it('journal calorique : un jour vide est supprimé, aliments personnalisés exportés', async () => {
+    const r = await fresh();
+    const meals = { matin: [], midi: [{ id: 'a', foodId: null, name: 'Pizza', kcal: 800 }], soir: [], col1: [], col2: [] };
+    await r.saveFoodDay({ date: '2026-11-07', meals });
+    expect(await r.listFoodDays('2026-11-01', '2026-11-30')).toHaveLength(1);
+    await r.saveFoodDay({ date: '2026-11-07', meals: { ...meals, midi: [] } });
+    expect(await r.listFoodDays('2026-11-01', '2026-11-30')).toEqual([]);
+    await r.saveCustomFood({ id: 'cf1', name: 'Galette', category: 'feculents', cru: 200, custom: true });
+    expect((await r.exportData()).customFoods).toHaveLength(1);
+    await r.deleteCustomFood('cf1');
+    expect(await r.listCustomFoods()).toEqual([]);
+  });
+
   it('drapeaux', async () => {
     const r = await fresh();
     expect(await r.getFlag('exampleOffer')).toBeUndefined();

@@ -246,8 +246,8 @@ export function ChronoScreen() {
   return (
     <div class="stack">
       <ClockCard />
-      <TimerCard />
       <StopwatchCard />
+      <TimerCard />
     </div>
   );
 }

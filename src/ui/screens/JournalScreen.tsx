@@ -13,6 +13,7 @@ import {
   mealKcal,
   MEALS,
   overviewWeeks,
+  recentFoods,
 } from '../../domain/nutrition';
 import type { CustomFood, FoodCategory, FoodDay, FoodEntry, GoalStatus, MealKey } from '../../domain/nutrition';
 import type { Activity, IsoDate } from '../../domain/types';
@@ -65,6 +66,7 @@ function Journal({ days, customFoods, activities, date, today, setDate }: Data &
   const byDate = new Map(days.map((d) => [d.date, d]));
   const day = byDate.get(date) ?? emptyFoodDay(date);
   const foods = allFoods(customFoods);
+  const recent = recentFoods(days, foods);
 
   const total = Math.round(dayKcal(day));
   const status = goalStatus(total, goal);
@@ -194,6 +196,7 @@ function Journal({ days, customFoods, activities, date, today, setDate }: Data &
           meal={sheet.meal}
           entry={sheet.entry}
           foods={foods}
+          recent={recent}
           onSave={(entry) => putEntry(sheet.meal, entry)}
           onDelete={sheet.entry ? () => removeEntry(sheet.meal, sheet.entry!.id) : undefined}
           onClose={() => setSheet(null)}
@@ -236,13 +239,16 @@ function CustomFoods({ foods }: { foods: readonly CustomFood[] }) {
       <div class="stack">
         <p class="muted">{S.journal.customHint}</p>
         <TextField label={S.journal.foodName} value={name} onChange={setName} />
-        <div class="segmented" role="group" aria-label={S.journal.category}>
-          {FOOD_CATEGORIES.map((c) => (
-            <button key={c} type="button" aria-pressed={category === c} onClick={() => setCategory(c)}>
-              {S.journal.categories[c]}
-            </button>
-          ))}
-        </div>
+        <label class="field">
+          <span>{S.journal.category}</span>
+          <select class="text-input" value={category} onChange={(e) => setCategory(e.currentTarget.value as FoodCategory)}>
+            {FOOD_CATEGORIES.map((c) => (
+              <option key={c} value={c}>
+                {S.journal.categories[c]}
+              </option>
+            ))}
+          </select>
+        </label>
         <NumberField label={S.journal.kcalCru} value={cru} onChange={setCru} step={1} max={1000} suffix="kcal" buttons={false} />
         <label class="switch-row">
           <input type="checkbox" checked={hasCuit} onChange={(e) => setHasCuit(e.currentTarget.checked)} />

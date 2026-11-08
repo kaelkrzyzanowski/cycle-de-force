@@ -8,6 +8,7 @@ import {
   journalStats,
   overviewWeeks,
   portionKcal,
+  recentFoods,
   searchFoods,
 } from './nutrition';
 import type { CustomFood, FoodDay } from './nutrition';
@@ -55,6 +56,37 @@ describe('journal calorique', () => {
     const foods = allFoods([mine]);
     expect(foods).toHaveLength(BASE_FOODS.length + 1);
     expect(searchFoods(foods, 'epin').map((f) => f.name)).toEqual(['Épinards']);
-    expect(searchFoods(foods, 'GALETTE').map((f) => f.id)).toEqual(['cf1']);
+    expect(searchFoods(foods, 'SARRASIN').map((f) => f.id)).toEqual(['cf1']);
+  });
+});
+
+describe('table d’aliments', () => {
+  it('identifiants uniques, valeurs plausibles, portions en grammes', () => {
+    const ids = BASE_FOODS.map((f) => f.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(BASE_FOODS.length).toBeGreaterThan(200);
+    for (const f of BASE_FOODS) {
+      expect(f.cru, f.name).toBeGreaterThanOrEqual(0);
+      expect(f.cru, f.name).toBeLessThanOrEqual(900);
+      if (f.portion) expect(f.portion.grams, f.name).toBeGreaterThan(0);
+    }
+    expect(BASE_FOODS.filter((f) => f.category === 'restauration').length).toBeGreaterThan(50);
+  });
+
+  it('une pizza margherita entière : environ 800 kcal', () => {
+    const pizza = food('pizza_margherita');
+    expect(portionKcal(pizza, pizza.portion!.grams, undefined)).toBe(792);
+  });
+
+  it('aliments récents : du plus récent au plus ancien, sans doublon ni aliment libre', () => {
+    const d1 = emptyFoodDay('2026-11-06');
+    d1.meals.midi = [{ id: 'a', foodId: 'riz_blanc', name: 'Riz blanc', kcal: 195 }];
+    const d2 = emptyFoodDay('2026-11-07');
+    d2.meals.matin = [{ id: 'b', foodId: 'banane', name: 'Banane', kcal: 108 }];
+    d2.meals.soir = [
+      { id: 'c', foodId: 'riz_blanc', name: 'Riz blanc', kcal: 195 },
+      { id: 'd', foodId: null, name: 'Pizza', kcal: 800 },
+    ];
+    expect(recentFoods([d1, d2], BASE_FOODS).map((f) => f.id)).toEqual(['riz_blanc', 'banane']);
   });
 });

@@ -1,8 +1,30 @@
 import { addDays, mondayOf } from './dates';
+import { BASE_FOODS } from './foods';
 import type { IsoDate } from './types';
 
-export type FoodCategory = 'legumes' | 'proteines' | 'feculents';
-export const FOOD_CATEGORIES: readonly FoodCategory[] = ['legumes', 'proteines', 'feculents'];
+export type FoodCategory =
+  | 'restauration'
+  | 'legumes'
+  | 'fruits'
+  | 'proteines'
+  | 'laitiers'
+  | 'feculents'
+  | 'boulangerie'
+  | 'gras'
+  | 'sucre'
+  | 'boissons';
+export const FOOD_CATEGORIES: readonly FoodCategory[] = [
+  'restauration',
+  'legumes',
+  'fruits',
+  'proteines',
+  'laitiers',
+  'feculents',
+  'boulangerie',
+  'gras',
+  'sucre',
+  'boissons',
+];
 
 /** Aliment de la table : kcal pour 100 g, cru (ou tel quel) et cuit quand la cuisson change la valeur. */
 export interface Food {
@@ -11,62 +33,14 @@ export interface Food {
   category: FoodCategory;
   cru: number;
   cuit?: number;
+  /** Portion type (une pizza, un verre…), proposée par défaut à la saisie. */
+  portion?: { label: string; grams: number };
 }
 
 /** Aliment ajouté par l'utilisateur, enregistré en base. */
 export type CustomFood = Food & { custom: true };
 
-/** Tables nutritionnelles usuelles, valeurs indicatives (kcal / 100 g). */
-export const BASE_FOODS: readonly Food[] = [
-  { id: 'brocoli', name: 'Brocoli', category: 'legumes', cru: 34, cuit: 28 },
-  { id: 'carotte', name: 'Carotte', category: 'legumes', cru: 41, cuit: 35 },
-  { id: 'courgette', name: 'Courgette', category: 'legumes', cru: 17, cuit: 15 },
-  { id: 'haricots_verts', name: 'Haricots verts', category: 'legumes', cru: 31, cuit: 26 },
-  { id: 'epinards', name: 'Épinards', category: 'legumes', cru: 23 },
-  { id: 'tomate', name: 'Tomate', category: 'legumes', cru: 18 },
-  { id: 'poivron', name: 'Poivron', category: 'legumes', cru: 31, cuit: 26 },
-  { id: 'champignons', name: 'Champignons de Paris', category: 'legumes', cru: 22, cuit: 18 },
-  { id: 'aubergine', name: 'Aubergine', category: 'legumes', cru: 25, cuit: 22 },
-  { id: 'chou_fleur', name: 'Chou-fleur', category: 'legumes', cru: 25, cuit: 23 },
-  { id: 'salade', name: 'Salade verte', category: 'legumes', cru: 15 },
-  { id: 'concombre', name: 'Concombre', category: 'legumes', cru: 12 },
-  { id: 'petits_pois', name: 'Petits pois', category: 'legumes', cru: 81, cuit: 68 },
-  { id: 'oignon', name: 'Oignon', category: 'legumes', cru: 40, cuit: 35 },
-
-  { id: 'poulet_blanc', name: 'Poulet (blanc / filet)', category: 'proteines', cru: 120, cuit: 165 },
-  { id: 'poulet_cuisse', name: 'Poulet (cuisse, peau)', category: 'proteines', cru: 195, cuit: 250 },
-  { id: 'boeuf_hache5', name: 'Bœuf haché 5 % MG', category: 'proteines', cru: 130, cuit: 172 },
-  { id: 'boeuf_hache15', name: 'Bœuf haché 15 % MG', category: 'proteines', cru: 215, cuit: 254 },
-  { id: 'boeuf_maigre', name: 'Bœuf (steak maigre)', category: 'proteines', cru: 120, cuit: 172 },
-  { id: 'porc_filet', name: 'Porc (filet mignon)', category: 'proteines', cru: 143, cuit: 173 },
-  { id: 'dinde_escalope', name: 'Dinde (escalope)', category: 'proteines', cru: 104, cuit: 150 },
-  { id: 'saumon', name: 'Saumon', category: 'proteines', cru: 180, cuit: 200 },
-  { id: 'cabillaud', name: 'Cabillaud / colin', category: 'proteines', cru: 82, cuit: 95 },
-  { id: 'thon_frais', name: 'Thon (frais)', category: 'proteines', cru: 130, cuit: 144 },
-  { id: 'thon_boite', name: 'Thon en boîte (au naturel, égoutté)', category: 'proteines', cru: 116 },
-  { id: 'crevettes', name: 'Crevettes', category: 'proteines', cru: 71, cuit: 99 },
-  { id: 'oeuf', name: 'Œuf', category: 'proteines', cru: 143, cuit: 155 },
-  { id: 'jambon_blanc', name: 'Jambon blanc', category: 'proteines', cru: 100 },
-  { id: 'tofu', name: 'Tofu nature', category: 'proteines', cru: 76 },
-  { id: 'fromage_blanc', name: 'Fromage blanc 0 %', category: 'proteines', cru: 45 },
-  { id: 'yaourt_nature', name: 'Yaourt nature', category: 'proteines', cru: 60 },
-  { id: 'skyr', name: 'Skyr nature', category: 'proteines', cru: 54 },
-
-  { id: 'riz_blanc', name: 'Riz blanc', category: 'feculents', cru: 349, cuit: 130 },
-  { id: 'riz_complet', name: 'Riz complet', category: 'feculents', cru: 350, cuit: 123 },
-  { id: 'pates_blanches', name: 'Pâtes blanches', category: 'feculents', cru: 350, cuit: 158 },
-  { id: 'pates_completes', name: 'Pâtes complètes', category: 'feculents', cru: 348, cuit: 150 },
-  { id: 'quinoa', name: 'Quinoa', category: 'feculents', cru: 368, cuit: 120 },
-  { id: 'semoule', name: 'Semoule / couscous', category: 'feculents', cru: 376, cuit: 112 },
-  { id: 'pomme_terre', name: 'Pomme de terre', category: 'feculents', cru: 77, cuit: 86 },
-  { id: 'patate_douce', name: 'Patate douce', category: 'feculents', cru: 86, cuit: 90 },
-  { id: 'pain_blanc', name: 'Pain blanc', category: 'feculents', cru: 265 },
-  { id: 'pain_complet', name: 'Pain complet', category: 'feculents', cru: 247 },
-  { id: 'lentilles', name: 'Lentilles (sèches / cuites)', category: 'feculents', cru: 336, cuit: 116 },
-  { id: 'pois_chiches', name: 'Pois chiches (secs / cuits)', category: 'feculents', cru: 364, cuit: 164 },
-  { id: 'haricots_rouges', name: 'Haricots rouges (secs / cuits)', category: 'feculents', cru: 333, cuit: 127 },
-  { id: 'flocons_avoine', name: 'Flocons d’avoine', category: 'feculents', cru: 375 },
-];
+export { BASE_FOODS };
 
 export type MealKey = 'matin' | 'midi' | 'soir' | 'col1' | 'col2';
 export const MEALS: readonly MealKey[] = ['matin', 'midi', 'soir', 'col1', 'col2'];
@@ -137,6 +111,22 @@ export function allFoods(custom: readonly CustomFood[]): Food[] {
   return [...BASE_FOODS, ...custom].sort(
     (a, b) => FOOD_CATEGORIES.indexOf(a.category) - FOOD_CATEGORIES.indexOf(b.category) || a.name.localeCompare(b.name, 'fr'),
   );
+}
+
+/** Derniers aliments de la table saisis (du plus récent au plus ancien), sans doublon. */
+export function recentFoods(days: readonly FoodDay[], foods: readonly Food[], max = 8): Food[] {
+  const byId = new Map(foods.map((f) => [f.id, f]));
+  const out: Food[] = [];
+  for (const day of [...days].sort((a, b) => b.date.localeCompare(a.date))) {
+    for (const meal of [...MEALS].reverse()) {
+      for (const item of [...day.meals[meal]].reverse()) {
+        const food = item.foodId ? byId.get(item.foodId) : undefined;
+        if (food && !out.includes(food)) out.push(food);
+        if (out.length >= max) return out;
+      }
+    }
+  }
+  return out;
 }
 
 /** Recherche sans tenir compte des accents ni de la casse. */

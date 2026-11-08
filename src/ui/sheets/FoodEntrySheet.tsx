@@ -1,7 +1,7 @@
 import { useState } from 'preact/hooks';
 import { newId } from '../../domain/ids';
 import { FOOD_CATEGORIES, per100, portionKcal, searchFoods } from '../../domain/nutrition';
-import type { Food, FoodEntry, FoodState, MealKey } from '../../domain/nutrition';
+import type { Food, FoodCategory, FoodEntry, FoodState, MealKey } from '../../domain/nutrition';
 import { TextField } from '../components/fields';
 import { NumberField } from '../components/NumberField';
 import { Sheet } from '../components/Sheet';
@@ -15,6 +15,7 @@ export function FoodEntrySheet({
   meal,
   entry,
   foods,
+  recent,
   onSave,
   onDelete,
   onClose,
@@ -22,6 +23,8 @@ export function FoodEntrySheet({
   meal: MealKey;
   entry?: FoodEntry;
   foods: readonly Food[];
+  /** Derniers aliments saisis, proposés en tête de liste. */
+  recent: readonly Food[];
   onSave: (entry: FoodEntry) => void;
   onDelete?: () => void;
   onClose: () => void;
@@ -37,6 +40,7 @@ export function FoodEntrySheet({
         })();
   const [choice, setChoice] = useState<Choice>(initial);
   const [query, setQuery] = useState('');
+  const [category, setCategory] = useState<FoodCategory | null>(null);
   const [grams, setGrams] = useState(entry?.grams ?? 100);
   const [state, setState] = useState<FoodState>(entry?.state ?? 'cru');
   const [name, setName] = useState(entry?.name ?? '');
@@ -44,40 +48,57 @@ export function FoodEntrySheet({
 
   const title = `${entry ? S.journal.editFood : S.journal.addFood} · ${S.journal.meals[meal]}`;
 
+  const pick = (f: Food) => {
+    setChoice({ kind: 'food', food: f });
+    if (f.cuit === undefined) setState('cru');
+    setGrams(f.portion?.grams ?? 100);
+  };
+  const foodButton = (f: Food) => (
+    <button key={f.id} type="button" class="choice food-choice" onClick={() => pick(f)}>
+      <span>
+        {'custom' in f ? '★ ' : ''}
+        {f.name}
+      </span>
+      <span class="muted num">
+        {f.cuit === undefined ? S.journal.per100(f.cru) : S.journal.per100Both(f.cru, f.cuit)}
+        {f.portion && <span class="food-portion">{S.journal.portion(f.portion.label, f.portion.grams)}</span>}
+      </span>
+    </button>
+  );
+
   if (!choice) {
-    const found = searchFoods(foods, query);
+    const found = searchFoods(foods, query).filter((f) => category === null || f.category === category);
+    const showRecent = query.trim() === '' && category === null && recent.length > 0;
     return (
       <Sheet title={title} onClose={onClose}>
         <div class="stack">
           <TextField label={S.journal.search} value={query} onChange={setQuery} />
+          <div class="food-filter" role="group" aria-label={S.journal.filter}>
+            <button type="button" class="chip" aria-pressed={category === null} onClick={() => setCategory(null)}>
+              {S.journal.allCategories}
+            </button>
+            {FOOD_CATEGORIES.map((c) => (
+              <button key={c} type="button" class="chip" aria-pressed={category === c} onClick={() => setCategory(category === c ? null : c)}>
+                {S.journal.categories[c]}
+              </button>
+            ))}
+          </div>
           <button type="button" class="choice" onClick={() => setChoice({ kind: 'free' })}>
             {S.journal.freeFood}
           </button>
+          {showRecent && (
+            <section class="stack tight" aria-label={S.journal.recent}>
+              <h3 class="food-category">{S.journal.recent}</h3>
+              <div class="choice-list">{recent.map(foodButton)}</div>
+            </section>
+          )}
           {FOOD_CATEGORIES.map((cat) => {
             const list = found.filter((f) => f.category === cat);
             if (list.length === 0) return null;
             return (
               <section key={cat} class="stack tight" aria-label={S.journal.categories[cat]}>
                 <h3 class="food-category">{S.journal.categories[cat]}</h3>
-                <div class="choice-list">
-                  {list.map((f) => (
-                    <button
-                      key={f.id}
-                      type="button"
-                      class="choice food-choice"
-                      onClick={() => {
-                        setChoice({ kind: 'food', food: f });
-                        if (f.cuit === undefined) setState('cru');
-                      }}
-                    >
-                      <span>
-                        {'custom' in f ? '★ ' : ''}
-                        {f.name}
-                      </span>
-                      <span class="muted num">{f.cuit === undefined ? S.journal.per100(f.cru) : S.journal.per100Both(f.cru, f.cuit)}</span>
-                    </button>
-                  ))}
-                </div>
+                <div class="choice-list">{list.map(foodButton)}</div>
               </section>
             );
           })}
@@ -124,6 +145,18 @@ export function FoodEntrySheet({
                     {S.journal.states[s]} · {S.journal.per100(per100(choice.food, s))}
                   </button>
                 ))}
+              </div>
+            )}
+            {choice.food.portion && (
+              <div class="chip-row portion-row">
+                {[0.5, 1, 2].map((n) => {
+                  const g = Math.round(choice.food.portion!.grams * n);
+                  return (
+                    <button key={n} type="button" class="chip" aria-pressed={grams === g} onClick={() => setGrams(g)}>
+                      {n === 1 ? S.journal.portionPick(choice.food.portion!.label, g) : `${n === 0.5 ? '½' : '×2'} · ${g} g`}
+                    </button>
+                  );
+                })}
               </div>
             )}
             <NumberField label={S.journal.grams} value={grams} onChange={setGrams} step={10} min={0} max={5000} suffix="g" />

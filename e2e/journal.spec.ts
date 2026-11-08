@@ -41,14 +41,14 @@ test('journal calorique : aliment de la table (cuit, en grammes), aliment libre,
   await page.getByText('Mes aliments personnalisés').click();
   const custom = page.locator('.custom-foods');
   await custom.getByRole('textbox', { name: 'Nom de l’aliment' }).fill('Galette de sarrasin');
-  await custom.getByRole('button', { name: 'Féculents' }).click();
+  await custom.getByRole('combobox', { name: 'Catégorie' }).selectOption('feculents');
   await custom.getByRole('textbox', { name: 'Calories pour 100 g (cru)' }).fill('200');
   await custom.getByRole('textbox', { name: 'Calories pour 100 g (cru)' }).press('Tab');
   await custom.getByRole('button', { name: 'Ajouter à ma liste' }).click();
   await expect(page.getByRole('status')).toContainText('Galette de sarrasin');
   const matin = page.locator('.meal-card', { has: page.getByRole('heading', { name: 'Matin' }) });
   await matin.getByRole('button', { name: /Ajouter un aliment/ }).click();
-  await sheet.getByRole('textbox', { name: 'Rechercher un aliment' }).fill('galette');
+  await sheet.getByRole('textbox', { name: 'Rechercher un aliment' }).fill('sarrasin');
   await expect(sheet.getByRole('button', { name: /Galette de sarrasin/ })).toBeVisible();
   await page.keyboard.press('Escape');
 

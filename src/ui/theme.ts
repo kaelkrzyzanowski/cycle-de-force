@@ -1,4 +1,4 @@
-import type { ThemePref } from '../domain/types';
+import type { Palette, ThemePref } from '../domain/types';
 import { isNative, loadNative } from '../platform';
 
 const query = (): MediaQueryList => matchMedia('(prefers-color-scheme: light)');
@@ -9,10 +9,11 @@ function resolve(pref: ThemePref): 'dark' | 'light' {
 }
 
 /** Applique le thème et suit le système si demandé ; renvoie la fonction de nettoyage. */
-export function applyTheme(pref: ThemePref): () => void {
+export function applyTheme(pref: ThemePref, palette: Palette): () => void {
   const set = () => {
     const theme = resolve(pref);
     document.documentElement.dataset['theme'] = theme;
+    document.documentElement.dataset['palette'] = palette;
     const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', bg);
     if (isNative) void loadNative().then((native) => native.setSystemBarsTheme(theme));

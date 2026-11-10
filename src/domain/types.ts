@@ -140,10 +140,13 @@ export interface Profile {
 
 export type Rounding = 0 | 0.5 | 1 | 1.25 | 2.5;
 export type ThemePref = 'dark' | 'light' | 'system';
+/** Jeu de couleurs : bleu d'origine, ou rouge et noir. */
+export type Palette = 'glacier' | 'rouge';
 
 export interface Settings {
   rounding: Rounding;
   theme: ThemePref;
+  palette: Palette;
   weekStartsOn: 1;
   lastBackupAt?: string;
   backupReminderDays: number;
@@ -158,6 +161,7 @@ export interface Settings {
 export const DEFAULT_SETTINGS: Settings = {
   rounding: 1,
   theme: 'dark',
+  palette: 'rouge',
   weekStartsOn: 1,
   backupReminderDays: 7,
   stepGoal: 10_000,

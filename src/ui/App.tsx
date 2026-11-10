@@ -121,7 +121,8 @@ export function App() {
   }, []);
 
   const theme = boot.state === 'ready' ? boot.settings.theme : 'dark';
-  useEffect(() => applyTheme(theme), [theme]);
+  const palette = boot.state === 'ready' ? boot.settings.palette : 'rouge';
+  useEffect(() => applyTheme(theme, palette), [theme, palette]);
 
   const refresh = useCallback(() => setDataVersion((v) => v + 1), []);
   const toast = useCallback((message: string, action?: ToastAction) => {

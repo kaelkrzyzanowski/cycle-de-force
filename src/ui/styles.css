@@ -1652,3 +1652,40 @@ legend {
   padding: 0 6px;
   font-size: 0.85rem;
 }
+
+/* Jeu de couleurs « Rouge et noir » : noir profond, rouge vif, blanc, titres en majuscules. */
+:root[data-palette='rouge'] {
+  --bg: #0a0a0a;
+  --surface: #151515;
+  --surface-2: #202020;
+  --border: #333333;
+  --text: #ffffff;
+  --text-muted: #a8a8a8;
+  --accent: #ff3b3f;
+  --accent-contrast: #140000;
+  --grid: #262626;
+  --axis: #3d3d3d;
+}
+:root[data-palette='rouge'][data-theme='light'] {
+  --bg: #f0f0f0;
+  --surface: #ffffff;
+  --surface-2: #eeeeee;
+  --border: #d4d4d4;
+  --text: #131614;
+  --text-muted: #555555;
+  --accent: #c10e0f;
+  --accent-contrast: #ffffff;
+  --grid: #e6e6e6;
+  --axis: #c8c8c8;
+}
+:root[data-palette='rouge'] .topbar h1 {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 800;
+}
+:root[data-palette='rouge'] .topbar {
+  border-bottom: 2px solid var(--accent);
+}
+a.icon-btn {
+  color: var(--text);
+}

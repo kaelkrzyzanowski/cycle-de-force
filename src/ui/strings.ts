@@ -634,6 +634,8 @@ export const S = {
     title: 'Réglages',
     theme: 'Thème',
     themes: { dark: 'Sombre', light: 'Clair', system: 'Système' },
+    palette: 'Couleurs',
+    palettes: { rouge: 'Rouge et noir', glacier: 'Bleu glacier' },
     rounding: 'Arrondi des charges',
     roundingNone: 'Aucun',
     storage: 'Stockage',

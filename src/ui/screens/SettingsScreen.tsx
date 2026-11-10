@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'preact/hooks';
-import type { Profile, Rounding, ThemePref } from '../../domain/types';
+import type { Palette, Profile, Rounding, ThemePref } from '../../domain/types';
 import { errorCode, Tracker } from '../../platform/tracker';
 import type { StepStatus } from '../../platform/tracker';
 import { BackupSection } from '../components/BackupSection';
@@ -9,6 +9,10 @@ import { formatKg } from '../format';
 import { S } from '../strings';
 
 const THEMES: ThemePref[] = ['dark', 'light', 'system'];
+const PALETTES: { id: Palette; swatch: string }[] = [
+  { id: 'rouge', swatch: '#c10e0f' },
+  { id: 'glacier', swatch: '#4cc2ff' },
+];
 const ROUNDINGS: Rounding[] = [0, 0.5, 1, 1.25, 2.5];
 
 type Persisted = 'yes' | 'no' | 'unknown';
@@ -112,6 +116,17 @@ export function SettingsScreen() {
           {THEMES.map((t) => (
             <button key={t} type="button" aria-pressed={settings.theme === t} onClick={() => updateSettings({ theme: t })}>
               {S.settings.themes[t]}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section class="card field">
+        <span id="palette-label">{S.settings.palette}</span>
+        <div class="segmented" role="group" aria-labelledby="palette-label">
+          {PALETTES.map((p) => (
+            <button key={p.id} type="button" aria-pressed={settings.palette === p.id} onClick={() => updateSettings({ palette: p.id })}>
+              <span class="type-dot" style={{ background: p.swatch }} /> {S.settings.palettes[p.id]}
             </button>
           ))}
         </div>

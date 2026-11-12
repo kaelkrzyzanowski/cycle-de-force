@@ -1689,3 +1689,9 @@ legend {
 a.icon-btn {
   color: var(--text);
 }
+.track-metrics .is-live dd {
+  color: var(--accent);
+}
+.profile-hint a {
+  color: var(--accent);
+}

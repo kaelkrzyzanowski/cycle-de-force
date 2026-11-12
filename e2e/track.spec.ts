@@ -22,6 +22,8 @@ test('enregistrer une activité GPS : pause, fin, enregistrement dans le calendr
     await context.setGeolocation(north(i * 20));
   }
   await expect(page.locator('.track-metrics')).toContainText(/0,1\d\s*km/, { timeout: 6000 });
+  // Vitesse instantanée : 20 m toutes les ~1,1 s, soit environ 65 km/h.
+  await expect(page.locator('.track-metrics .is-live')).toContainText(/Vitesse instantanée\s*[4-8]\d(,\d)?\s*km\/h/);
 
   // En pause, la durée est figée et les déplacements ne comptent pas.
   await page.getByRole('button', { name: 'Pause' }).click();
@@ -77,5 +79,5 @@ test('activité GPS : les calories s’affichent en direct une fois le profil re
   await page.getByRole('textbox', { name: 'Poids' }).press('Tab');
 
   await page.goto('/#/activite');
-  await expect(page.locator('.track-metrics .is-wide dd')).toContainText(/\d+\s*kcal/);
+  await expect(page.locator('.track-metrics > div', { hasText: 'Calories' }).locator('dd')).toContainText(/\d+\s*kcal/);
 });

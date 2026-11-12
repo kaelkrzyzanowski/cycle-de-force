@@ -1,6 +1,7 @@
 import { useState } from 'preact/hooks';
 import { ACTIVITY_COLORS, averageSpeedKmh, paceMinPerKm } from '../../domain/activities';
 import { activityKcal, isCompleteProfile } from '../../domain/calories';
+import { instantSpeedKmh } from '../../domain/track';
 import { newId } from '../../domain/ids';
 import type { ActivityType } from '../../domain/types';
 import { isNative } from '../../platform';
@@ -17,7 +18,8 @@ import { recording, useRecording } from '../trackStore';
 /** Sports enregistrables au GPS (la natation n'a pas de signal). */
 const GPS_TYPES: readonly ActivityType[] = ['RUNNING', 'WALKING', 'CYCLING', 'OTHER'];
 
-function Metrics({ type, elapsed, km }: { type: ActivityType; elapsed: number; km: number }) {
+/** `instant` : vitesse instantanée pendant l'enregistrement (undefined dans le résumé, null sans signal). */
+function Metrics({ type, elapsed, km, instant }: { type: ActivityType; elapsed: number; km: number; instant?: number | null }) {
   const { profile } = useApp().settings;
   const kcal = activityKcal(profile, { type, distanceKm: km, durationSec: elapsed / 1000 });
   const pace = paceMinPerKm(km, elapsed / 1000);
@@ -36,13 +38,21 @@ function Metrics({ type, elapsed, km }: { type: ActivityType; elapsed: number; k
         </dd>
       </div>
       <div>
-        <dt>{bySpeed ? S.track.speed : S.track.pace}</dt>
+        <dt>{bySpeed ? S.track.avgSpeed : S.track.avgPace}</dt>
         <dd class="num">
           {bySpeed ? (speed === null ? '—' : formatKg(Math.round(speed * 10) / 10)) : pace === null || km < 0.05 ? '—' : formatPace(pace)}{' '}
           <small>{bySpeed ? S.track.speedUnit : S.track.paceUnit}</small>
         </dd>
       </div>
-      <div class="is-wide">
+      {instant !== undefined && (
+        <div class={isCompleteProfile(profile) ? 'is-live' : 'is-live is-wide'}>
+          <dt>{S.track.instantSpeed}</dt>
+          <dd class="num">
+            {instant === null ? '—' : formatKg(instant)} <small>{S.track.speedUnit}</small>
+          </dd>
+        </div>
+      )}
+      <div class={instant === undefined || !isCompleteProfile(profile) ? 'is-wide' : undefined}>
         <dt>{S.track.calories}</dt>
         {isCompleteProfile(profile) ? (
           <dd class="num">
@@ -178,7 +188,7 @@ export function TrackScreen() {
         {!running && <strong> · {S.track.paused}</strong>}
         {running && points.length === 0 && <span class="muted"> · {S.track.waitingFix}</span>}
       </p>
-      <Metrics type={rec.type} elapsed={elapsed} km={km} />
+      <Metrics type={rec.type} elapsed={elapsed} km={km} instant={running ? instantSpeedKmh(points, Date.now()) : null} />
       <TrackMap points={points} current={recording.current()} follow />
       {confirm === 'finish' ? (
         <div class="stack">

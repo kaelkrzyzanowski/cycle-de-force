@@ -46,6 +46,25 @@ export function trackDistanceKm(points: readonly TrackPoint[]): number {
   return Math.round(meters) / 1000;
 }
 
+/**
+ * Vitesse instantanée en km/h : distance des `windowMs` dernières millisecondes du segment en cours.
+ * null sans point récent (signal perdu, pause) ou sur trop peu de temps pour être fiable.
+ */
+export function instantSpeedKmh(points: readonly TrackPoint[], now: number, windowMs = 10_000, staleMs = 8_000): number | null {
+  const last = points.at(-1);
+  if (!last || now - last.t > staleMs) return null;
+  let meters = 0;
+  let first = last;
+  for (let i = points.length - 1; i > 0; i--) {
+    const a = points[i - 1]!;
+    if (a.seg !== last.seg || last.t - a.t > windowMs) break;
+    meters += haversineM(a, points[i]!);
+    first = a;
+  }
+  const seconds = (last.t - first.t) / 1000;
+  return seconds >= 2 ? Math.round((meters / seconds) * 3.6 * 10) / 10 : null;
+}
+
 /** Réduit le tracé pour l'enregistrement : un point au plus tous les `minM` mètres, extrémités de segment gardées. */
 export function simplifyTrack(points: readonly TrackPoint[], minM = 5): TrackPoint[] {
   const out: TrackPoint[] = [];

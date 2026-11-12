@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { acceptPoint, elapsedMs, haversineM, newClock, pauseClock, resumeClock, simplifyTrack, trackDistanceKm } from './track';
+import { acceptPoint, elapsedMs, haversineM, instantSpeedKmh, newClock, pauseClock, resumeClock, simplifyTrack, trackDistanceKm } from './track';
 import type { TrackPoint } from './types';
 
 /** Point à `northM` mètres au nord de l'origine (1° de latitude ≈ 111,195 km). */
@@ -33,6 +33,24 @@ describe('filtrage des points', () => {
     const dense = Array.from({ length: 11 }, (_, i) => north(i, i * 1000));
     const kept = simplifyTrack(dense, 4.5);
     expect(kept.map((p) => Math.round((p.lat - 48) * 111_195))).toEqual([0, 5, 10]);
+  });
+});
+
+describe('vitesse instantanée', () => {
+  it('sur les 10 dernières secondes du segment en cours', () => {
+    // 5 m/s pendant 20 s, puis 2,5 m/s sur les 10 dernières : 9 km/h.
+    const points = [
+      ...Array.from({ length: 21 }, (_, i) => north(i * 5, i * 1000)),
+      ...Array.from({ length: 10 }, (_, i) => north(100 + (i + 1) * 2.5, 21_000 + i * 1000)),
+    ];
+    expect(instantSpeedKmh(points, 30_000)).toBeCloseTo(9, 0);
+  });
+
+  it('rien sans signal récent, au tout début, ou juste après une reprise', () => {
+    expect(instantSpeedKmh([], 0)).toBeNull();
+    expect(instantSpeedKmh([north(0, 0), north(5, 1000)], 1000)).toBeNull(); // 1 s : trop court
+    expect(instantSpeedKmh([north(0, 0), north(20, 4000)], 20_000)).toBeNull(); // dernier point trop ancien
+    expect(instantSpeedKmh([north(0, 0), north(50, 5000), north(500, 60_000, 1)], 60_000)).toBeNull(); // segment repris
   });
 });
 

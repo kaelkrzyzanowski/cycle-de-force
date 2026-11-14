@@ -1,8 +1,10 @@
 import { deriveSessionStatus } from '../../domain/sessionStatus';
 import type { SessionStatus } from '../../domain/sessionStatus';
+import { sessionKcal } from '../../domain/calories';
 import { sessionTotals } from '../../domain/totals';
 import type { Maxes, Rounding, Session } from '../../domain/types';
-import { formatTonnage } from '../format';
+import { useApp } from '../context';
+import { formatKcal, formatTonnage } from '../format';
 import { S } from '../strings';
 import { usePressDrag } from './usePressDrag';
 import type { DragHandlers } from './usePressDrag';
@@ -68,6 +70,7 @@ export function SessionCard({
   const longPress = () => (selectionMode ? onToggleSelect?.() : (onEnterSelection ?? onActions)());
   const press = usePressDrag(tap, longPress, selectionMode ? undefined : drag);
   const totals = sessionTotals(session, max, rounding);
+  const kcal = sessionKcal(useApp().settings.profile, session, max, rounding);
   const main = session.exercises.slice(0, 3).map((e) => e.name);
   const more = session.exercises.length - main.length;
 
@@ -92,6 +95,7 @@ export function SessionCard({
         {totals.reps > 0 && (
           <span class="session-tonnage">
             {S.sessionCard.tonnage} <span class="num">{formatTonnage(totals.tonnage)}</span>
+            {kcal !== null && <span class="num"> · {formatKcal(kcal)}</span>}
           </span>
         )}
       </button>

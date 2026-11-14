@@ -43,6 +43,7 @@ export function ActivitySheet({ date: dateProp, activity: existing, onClose }: P
       durationSec,
       ...(note.trim() ? { note: note.trim() } : {}),
       ...(existing?.track ? { track: existing.track } : {}),
+      ...(existing?.ascentM !== undefined ? { ascentM: existing.ascentM } : {}),
     };
     if (await commit(app, { saveActivities: [activity] }, editing ? S.activitySheet.updated : S.activitySheet.added)) onClose();
   };
@@ -74,6 +75,7 @@ export function ActivitySheet({ date: dateProp, activity: existing, onClose }: P
         {pace !== null && speed !== null && (
           <p class="muted num">
             {S.activitySheet.pace(formatKg(pace))} · {S.activitySheet.speed(formatKg(speed))} · {formatDuration(durationSec)}
+            {existing?.ascentM !== undefined && ` · D+ ${existing.ascentM} m`}
             {kcal !== null && ` · ${formatKcal(kcal)}`}
           </p>
         )}

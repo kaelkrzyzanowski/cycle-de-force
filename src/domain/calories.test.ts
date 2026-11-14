@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { activityKcal, activityMet, basalKcalPerDay, isCompleteProfile } from './calories';
+import { activityKcal, activityMet, basalKcalPerDay, isCompleteProfile, isFinished, sessionKcal, strengthKcal } from './calories';
+import { fixed, session, set } from './testUtils';
 import type { Profile } from './types';
 
 const man: Profile = { sex: 'M', ageYears: 35, weightKg: 80, heightCm: 180 };
@@ -40,5 +41,27 @@ describe('calories', () => {
     expect(activityKcal({ ...man, weightKg: 0 }, walk)).toBeNull();
     expect(activityKcal(man, { ...walk, durationSec: 0 })).toBeNull();
     expect(isCompleteProfile(man)).toBe(true);
+  });
+});
+
+describe('calories de musculation', () => {
+  it('durée selon les séries, intensité selon le tonnage par minute', () => {
+    // 18 séries = 54 min ; 11 592 kg / 54 min > 200 kg/min : MET 6. 6 × 1 755 / 24 × 0,9 h.
+    expect(strengthKcal(man, 18, 11_592)).toBe(395);
+    // Même durée, tonnage faible : MET proche de 3,5.
+    const light = strengthKcal(man, 18, 1000)!;
+    expect(light).toBeGreaterThan(230);
+    expect(light).toBeLessThan(260);
+    expect(strengthKcal(man, 0, 0)).toBeNull();
+    expect(strengthKcal(undefined, 18, 11_592)).toBeNull();
+  });
+
+  it('seulement une fois la séance terminée', () => {
+    const done = session('2026-11-14', [set(0, 5, fixed(100), 'VALIDATED'), set(1, 5, fixed(100), 'VALIDATED')]);
+    const ongoing = session('2026-11-14', [set(0, 5, fixed(100), 'VALIDATED'), set(1, 5, fixed(100))]);
+    expect(isFinished(done)).toBe(true);
+    expect(isFinished(ongoing)).toBe(false);
+    expect(sessionKcal(man, ongoing, { S: 0, B: 0, D: 0 }, 1)).toBeNull();
+    expect(sessionKcal(man, done, { S: 0, B: 0, D: 0 }, 1)).toBeGreaterThan(0);
   });
 });

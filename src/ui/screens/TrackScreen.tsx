@@ -19,7 +19,20 @@ import { recording, useRecording } from '../trackStore';
 const GPS_TYPES: readonly ActivityType[] = ['RUNNING', 'WALKING', 'CYCLING', 'OTHER'];
 
 /** `instant` : vitesse instantanée pendant l'enregistrement (undefined dans le résumé, null sans signal). */
-function Metrics({ type, elapsed, km, instant }: { type: ActivityType; elapsed: number; km: number; instant?: number | null }) {
+function Metrics({
+  type,
+  elapsed,
+  km,
+  ascent,
+  instant,
+}: {
+  type: ActivityType;
+  elapsed: number;
+  km: number;
+  /** Dénivelé positif (m), null sans altitude GPS. */
+  ascent: number | null;
+  instant?: number | null;
+}) {
   const { profile } = useApp().settings;
   const kcal = activityKcal(profile, { type, distanceKm: km, durationSec: elapsed / 1000 });
   const pace = paceMinPerKm(km, elapsed / 1000);
@@ -45,14 +58,20 @@ function Metrics({ type, elapsed, km, instant }: { type: ActivityType; elapsed: 
         </dd>
       </div>
       {instant !== undefined && (
-        <div class={isCompleteProfile(profile) ? 'is-live' : 'is-live is-wide'}>
+        <div class="is-live">
           <dt>{S.track.instantSpeed}</dt>
           <dd class="num">
             {instant === null ? '—' : formatKg(instant)} <small>{S.track.speedUnit}</small>
           </dd>
         </div>
       )}
-      <div class={instant === undefined || !isCompleteProfile(profile) ? 'is-wide' : undefined}>
+      <div class={instant === undefined ? 'is-wide' : undefined}>
+        <dt>{S.track.ascent}</dt>
+        <dd class="num">
+          {ascent === null ? '—' : `+${ascent}`} <small>m</small>
+        </dd>
+      </div>
+      <div class="is-wide">
         <dt>{S.track.calories}</dt>
         {isCompleteProfile(profile) ? (
           <dd class="num">
@@ -147,7 +166,7 @@ export function TrackScreen() {
         <h2 class="card-title">
           {S.track.summary} · {S.activityTypes[rec.type]}
         </h2>
-        <Metrics type={rec.type} elapsed={elapsed} km={km} />
+        <Metrics type={rec.type} elapsed={elapsed} km={km} ascent={recording.ascentM()} />
         {points.length > 0 && <TrackMap points={points} />}
         {!draft || draft.distanceKm <= 0 ? (
           <p class="card muted">{S.track.noDistance}</p>
@@ -188,7 +207,7 @@ export function TrackScreen() {
         {!running && <strong> · {S.track.paused}</strong>}
         {running && points.length === 0 && <span class="muted"> · {S.track.waitingFix}</span>}
       </p>
-      <Metrics type={rec.type} elapsed={elapsed} km={km} instant={running ? instantSpeedKmh(points, Date.now()) : null} />
+      <Metrics type={rec.type} elapsed={elapsed} km={km} ascent={recording.ascentM()} instant={running ? instantSpeedKmh(points, Date.now()) : null} />
       <TrackMap points={points} current={recording.current()} follow />
       {confirm === 'finish' ? (
         <div class="stack">

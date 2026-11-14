@@ -30,6 +30,7 @@ export function ActivityCard({ activity, onOpen }: { activity: Activity; onOpen:
         <span class="session-exercises muted">
           {formatKg(activity.distanceKm)}{' '}km · {formatDuration(activity.durationSec)}
           {pace !== null && speed !== null && ` · ${S.activitySheet.pace(formatKg(pace))} · ${S.activitySheet.speed(formatKg(speed))}`}
+          {activity.ascentM !== undefined && ` · D+ ${activity.ascentM} m`}
           {kcal !== null && ` · ${formatKcal(kcal)}`}
         </span>
         {activity.note && <span class="session-tonnage muted">{activity.note}</span>}

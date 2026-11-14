@@ -38,7 +38,7 @@ export class TrackerWeb extends WebPlugin implements TrackerPlugin {
     this.watch = navigator.geolocation.watchPosition(
       (pos) => {
         if (!this.state.recording || this.state.paused) return;
-        this.state.points.push([pos.coords.latitude, pos.coords.longitude, pos.timestamp, this.state.seg, pos.coords.accuracy]);
+        this.state.points.push([pos.coords.latitude, pos.coords.longitude, pos.timestamp, this.state.seg, pos.coords.accuracy, pos.coords.altitude]);
         this.save();
       },
       () => undefined,

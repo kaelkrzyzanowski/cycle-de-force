@@ -1,8 +1,8 @@
 import { registerPlugin } from '@capacitor/core';
 import type { IsoDate } from '../domain/types';
 
-/** Point brut : latitude, longitude, instant (ms), segment, précision (m). */
-export type RawPoint = [number, number, number, number, number];
+/** Point brut : latitude, longitude, instant (ms), segment, précision (m), altitude (m, null ou absente si inconnue). */
+export type RawPoint = [number, number, number, number, number, (number | null)?];
 
 export interface StepStatus {
   /** Le téléphone a un compteur de pas matériel. */

@@ -166,7 +166,7 @@ public class TrackerPlugin extends Plugin {
         call.resolve();
     }
 
-    /** Points depuis l'indice `from` : [lat, lon, t, seg, précision]. */
+    /** Points depuis l'indice `from` : [lat, lon, t, seg, précision, altitude ou null]. */
     @PluginMethod
     public void getTrack(PluginCall call) {
         int from = call.getInt("from", 0);
@@ -174,7 +174,7 @@ public class TrackerPlugin extends Plugin {
         for (double[] p : TrackStore.since(getContext(), from)) {
             JSONArray row = new JSONArray();
             try {
-                row.put(p[0]).put(p[1]).put((long) p[2]).put((int) p[3]).put(p[4]);
+                row.put(p[0]).put(p[1]).put((long) p[2]).put((int) p[3]).put(p[4]).put(Double.isNaN(p[5]) ? JSONObject.NULL : p[5]);
             } catch (org.json.JSONException ignored) {
                 continue;
             }

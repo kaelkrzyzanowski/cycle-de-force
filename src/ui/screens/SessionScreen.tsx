@@ -3,12 +3,13 @@ import { newId } from '../../domain/ids';
 import { followingSessions, propagateEdits } from '../../domain/sessionEdit';
 import type { SessionEdit } from '../../domain/sessionEdit';
 import { canQuickValidate, mapExercise, mapSet, recordSet, resetSet, validateExercise, validateSet } from '../../domain/sets';
+import { sessionKcal } from '../../domain/calories';
 import { sessionTotals } from '../../domain/totals';
 import type { Cycle, Exercise, Maxes, Session, SessionExercise } from '../../domain/types';
 import { commit } from '../actions';
 import { Sheet } from '../components/Sheet';
 import { useApp, useData } from '../context';
-import { formatDayLong, formatKg, formatTonnage } from '../format';
+import { formatDayLong, formatKcal, formatKg, formatTonnage } from '../format';
 import { S } from '../strings';
 import { useSessionLabel } from '../useSessionLabel';
 import { useWakeLock } from '../useWakeLock';
@@ -132,6 +133,7 @@ function SessionView({ session: initial, cycle, cycleSessions, catalogue }: Data
   };
 
   const totals = sessionTotals(session, max, rounding);
+  const kcal = sessionKcal(useApp().settings.profile, session, max, rounding);
   const openExercise = open ? session.exercises.find((e) => e.id === open.exerciseRowId) : undefined;
   const openSet = openExercise?.sets.find((s) => s.index === open?.index);
 
@@ -166,6 +168,7 @@ function SessionView({ session: initial, cycle, cycleSessions, catalogue }: Data
             <span class="num">
               {formatKg(totals.kgPerRep)} {S.session.kgPerRep}
             </span>
+            {kcal !== null && <span class="num">{formatKcal(kcal)}</span>}
           </div>
 
           {session.exercises.length === 0 && <p class="card muted">{S.session.empty}</p>}

@@ -114,7 +114,8 @@ public class TrackService extends Service implements LocationListener {
         SharedPreferences p = TrackStore.prefs(this);
         if (!p.getBoolean(KEY_RECORDING, false) || p.getBoolean(KEY_PAUSED, false)) return;
         float accuracy = location.hasAccuracy() ? location.getAccuracy() : 999f;
-        TrackStore.add(this, location.getLatitude(), location.getLongitude(), location.getTime(), p.getInt(KEY_SEG, 0), accuracy);
+        double altitude = location.hasAltitude() ? location.getAltitude() : Double.NaN;
+        TrackStore.add(this, location.getLatitude(), location.getLongitude(), location.getTime(), p.getInt(KEY_SEG, 0), accuracy, altitude);
     }
 
     @Override

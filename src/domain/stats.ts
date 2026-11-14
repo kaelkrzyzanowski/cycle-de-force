@@ -29,12 +29,21 @@ function sessionTonnage(s: Session, maxOf: MaxOf, rounding: Rounding): number {
 }
 
 /** Période affichée dans les stats ; « all » part des plus anciennes données. */
-export type Period = '4w' | '3m' | '12m' | 'all';
-export const PERIODS: readonly Period[] = ['4w', '3m', '12m', 'all'];
+export const PERIODS = ['1w', '2w', '3w', '1m', '2m', '3m', '4m', '5m', '6m', '7m', '8m', '9m', '10m', '11m', '12m', 'all'] as const;
+export type Period = (typeof PERIODS)[number];
 
-/** Regroupement des graphiques : par semaine (lundi) jusqu'à 3 mois, par mois au-delà. */
-export type Bucket = 'week' | 'month';
-export const bucketOf = (period: Period): Bucket => (period === '4w' || period === '3m' ? 'week' : 'month');
+/** Nombre de semaines ou de mois de la période (null pour « tout »). */
+const span = (period: Period): { n: number; unit: 'w' | 'm' } | null =>
+  period === 'all' ? null : { n: Number(period.slice(0, -1)), unit: period.endsWith('w') ? 'w' : 'm' };
+
+/** Regroupement des graphiques : par jour jusqu'à 3 semaines, par semaine (lundi) jusqu'à 3 mois, par mois au-delà. */
+export type Bucket = 'day' | 'week' | 'month';
+export function bucketOf(period: Period): Bucket {
+  const s = span(period);
+  if (!s) return 'month';
+  if (s.unit === 'w') return 'day';
+  return s.n <= 3 ? 'week' : 'month';
+}
 
 const firstOfMonth = (date: IsoDate): IsoDate => `${date.slice(0, 7)}-01`;
 
@@ -43,29 +52,27 @@ function addMonths(first: IsoDate, n: number): IsoDate {
   return `${Math.floor(index / 12)}-${String((index % 12) + 1).padStart(2, '0')}-01`;
 }
 
-const bucketKey = (date: IsoDate, bucket: Bucket): IsoDate => (bucket === 'week' ? mondayOf(date) : firstOfMonth(date));
+const bucketKey = (date: IsoDate, bucket: Bucket): IsoDate =>
+  bucket === 'day' ? date : bucket === 'week' ? mondayOf(date) : firstOfMonth(date);
+const nextBucket = (key: IsoDate, bucket: Bucket): IsoDate =>
+  bucket === 'day' ? addDays(key, 1) : bucket === 'week' ? addDays(key, 7) : addMonths(key, 1);
 
 /**
- * Premier jour de la période (début de semaine ou de mois) : 4 semaines ou 13 semaines en cours comprises,
- * 12 mois en cours compris, ou depuis `earliest` pour « tout ».
+ * Premier jour de la période, aligné sur ses barres : les N × 7 derniers jours (semaines), les semaines
+ * entières des N derniers mois (jusqu'à 3 mois), les N mois en cours compris, ou depuis `earliest` pour « tout ».
  */
 export function periodStart(period: Period, today: IsoDate, earliest: IsoDate | null): IsoDate {
-  switch (period) {
-    case '4w':
-      return addDays(mondayOf(today), -3 * 7);
-    case '3m':
-      return addDays(mondayOf(today), -12 * 7);
-    case '12m':
-      return addMonths(firstOfMonth(today), -11);
-    case 'all':
-      return firstOfMonth(earliest !== null && earliest < today ? earliest : today);
-  }
+  const s = span(period);
+  if (!s) return firstOfMonth(earliest !== null && earliest < today ? earliest : today);
+  if (s.unit === 'w') return addDays(today, -(7 * s.n - 1));
+  if (s.n <= 3) return addDays(mondayOf(today), -7 * (Math.round((s.n * 52) / 12) - 1));
+  return addMonths(firstOfMonth(today), -(s.n - 1));
 }
 
 /** Début de chaque semaine ou mois entre deux dates incluses. */
 export function bucketsBetween(from: IsoDate, to: IsoDate, bucket: Bucket): IsoDate[] {
   const out: IsoDate[] = [];
-  for (let key = bucketKey(from, bucket); key <= to; key = bucket === 'week' ? addDays(key, 7) : addMonths(key, 1)) out.push(key);
+  for (let key = bucketKey(from, bucket); key <= to; key = nextBucket(key, bucket)) out.push(key);
   return out;
 }
 

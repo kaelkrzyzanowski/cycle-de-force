@@ -14,7 +14,7 @@ import java.util.Locale;
 
 /**
  * Points GPS de l'enregistrement en cours, en mémoire et recopiés dans un fichier
- * (une ligne « lat,lon,t,seg,précision » par point) pour survivre à l'arrêt de l'app.
+ * (une ligne « lat,lon,t,seg,précision,altitude » par point, altitude vide si inconnue) pour survivre à l'arrêt de l'app.
  */
 final class TrackStore {
 
@@ -42,9 +42,10 @@ final class TrackStore {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
-                if (parts.length != 5) continue;
-                double[] p = new double[5];
+                if (parts.length < 5) continue;
+                double[] p = new double[6];
                 for (int i = 0; i < 5; i++) p[i] = Double.parseDouble(parts[i]);
+                p[5] = parts.length > 5 && !parts[5].isEmpty() ? Double.parseDouble(parts[5]) : Double.NaN;
                 points.add(p);
             }
         } catch (IOException | NumberFormatException ignored) {
@@ -53,10 +54,12 @@ final class TrackStore {
         return points;
     }
 
-    static synchronized void add(Context context, double lat, double lon, long t, int seg, float accuracy) {
-        double[] p = { lat, lon, t, seg, accuracy };
+    /** `altitude` : Double.NaN si le GPS ne la fournit pas. */
+    static synchronized void add(Context context, double lat, double lon, long t, int seg, float accuracy, double altitude) {
+        double[] p = { lat, lon, t, seg, accuracy, altitude };
         load(context).add(p);
-        String line = String.format(Locale.US, "%.7f,%.7f,%d,%d,%.1f%n", lat, lon, t, seg, accuracy);
+        String alt = Double.isNaN(altitude) ? "" : String.format(Locale.US, "%.1f", altitude);
+        String line = String.format(Locale.US, "%.7f,%.7f,%d,%d,%.1f,%s%n", lat, lon, t, seg, accuracy, alt);
         try (FileOutputStream out = new FileOutputStream(file(context), true)) {
             out.write(line.getBytes(StandardCharsets.UTF_8));
         } catch (IOException ignored) {

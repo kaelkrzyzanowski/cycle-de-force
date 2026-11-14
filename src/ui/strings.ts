@@ -384,6 +384,7 @@ export const S = {
     avgPace: 'Allure moyenne',
     avgSpeed: 'Vitesse moyenne',
     instantSpeed: 'Vitesse instantanée',
+    ascent: 'Dénivelé positif',
     paceUnit: '/km',
     speedUnit: 'km/h',
     paused: 'En pause',
@@ -442,7 +443,7 @@ export const S = {
     empty: 'Aucune saisie',
     remaining: (n: string) => `${n} kcal restantes`,
     over: (n: string) => `${n} kcal au-delà`,
-    burned: (kcal: string) => `Dépensé en activité : ${kcal}`,
+    burned: (kcal: string) => `Dépensé à l’entraînement : ${kcal}`,
     goal: 'Objectif par jour',
     meals: { matin: 'Matin', midi: 'Midi', soir: 'Soir', col1: 'Collation 1', col2: 'Collation 2' },
     addFood: 'Ajouter un aliment',
@@ -598,7 +599,12 @@ export const S = {
     empty: 'Pas encore de séries réalisées : les graphiques se rempliront au fil des séances.',
     showData: 'Voir les données',
     period: 'Période',
-    periods: { '4w': '4 sem.', '3m': '3 mois', '12m': '12 mois', all: 'Tout' },
+    periodLabel: (period: string) =>
+      period === 'all'
+        ? 'Tout'
+        : period.endsWith('w')
+          ? plural(Number(period.slice(0, -1)), 'semaine', 'semaines')
+          : `${Number(period.slice(0, -1))} mois`,
     tileSessions: 'Séances faites',
     tileTonnage: 'Tonnage',
     tileCardio: 'Cardio',
@@ -609,6 +615,7 @@ export const S = {
     colSteps: 'Pas / jour',
     tonnage: 'Tonnage',
     cardio: 'Cardio',
+    perDay: 'Par jour',
     perWeek: 'Par semaine',
     perMonth: 'Par mois',
     weekOf: (day: string) => `Semaine du ${day}`,

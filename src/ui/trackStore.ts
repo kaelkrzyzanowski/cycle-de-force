@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'preact/hooks';
 import { todayIso } from '../domain/dates';
-import { acceptPoint, elapsedMs, newClock, pauseClock, resumeClock, simplifyTrack, trackDistanceKm } from '../domain/track';
+import { acceptPoint, elapsedMs, elevationGainM, newClock, pauseClock, resumeClock, simplifyTrack, trackDistanceKm } from '../domain/track';
 import type { TrackClock } from '../domain/track';
 import type { Activity, ActivityType, TrackPoint } from '../domain/types';
 import { Tracker } from '../platform/tracker';
@@ -53,9 +53,9 @@ function set(next: Recording | null): void {
 async function poll(): Promise<void> {
   if (!state) return;
   const { points: raw } = await Tracker.getTrack({ from: cursor });
-  for (const [lat, lon, t, seg, accuracy] of raw) {
+  for (const [lat, lon, t, seg, accuracy, alt] of raw) {
     cursor++;
-    const p: TrackPoint = { lat, lon, t, seg };
+    const p: TrackPoint = { lat, lon, t, seg, ...(typeof alt === 'number' ? { alt } : {}) };
     if (accuracy <= 100) current = p;
     if (acceptPoint(points.at(-1), p, accuracy, state.type)) points.push(p);
   }
@@ -87,6 +87,8 @@ export const recording = {
   points: (): readonly TrackPoint[] => points,
   current: (): TrackPoint | null => current ?? points.at(-1) ?? null,
   distanceKm: (): number => trackDistanceKm(points),
+  /** Dénivelé positif (m), null si le GPS ne donne pas l'altitude. */
+  ascentM: (): number | null => elevationGainM(points),
   elapsedMs: (now = Date.now()): number => (state ? elapsedMs(state.clock, now) : 0),
   isRunning: (): boolean => state !== null && !state.finished && state.clock.runningSince !== null,
 
@@ -118,6 +120,7 @@ export const recording = {
   draft(id: string): Activity | null {
     if (!state) return null;
     const track = simplifyTrack(points);
+    const ascentM = elevationGainM(points);
     return {
       id,
       type: state.type,
@@ -125,6 +128,7 @@ export const recording = {
       distanceKm: Math.round(trackDistanceKm(points) * 100) / 100,
       durationSec: Math.max(1, Math.round(elapsedMs(state.clock, Date.now()) / 1000)),
       ...(track.length > 1 ? { track } : {}),
+      ...(ascentM !== null ? { ascentM } : {}),
     };
   },
   /** Oublie l'enregistrement (enregistré dans les activités ou abandonné). */

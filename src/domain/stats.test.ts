@@ -92,16 +92,22 @@ describe('tonnage', () => {
 describe('périodes', () => {
   const today = '2026-11-04'; // mercredi
 
-  it('début de période aligné sur la semaine ou le mois', () => {
-    expect(periodStart('4w', today, null)).toBe('2026-10-12');
+  it('début de période : jours glissants, semaines entières ou mois en cours', () => {
+    expect(periodStart('1w', today, null)).toBe('2026-10-29');
+    expect(periodStart('3w', today, null)).toBe('2026-10-15');
+    expect(periodStart('1m', today, null)).toBe('2026-10-12');
     expect(periodStart('3m', today, null)).toBe('2026-08-10');
+    expect(periodStart('6m', today, null)).toBe('2026-06-01');
     expect(periodStart('12m', today, null)).toBe('2025-12-01');
     expect(periodStart('all', today, '2024-03-17')).toBe('2024-03-01');
     expect(periodStart('all', today, null)).toBe('2026-11-01');
   });
 
-  it('découpage en semaines (4 ou 13) et en mois (12)', () => {
-    expect(bucketsBetween(periodStart('4w', today, null), today, bucketOf('4w'))).toHaveLength(4);
+  it('découpage en jours (1 à 3 semaines), en semaines (jusqu’à 3 mois) puis en mois', () => {
+    expect(bucketOf('2w')).toBe('day');
+    expect(bucketsBetween(periodStart('2w', today, null), today, bucketOf('2w'))).toHaveLength(14);
+    expect(bucketsBetween(periodStart('1m', today, null), today, bucketOf('1m'))).toHaveLength(4);
+    expect(bucketsBetween(periodStart('6m', today, null), today, bucketOf('6m'))).toHaveLength(6);
     expect(bucketsBetween(periodStart('3m', today, null), today, bucketOf('3m'))).toHaveLength(13);
     const months = bucketsBetween(periodStart('12m', today, null), today, bucketOf('12m'));
     expect(months).toHaveLength(12);

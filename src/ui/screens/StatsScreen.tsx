@@ -1,5 +1,5 @@
 import { useState } from 'preact/hooks';
-import { activityKcal, isCompleteProfile } from '../../domain/calories';
+import { activityKcal, isCompleteProfile, sessionKcal } from '../../domain/calories';
 import { todayIso } from '../../domain/dates';
 import {
   averageSteps,
@@ -38,10 +38,10 @@ const kg = (v: number) => `${formatKg(v)} kg`;
 const km = (v: number) => `${formatKg(v)} km`;
 const int = new Intl.NumberFormat('fr-FR');
 
-/** Graduation courte et libellé complet d'une semaine (lundi) ou d'un mois. */
-const bucketLabel = (start: IsoDate, bucket: Bucket) => (bucket === 'week' ? formatDayShort(start) : formatMonthShort(start));
+/** Graduation courte et libellé complet d'un jour, d'une semaine (lundi) ou d'un mois. */
+const bucketLabel = (start: IsoDate, bucket: Bucket) => (bucket === 'month' ? formatMonthShort(start) : formatDayShort(start));
 const bucketTitle = (start: IsoDate, bucket: Bucket) =>
-  bucket === 'week' ? S.stats.weekOf(formatDayShort(start)) : formatMonthYear(start);
+  bucket === 'day' ? formatDayMedium(start) : bucket === 'week' ? S.stats.weekOf(formatDayShort(start)) : formatMonthYear(start);
 
 export function StatsScreen() {
   const data = useData<Data>(
@@ -76,7 +76,10 @@ function Stats({ sessions, cycles, activities, steps }: Data) {
   const inPeriod = activities.filter((a) => a.date >= from && a.date <= to);
   const distance = distanceByBucket(inPeriod, from, to, bucket);
   const totalKm = Math.round(inPeriod.reduce((t, a) => t + a.distanceKm, 0) * 10) / 10;
-  const totalKcal = inPeriod.reduce((t, a) => t + (activityKcal(profile, a) ?? 0), 0);
+  // Calories : activités cardio et séances de musculation terminées.
+  const totalKcal =
+    inPeriod.reduce((t, a) => t + (activityKcal(profile, a) ?? 0), 0) +
+    done.reduce((t, s) => t + (sessionKcal(profile, s, maxOf(s), rounding) ?? 0), 0);
   const stepsAvg = averageSteps(steps, from, to);
   const stepsSeries = stepsByBucket(steps, from, to, bucket);
 
@@ -84,17 +87,20 @@ function Stats({ sessions, cycles, activities, steps }: Data) {
   const [chosen, setChosen] = useState(PREFERRED_EXERCISE);
   const exerciseId = exercises.some((e) => e.exerciseId === chosen) ? chosen : (exercises[0]?.exerciseId ?? '');
   const progress = exerciseId ? exerciseProgress(done, exerciseId, maxOf, rounding) : [];
-  const per = bucket === 'week' ? S.stats.perWeek : S.stats.perMonth;
+  const per = bucket === 'day' ? S.stats.perDay : bucket === 'week' ? S.stats.perWeek : S.stats.perMonth;
 
   return (
     <div class="stack stats">
-      <div class="segmented" role="group" aria-label={S.stats.period}>
-        {PERIODS.map((p) => (
-          <button key={p} type="button" aria-pressed={period === p} onClick={() => setPeriod(p)}>
-            {S.stats.periods[p]}
-          </button>
-        ))}
-      </div>
+      <label class="field">
+        <span>{S.stats.period}</span>
+        <select class="text-input" value={period} onChange={(e) => setPeriod(e.currentTarget.value as Period)}>
+          {PERIODS.map((p) => (
+            <option key={p} value={p}>
+              {S.stats.periodLabel(p)}
+            </option>
+          ))}
+        </select>
+      </label>
 
       {done.length === 0 && inPeriod.length === 0 && <p class="card muted">{S.stats.empty}</p>}
 

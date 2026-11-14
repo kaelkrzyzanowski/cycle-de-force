@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { acceptPoint, elapsedMs, haversineM, instantSpeedKmh, newClock, pauseClock, resumeClock, simplifyTrack, trackDistanceKm } from './track';
+import { acceptPoint, elapsedMs, elevationGainM, haversineM, instantSpeedKmh, newClock, pauseClock, resumeClock, simplifyTrack, trackDistanceKm } from './track';
 import type { TrackPoint } from './types';
 
 /** Point à `northM` mètres au nord de l'origine (1° de latitude ≈ 111,195 km). */
@@ -51,6 +51,25 @@ describe('vitesse instantanée', () => {
     expect(instantSpeedKmh([north(0, 0), north(5, 1000)], 1000)).toBeNull(); // 1 s : trop court
     expect(instantSpeedKmh([north(0, 0), north(20, 4000)], 20_000)).toBeNull(); // dernier point trop ancien
     expect(instantSpeedKmh([north(0, 0), north(50, 5000), north(500, 60_000, 1)], 60_000)).toBeNull(); // segment repris
+  });
+});
+
+describe('dénivelé positif', () => {
+  const at = (alt: number, i: number, seg = 0): TrackPoint => ({ ...north(i * 10, i * 1000, seg), alt });
+
+  it('compte les montées, pas les descentes ni le bruit du GPS', () => {
+    // Montée régulière de 100 à 150 m, redescente à 120 m, puis remontée à 140 m : 50 + 20 = 70 m.
+    const alts = [...Array.from({ length: 51 }, (_, i) => 100 + i), ...Array.from({ length: 30 }, (_, i) => 149 - i), ...Array.from({ length: 21 }, (_, i) => 120 + i)];
+    expect(elevationGainM(alts.map((a, i) => at(a, i)))).toBeCloseTo(70, -1);
+    // Plat avec ± 2 m de bruit : rien.
+    expect(elevationGainM(Array.from({ length: 60 }, (_, i) => at(200 + (i % 2 ? 2 : -2), i)))).toBe(0);
+  });
+
+  it('pas d’altitude : null ; la pause ne crée pas de montée', () => {
+    expect(elevationGainM([north(0, 0), north(10, 1000)])).toBeNull();
+    const before = Array.from({ length: 10 }, (_, i) => at(100, i));
+    const after = Array.from({ length: 10 }, (_, i) => at(300, 20 + i, 1));
+    expect(elevationGainM([...before, ...after])).toBe(0);
   });
 });
 

@@ -65,6 +65,54 @@ export function instantSpeedKmh(points: readonly TrackPoint[], now: number, wind
   return seconds >= 2 ? Math.round((meters / seconds) * 3.6 * 10) / 10 : null;
 }
 
+/** Altitudes lissées sur `window` points (moyenne glissante), pour gommer le bruit vertical du GPS. */
+function smooth(values: readonly number[], window: number): number[] {
+  const half = Math.floor(window / 2);
+  return values.map((_, i) => {
+    const part = values.slice(Math.max(0, i - half), i + half + 1);
+    return part.reduce((a, b) => a + b, 0) / part.length;
+  });
+}
+
+/**
+ * Dénivelé positif en mètres, segment par segment : altitudes lissées, puis seules les montées d'au moins
+ * `thresholdM` comptent (hystérésis contre le bruit vertical). null si le GPS n'a fourni aucune altitude.
+ */
+export function elevationGainM(points: readonly TrackPoint[], thresholdM = 3): number | null {
+  const withAlt = points.filter((p): p is TrackPoint & { alt: number } => p.alt !== undefined);
+  if (withAlt.length === 0) return null;
+  let gain = 0;
+  let start = 0;
+  while (start < withAlt.length) {
+    let end = start;
+    while (end < withAlt.length && withAlt[end]!.seg === withAlt[start]!.seg) end++;
+    const alts = smooth(withAlt.slice(start, end).map((p) => p.alt), 5);
+    // Hors montée, ref suit le point bas ; une montée commence à +seuil et compte alors depuis ce point bas,
+    // puis chaque mètre gagné compte jusqu'à une redescente d'au moins le seuil.
+    let ref = alts[0]!;
+    let climbing = false;
+    for (const a of alts) {
+      if (climbing) {
+        if (a > ref) {
+          gain += a - ref;
+          ref = a;
+        } else if (ref - a >= thresholdM) {
+          climbing = false;
+          ref = a;
+        }
+      } else if (a < ref) {
+        ref = a;
+      } else if (a - ref >= thresholdM) {
+        gain += a - ref;
+        ref = a;
+        climbing = true;
+      }
+    }
+    start = end;
+  }
+  return Math.round(gain);
+}
+
 /** Réduit le tracé pour l'enregistrement : un point au plus tous les `minM` mètres, extrémités de segment gardées. */
 export function simplifyTrack(points: readonly TrackPoint[], minM = 5): TrackPoint[] {
   const out: TrackPoint[] = [];
@@ -73,7 +121,7 @@ export function simplifyTrack(points: readonly TrackPoint[], minM = 5): TrackPoi
     const last = out.at(-1);
     const segEnd = i === points.length - 1 || points[i + 1]!.seg !== p.seg;
     if (!last || last.seg !== p.seg || segEnd || haversineM(last, p) >= minM) {
-      out.push({ lat: round6(p.lat), lon: round6(p.lon), t: p.t, seg: p.seg });
+      out.push({ lat: round6(p.lat), lon: round6(p.lon), t: p.t, seg: p.seg, ...(p.alt !== undefined ? { alt: Math.round(p.alt * 10) / 10 } : {}) });
     }
   }
   return out;

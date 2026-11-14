@@ -195,9 +195,10 @@ function checkData(data: unknown): asserts data is BackupData {
     check(
       track === undefined ||
         (Array.isArray(track) &&
-          track.every((p) => isRecord(p) && isNum(p['lat']) && isNum(p['lon']) && isNum(p['t']) && isNum(p['seg']))),
+          track.every((p) => isRecord(p) && isNum(p['lat']) && isNum(p['lon']) && isNum(p['t']) && isNum(p['seg']) && optNum(p['alt']))),
       `${w} : tracé GPS`,
     );
+    check(optNum(a['ascentM']), `${w} : dénivelé`);
   });
   const steps = data['steps'];
   check(Array.isArray(steps), 'steps manquant');

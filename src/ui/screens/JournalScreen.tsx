@@ -1,5 +1,6 @@
 import { useState } from 'preact/hooks';
-import { activityKcal, isCompleteProfile } from '../../domain/calories';
+import { activityKcal, isCompleteProfile, sessionKcal } from '../../domain/calories';
+import { maxOfCycles } from '../../domain/stats';
 import { addDays, todayIso } from '../../domain/dates';
 import { newId } from '../../domain/ids';
 import {
@@ -16,7 +17,7 @@ import {
   recentFoods,
 } from '../../domain/nutrition';
 import type { CustomFood, FoodCategory, FoodDay, FoodEntry, GoalStatus, MealKey } from '../../domain/nutrition';
-import type { Activity, IsoDate } from '../../domain/types';
+import type { Activity, Cycle, IsoDate, Session } from '../../domain/types';
 import { StatTile } from '../charts/parts';
 import { TextField } from '../components/fields';
 import { NumberField } from '../components/NumberField';
@@ -42,6 +43,8 @@ interface Data {
   days: FoodDay[];
   customFoods: CustomFood[];
   activities: Activity[];
+  sessions: Session[];
+  cycles: Cycle[];
 }
 
 export function JournalScreen() {
@@ -52,6 +55,8 @@ export function JournalScreen() {
       days: await repo.listFoodDays(...ALL),
       customFoods: await repo.listCustomFoods(),
       activities: await repo.listActivitiesBetween(date, date),
+      sessions: await repo.listSessionsBetween(date, date),
+      cycles: await repo.listCycles(),
     }),
     [date],
   );
@@ -59,7 +64,16 @@ export function JournalScreen() {
   return <Journal {...data} date={date} today={today} setDate={setDate} />;
 }
 
-function Journal({ days, customFoods, activities, date, today, setDate }: Data & { date: IsoDate; today: IsoDate; setDate: (d: IsoDate) => void }) {
+function Journal({
+  days,
+  customFoods,
+  activities,
+  sessions,
+  cycles,
+  date,
+  today,
+  setDate,
+}: Data & { date: IsoDate; today: IsoDate; setDate: (d: IsoDate) => void }) {
   const app = useApp();
   const { kcalGoal: goal, profile } = app.settings;
   const [sheet, setSheet] = useState<{ meal: MealKey; entry?: FoodEntry } | null>(null);
@@ -71,7 +85,12 @@ function Journal({ days, customFoods, activities, date, today, setDate }: Data &
   const total = Math.round(dayKcal(day));
   const status = goalStatus(total, goal);
   const ratio = goal > 0 ? Math.min(1, total / goal) : 0;
-  const burned = isCompleteProfile(profile) ? activities.reduce((t, a) => t + (activityKcal(profile, a) ?? 0), 0) : 0;
+  // Dépense du jour : activités cardio et séances de musculation terminées.
+  const maxOf = maxOfCycles(cycles);
+  const burned = isCompleteProfile(profile)
+    ? activities.reduce((t, a) => t + (activityKcal(profile, a) ?? 0), 0) +
+      sessions.reduce((t, s) => t + (sessionKcal(profile, s, maxOf(s), app.settings.rounding) ?? 0), 0)
+    : 0;
   const stats = journalStats(days, goal);
 
   const saveDay = async (next: FoodDay) => {

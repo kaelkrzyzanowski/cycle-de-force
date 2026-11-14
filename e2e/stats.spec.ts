@@ -33,7 +33,8 @@ test('stats : période, tuiles, tonnage par semaine, charge max et e1RM', async 
   await page.getByRole('dialog').getByRole('button', { name: /Échec/ }).click();
 
   await page.goto('/#/stats');
-  await expect(page.getByRole('button', { name: '3 mois' })).toHaveAttribute('aria-pressed', 'true');
+  const period = page.getByRole('combobox', { name: 'Période' });
+  await expect(period).toHaveValue('3m');
   const tiles = page.locator('.stat-tile');
   await expect(tiles.nth(0)).toContainText('2');
   await expect(tiles.nth(1)).toContainText(/22\s?330\skg/); // S1 11 592 + S2 10 738
@@ -56,11 +57,29 @@ test('stats : période, tuiles, tonnage par semaine, charge max et e1RM', async 
   await expect(exCard.locator('tbody tr').nth(1).locator('td')).toHaveText(['179', '202,9']); // 4 × 179
   await expect(exCard.locator('.line')).toHaveCount(2);
 
+  // 2 semaines : une barre par jour.
+  await period.selectOption('2w');
+  await expect(tonnageCard.locator('.chart-subtitle')).toHaveText('Par jour');
+
   // « Tout » : regroupement par mois, même total.
-  await page.getByRole('button', { name: 'Tout' }).click();
+  await period.selectOption('all');
   await expect(tonnageCard.locator('.chart-subtitle')).toHaveText('Par mois');
   await expect(tiles.nth(1)).toContainText(/22\s?330\skg/);
   await expect(page.locator('.chart-card')).toHaveCount(2);
+
+  // Calories des séances terminées, une fois le profil renseigné (35 ans, 1,80 m, 80 kg, homme).
+  await page.goto('/#/reglages');
+  for (const [name, value] of [['Âge', '35'], ['Taille', '180'], ['Poids', '80']] as const) {
+    await page.getByRole('textbox', { name }).fill(value);
+    await page.getByRole('textbox', { name }).press('Tab');
+  }
+  await page.getByRole('button', { name: 'Homme' }).click();
+  await page.goto('/#/calendrier');
+  await page.getByRole('button', { name: 'Semaine', exact: true }).click();
+  const s1 = page.locator('.session-card', { has: page.locator('.session-name', { hasText: /^Deadlift / }) }).first();
+  await expect(s1).toContainText(/39[45]\skcal/); // 18 séries ≈ 54 min, séance soutenue (S1 395, S2 394)
+  await page.goto('/#/stats');
+  await expect(page.locator('.stat-tile', { hasText: 'Calories' })).toContainText(/789\skcal/); // 395 + 394
 
   await page.screenshot({ path: 'test-results/screens/stats.png', fullPage: true });
   await page.emulateMedia({ colorScheme: 'light' });

@@ -114,14 +114,17 @@ export interface Activity {
   note?: string;
   /** Tracé GPS d'une activité enregistrée dans l'app. */
   track?: TrackPoint[];
+  /** Dénivelé positif (m) mesuré par le GPS. */
+  ascentM?: number;
 }
 
-/** Point GPS : latitude, longitude (degrés), instant (ms depuis 1970) et numéro de segment (pauses). */
+/** Point GPS : latitude, longitude (degrés), instant (ms depuis 1970), numéro de segment (pauses), altitude (m). */
 export interface TrackPoint {
   lat: number;
   lon: number;
   t: number;
   seg: number;
+  alt?: number;
 }
 
 /** Pas comptés un jour donné par le podomètre du téléphone. */

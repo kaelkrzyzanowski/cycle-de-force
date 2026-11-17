@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { readFile } from 'node:fs/promises';
 
 // Départ près de Notre-Dame ; chaque pas : 20 m vers le nord (1° de latitude ≈ 111,195 km).
 const START = { latitude: 48.853, longitude: 2.3499 };
@@ -53,6 +54,17 @@ test('enregistrer une activité GPS : pause, fin, enregistrement dans le calendr
   await sheet.getByRole('button', { name: 'Enregistrer' }).click();
   await page.locator('.session-card', { hasText: 'Vélo' }).click();
   await expect(page.getByRole('dialog').locator('.track-map path[stroke="#e0631f"]')).toHaveCount(1);
+
+  // Export GPX du tracé.
+  const download = page.waitForEvent('download');
+  await page.getByRole('dialog').getByRole('button', { name: 'Exporter en GPX' }).click();
+  const file = await download;
+  expect(file.suggestedFilename()).toMatch(/^activite-\d{4}-\d{2}-\d{2}-velo\.gpx$/);
+  const gpx = (await readFile(await file.path())).toString('utf8');
+  expect(gpx).toContain('<gpx version="1.1"');
+  expect(gpx).toContain('<type>cycling</type>');
+  expect(gpx.match(/<trkpt /g)?.length).toBeGreaterThan(2);
+  await expect(page.getByRole('status')).toHaveText('Tracé GPX téléchargé');
 });
 
 test('activité GPS : un refus de localisation est expliqué', async ({ browser }) => {

@@ -1,4 +1,4 @@
-import { useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import { newId } from '../../domain/ids';
 import { followingSessions, propagateEdits } from '../../domain/sessionEdit';
 import type { SessionEdit } from '../../domain/sessionEdit';
@@ -57,6 +57,24 @@ function SessionView({ session: initial, cycle, cycleSessions, catalogue }: Data
   const max = cycle?.max ?? NO_MAX;
   const labelOf = useSessionLabel();
   useWakeLock(true);
+
+  // Notes : enregistrées pendant la frappe (après une courte pause) et aussitôt en quittant le champ ou l'écran,
+  // pour ne rien perdre si l'app est fermée juste après la saisie.
+  const noteTimer = useRef<number | undefined>(undefined);
+  const pendingNote = useRef<Session | null>(null);
+  const flushNote = () => {
+    window.clearTimeout(noteTimer.current);
+    const next = pendingNote.current;
+    pendingNote.current = null;
+    if (next) app.repo.saveSessions([next]).catch((err: unknown) => console.error(err));
+  };
+  const typeNote = (next: Session) => {
+    setSession(next);
+    pendingNote.current = next;
+    window.clearTimeout(noteTimer.current);
+    noteTimer.current = window.setTimeout(flushNote, 400);
+  };
+  useEffect(() => flushNote, []);
 
   /** Enregistre aussitôt ; le bandeau « Annuler » restaure l'état précédent. */
   const persist = (next: Session, message?: string) => {
@@ -217,7 +235,11 @@ function SessionView({ session: initial, cycle, cycleSessions, catalogue }: Data
                 placeholder={S.session.note}
                 aria-label={S.session.exerciseNote(ex.name)}
                 value={ex.note ?? ''}
-                onChange={(e) => persist(mapExercise(session, ex.id, (x) => withOptional(x, 'note', e.currentTarget.value.trim() || undefined)))}
+                onInput={(e) => typeNote(mapExercise(session, ex.id, (x) => withOptional(x, 'note', e.currentTarget.value || undefined)))}
+                onBlur={(e) => {
+                  typeNote(mapExercise(session, ex.id, (x) => withOptional(x, 'note', e.currentTarget.value.trim() || undefined)));
+                  flushNote();
+                }}
               />
             </section>
           ))}
@@ -228,7 +250,11 @@ function SessionView({ session: initial, cycle, cycleSessions, catalogue }: Data
               class="text-input note"
               rows={2}
               value={session.note ?? ''}
-              onChange={(e) => persist(withOptional(session, 'note', e.currentTarget.value.trim() || undefined))}
+              onInput={(e) => typeNote(withOptional(session, 'note', e.currentTarget.value || undefined))}
+              onBlur={(e) => {
+                typeNote(withOptional(session, 'note', e.currentTarget.value.trim() || undefined));
+                flushNote();
+              }}
             />
           </label>
         </>

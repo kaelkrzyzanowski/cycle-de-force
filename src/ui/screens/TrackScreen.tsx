@@ -8,6 +8,7 @@ import { isNative } from '../../platform';
 import { errorCode } from '../../platform/tracker';
 import { commit } from '../actions';
 import { TextField } from '../components/fields';
+import { GpxButton } from '../components/GpxButton';
 import { TrackMap } from '../components/TrackMap';
 import { useApp } from '../context';
 import { formatClock, formatKg, formatPace } from '../format';
@@ -168,6 +169,7 @@ export function TrackScreen() {
         </h2>
         <Metrics type={rec.type} elapsed={elapsed} km={km} ascent={recording.ascentM()} />
         {points.length > 0 && <TrackMap points={points} />}
+        {draft?.track && <GpxButton activity={draft} />}
         {!draft || draft.distanceKm <= 0 ? (
           <p class="card muted">{S.track.noDistance}</p>
         ) : (

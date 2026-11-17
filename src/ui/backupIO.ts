@@ -2,13 +2,16 @@ import type { Repository } from '../data/repository';
 import { AUTO_BACKUP_MIN_INTERVAL_MS, isAutoBackupDue } from '../domain/autoBackup';
 import { backupFileName, buildBackup } from '../domain/backup';
 import { todayIso } from '../domain/dates';
+import { gpxFileName, toGpx } from '../domain/gpx';
+import type { Activity } from '../domain/types';
 import { isNative, loadNative } from '../platform';
+import { formatDayMedium } from './format';
 import { S } from './strings';
 
 export type ExportResult = 'shared' | 'downloaded' | 'cancelled';
 
-function downloadText(text: string, fileName: string): void {
-  const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
+function downloadText(text: string, fileName: string, type = 'application/json'): void {
+  const url = URL.createObjectURL(new Blob([text], { type }));
   const a = document.createElement('a');
   a.href = url;
   a.download = fileName;
@@ -16,6 +19,16 @@ function downloadText(text: string, fileName: string): void {
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 10_000);
+}
+
+/** Exporte le tracé d'une activité en GPX : feuille de partage dans l'app Android, téléchargement dans le navigateur. */
+export async function shareGpx(activity: Pick<Activity, 'type' | 'date' | 'track'>): Promise<ExportResult> {
+  const label = S.activityTypes[activity.type];
+  const gpx = toGpx(activity, `${label} · ${formatDayMedium(activity.date)}`);
+  const fileName = gpxFileName(activity.date, label);
+  if (isNative) return (await loadNative()).shareBackupFile(gpx, fileName, S.track.gpxShareTitle);
+  downloadText(gpx, fileName, 'application/gpx+xml');
+  return 'downloaded';
 }
 
 /** Enregistre un fichier JSON : feuille de partage dans l'app Android, téléchargement dans le navigateur. */

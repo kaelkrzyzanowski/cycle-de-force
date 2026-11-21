@@ -29,6 +29,19 @@ export function backupsToPrune(names: readonly string[], keep: number = AUTO_BAC
   return days.slice(keep).flatMap((d) => byDay.get(d) ?? []);
 }
 
+/** Copie faite au premier lancement d'une nouvelle version : hors du ménage automatique (nom différent). */
+export function preUpdateBackupName(previousVersion: string, date: IsoDate): string {
+  return `cycle-de-force-avant-maj-${previousVersion}-${date}.json`;
+}
+
+/**
+ * Faut-il une copie avant mise à jour ? Oui si la version a changé et que la base contient déjà des données
+ * (pas pour une installation neuve).
+ */
+export function needsPreUpdateBackup(lastVersion: string | undefined, version: string, hasData: boolean): boolean {
+  return lastVersion !== version && hasData;
+}
+
 export function isAutoBackupDue(lastAt: string | undefined, now: number, minIntervalMs = AUTO_BACKUP_MIN_INTERVAL_MS): boolean {
   if (!lastAt) return true;
   const last = Date.parse(lastAt);

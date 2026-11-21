@@ -1695,3 +1695,7 @@ a.icon-btn {
 .profile-hint a {
   color: var(--accent);
 }
+.import-list {
+  margin: 0;
+  padding-left: 20px;
+}

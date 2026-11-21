@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { importOriginTemplates } from './helpers';
 import type { BrowserContext, Page } from '@playwright/test';
 
 /** Charge l'app en ligne une fois, attend que le service worker la contrôle, puis coupe le réseau. */
@@ -11,7 +12,9 @@ async function goOffline(page: Page, context: BrowserContext, url = '/') {
 }
 
 test('séance complète en mode avion', async ({ page, context }) => {
+  await importOriginTemplates(page);
   await goOffline(page, context);
+  await page.goto('/#/calendrier');
   await page.reload(); // démarrage à froid sans réseau
   await page.getByRole('button', { name: 'Créer le Bloc 0' }).click();
   await expect(page.getByRole('status')).toHaveText('Bloc 0 créé : 28 séances');
@@ -34,6 +37,8 @@ test('séance complète en mode avion', async ({ page, context }) => {
   await heavy.getByRole('textbox', { name: /Note/ }).press('Tab');
   await page.getByRole('textbox', { name: 'Note de séance' }).fill('Séance en mode avion');
   await page.getByRole('textbox', { name: 'Note de séance' }).press('Tab');
+  // Laisser l'écriture en base se terminer avant de « redémarrer » (une personne ne recharge pas en 10 ms).
+  await page.waitForTimeout(300);
   await expect(page.locator('.totals-bar')).toContainText(/11\s?256\skg/); // 11 592 − 2 reps × 168
 
   // Toujours hors ligne : tout est encore là après un redémarrage.
@@ -60,9 +65,10 @@ test('installable selon Chrome : aucune erreur de manifeste ni d’installabilit
 
 test('même build servie dans un sous-dossier (type GitHub Pages), hors ligne', async ({ page, context }) => {
   const base = 'http://localhost:4175/cycle-de-force/';
+  await importOriginTemplates(page, base);
   await goOffline(page, context, base);
   await page.goto(`${base}#/modeles`);
-  await expect(page.getByRole('listitem').filter({ hasText: /^Deadlift/ })).toBeVisible();
+  await expect(page.getByRole('listitem').filter({ hasText: /^Deadlift/ })).toBeVisible({ timeout: 15_000 });
   const scope = await page.evaluate(async () => (await navigator.serviceWorker.ready).scope);
   expect(scope).toBe(base);
 });

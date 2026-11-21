@@ -3,7 +3,7 @@ import { getRepository } from '../data/repository';
 import type { Repository } from '../data/repository';
 import type { Settings } from '../domain/types';
 import { isNative, loadNative } from '../platform';
-import { runAutoBackup } from './backupIO';
+import { backupBeforeUpdate, runAutoBackup } from './backupIO';
 import { AppContext } from './context';
 import { countdown, installCountdownAlarm } from './countdownStore';
 import type { ToastAction } from './context';
@@ -101,6 +101,8 @@ export function App() {
   useEffect(() => {
     (async () => {
       const repo = await getRepository();
+      // Copie de sécurité avant toute autre opération au premier lancement d'une nouvelle version.
+      await backupBeforeUpdate(repo, __APP_VERSION__).catch((err: unknown) => console.error(err));
       await repo.ensureSeeded();
       setBoot({ state: 'ready', repo, settings: await repo.getSettings() });
       // Activité GPS en cours au lancement (app relancée depuis la notification…) : on la rouvre.

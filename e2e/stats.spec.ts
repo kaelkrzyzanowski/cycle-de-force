@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { importOriginTemplates } from './helpers';
 import type { Page } from '@playwright/test';
 
 /** Clique « Tout valider » tant qu'il en reste (chaque bouton disparaît une fois l'exercice validé). */
@@ -12,6 +13,7 @@ async function validateAll(page: Page) {
 }
 
 test('stats : période, tuiles, tonnage par semaine, charge max et e1RM', async ({ page }) => {
+  await importOriginTemplates(page);
   await page.goto('/#/calendrier');
   await page.getByRole('button', { name: 'Créer le Bloc 0' }).click();
   await page.getByRole('button', { name: 'Semaine', exact: true }).click();

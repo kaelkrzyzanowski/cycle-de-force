@@ -95,11 +95,17 @@ export interface Session {
   note?: string;
 }
 
+/** Classement du catalogue : poids libre, machine, poids du corps, mobilité et étirements. */
+export type ExerciseCategory = 'libre' | 'machine' | 'poids_corps' | 'mobilite';
+export const EXERCISE_CATEGORIES: readonly ExerciseCategory[] = ['libre', 'machine', 'poids_corps', 'mobilite'];
+
 export interface Exercise {
   id: string;
   name: string;
   aliases: string[];
   defaultLift?: Lift;
+  /** Absent pour un exercice ajouté par l'utilisateur sans classement. */
+  category?: ExerciseCategory;
 }
 
 export type ActivityType = 'RUNNING' | 'CYCLING' | 'WALKING' | 'SWIMMING' | 'OTHER';

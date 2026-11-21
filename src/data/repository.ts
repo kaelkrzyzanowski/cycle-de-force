@@ -3,7 +3,7 @@ import { hasFood } from '../domain/nutrition';
 import type { CustomFood, FoodDay } from '../domain/nutrition';
 import { DEFAULT_SETTINGS } from '../domain/types';
 import type { Activity, Cycle, DailySteps, Exercise, IsoDate, MaxChange, Session, SessionTemplate, Settings } from '../domain/types';
-import { seedData, SEED_VERSION } from '../seed';
+import { NATIVE_EXERCISE_CATEGORIES, OFFICIAL_EXERCISES, SEED_VERSION } from '../seed';
 import { openCdfDb, DB_NAME } from './db';
 import type { CdfDb } from './db';
 
@@ -19,6 +19,8 @@ export interface Repository {
   getTemplate(id: string): Promise<SessionTemplate | undefined>;
   saveTemplate(template: SessionTemplate): Promise<void>;
   deleteTemplate(id: string): Promise<void>;
+  /** Ajoute des modèles et des exercices en une seule transaction (import d'un fichier de modèles). */
+  addTemplates(templates: readonly SessionTemplate[], exercises: readonly Exercise[]): Promise<void>;
 
   listExercises(): Promise<Exercise[]>;
   saveExercise(exercise: Exercise): Promise<void>;
@@ -132,6 +134,13 @@ class IdbRepository implements Repository {
   }
   deleteTemplate(id: string): Promise<void> {
     return this.db.delete('templates', id);
+  }
+  async addTemplates(templates: readonly SessionTemplate[], exercises: readonly Exercise[]): Promise<void> {
+    const tx = this.db.transaction(['templates', 'exercises'], 'readwrite');
+    await atomically(tx, (push) => {
+      for (const e of exercises) push(tx.objectStore('exercises').put(e));
+      for (const t of templates) push(tx.objectStore('templates').put(t));
+    });
   }
 
   async listExercises(): Promise<Exercise[]> {
@@ -292,25 +301,25 @@ class IdbRepository implements Repository {
     return record === undefined ? undefined : String(record.value);
   }
 
+  /**
+   * Complète le catalogue d'exercices (installation neuve ou mise à jour). Garantie : la transaction n'ouvre même
+   * pas les modèles, cycles ni séances — une mise à jour ne peut donc jamais les modifier. Une installation neuve
+   * démarre sans modèle ni cycle.
+   */
   async ensureSeeded(): Promise<{ seeded: boolean }> {
-    const tx = this.db.transaction(['meta', 'templates', 'exercises'], 'readwrite');
+    const tx = this.db.transaction(['meta', 'exercises'], 'readwrite');
     const current = await tx.objectStore('meta').get('seedVersion');
     if (current && Number(current.value) >= SEED_VERSION) {
       await tx.done;
       return { seeded: false };
     }
-    const { templates, exercises } = seedData();
-    const templateStore = tx.objectStore('templates');
     const exerciseStore = tx.objectStore('exercises');
-    for (const t of templates) {
-      const existing = await templateStore.get(t.id);
-      // Ne pas écraser un modèle natif déjà modifié par l'utilisateur : seulement compléter les champs nouveaux.
-      if (!existing) await templateStore.put(t);
-      else if (existing.native && existing.deloadWeek === undefined && t.deloadWeek !== undefined) {
-        await templateStore.put({ ...existing, deloadWeek: t.deloadWeek });
-      }
+    // Exercices déjà connus : on ne fait que les classer s'ils ne le sont pas (nom, alias et mouvement intacts).
+    for (const e of await exerciseStore.getAll()) {
+      const category = NATIVE_EXERCISE_CATEGORIES[e.id];
+      if (e.category === undefined && category) await exerciseStore.put({ ...e, category });
     }
-    for (const e of exercises) {
+    for (const e of OFFICIAL_EXERCISES) {
       if (!(await exerciseStore.get(e.id))) await exerciseStore.put(e);
     }
     await tx.objectStore('meta').put({ key: 'seedVersion', value: SEED_VERSION });

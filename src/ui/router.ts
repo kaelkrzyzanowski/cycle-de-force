@@ -100,12 +100,33 @@ export function goBack(): void {
   else navigate(href.calendar(), true);
 }
 
+/** Garde de sortie d'un écran (modifications non enregistrées) : renvoie faux pour rester sur place. */
+type LeaveGuard = (to: string) => boolean;
+let leaveGuard: LeaveGuard | null = null;
+let currentHash = location.hash;
+
+/** Installe (ou retire avec null) la garde de sortie ; renvoie la fonction qui la retire. */
+export function setLeaveGuard(guard: LeaveGuard | null): () => void {
+  leaveGuard = guard;
+  return () => {
+    if (leaveGuard === guard) leaveGuard = null;
+  };
+}
+
 /** Routage par hash : fonctionne hors ligne, sans serveur, et dans une WebView Capacitor. */
 export function useRoute(): Route {
   const [route, setRoute] = useState<Route>(() => parseRoute(location.hash));
   useEffect(() => {
     const onChange = () => {
-      setRoute(parseRoute(location.hash));
+      const to = location.hash;
+      if (to === currentHash) return;
+      if (leaveGuard && !leaveGuard(to)) {
+        // On reste : l'adresse revient à l'écran courant, sans le recharger.
+        location.replace(currentHash || '#/');
+        return;
+      }
+      currentHash = to;
+      setRoute(parseRoute(to));
       scrollTo(0, 0);
     };
     addEventListener('hashchange', onChange);

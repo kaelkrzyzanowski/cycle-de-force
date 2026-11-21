@@ -53,10 +53,11 @@ const MIGRATIONS: Record<number, (db: CdfDb, tx: UpgradeTx) => void> = {
   },
 };
 
-export function openCdfDb(name: string = DB_NAME): Promise<CdfDb> {
-  return openDB<CdfSchema>(name, DB_VERSION, {
+/** `version` : pour les tests, ouvrir une base dans un état plus ancien. */
+export function openCdfDb(name: string = DB_NAME, version: number = DB_VERSION): Promise<CdfDb> {
+  return openDB<CdfSchema>(name, version, {
     upgrade(db, oldVersion, newVersion, tx) {
-      for (let v = oldVersion + 1; v <= (newVersion ?? DB_VERSION); v++) {
+      for (let v = oldVersion + 1; v <= (newVersion ?? version); v++) {
         const migrate = MIGRATIONS[v];
         if (!migrate) throw new Error(`Migration manquante vers la version ${v}`);
         migrate(db, tx);

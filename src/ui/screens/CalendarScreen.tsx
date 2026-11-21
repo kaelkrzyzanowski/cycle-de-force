@@ -5,7 +5,7 @@ import { newId } from '../../domain/ids';
 import { deriveSessionStatus } from '../../domain/sessionStatus';
 import type { Activity, Cycle, IsoDate, Session, SessionTemplate } from '../../domain/types';
 import { sessionLabel } from '../../domain/templates';
-import { exampleCycle } from '../../seed';
+import { DEFAULT_WEEKLY_PLAN, exampleCycle } from '../../seed';
 import { commit, templatesById } from '../actions';
 import { ActivityCard, ActivityDot } from '../components/ActivityCard';
 import { NEUTRAL_COLOR, SessionCard, SessionDot } from '../components/SessionCard';
@@ -160,6 +160,8 @@ export function CalendarScreen() {
   const cycle = findCycleForDate(data.cycles, selected);
   const cycleWeek = cycle ? cycleWeekOf(cycle, selected) : null;
 
+  // Cycle d'exemple proposé seulement si les modèles du programme d'origine sont présents.
+  const hasExample = DEFAULT_WEEKLY_PLAN.every((e) => templates.has(e.templateId));
   const createExample = async () => {
     const c = exampleCycle(newId(), mondayOf(today));
     const sessions = generateCycleSessions(c, templates, newId);
@@ -287,14 +289,24 @@ export function CalendarScreen() {
       {data.cycles.length === 0 && !data.exampleDismissed && (
         <section class="card stack">
           <h3>{S.example.title}</h3>
-          <p>{S.example.text}</p>
+          <p>{hasExample ? S.example.text : data.templates.length === 0 ? S.example.startNoTemplate : S.example.startWithTemplates}</p>
           <div class="button-row">
             <button type="button" class="btn" onClick={dismissExample}>
               {S.example.later}
             </button>
-            <button type="button" class="btn primary" onClick={createExample}>
-              {S.example.create}
-            </button>
+            {hasExample ? (
+              <button type="button" class="btn primary" onClick={createExample}>
+                {S.example.create}
+              </button>
+            ) : data.templates.length === 0 ? (
+              <a class="btn primary" href={href.templates()}>
+                {S.example.toTemplates}
+              </a>
+            ) : (
+              <a class="btn primary" href={href.newCycle()}>
+                {S.example.toCycle}
+              </a>
+            )}
           </div>
         </section>
       )}

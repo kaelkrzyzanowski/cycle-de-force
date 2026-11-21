@@ -1,4 +1,4 @@
-import { useState } from 'preact/hooks';
+import { useEffect, useState } from 'preact/hooks';
 import { todayIso } from '../../domain/dates';
 import { newId } from '../../domain/ids';
 import { applyEdit } from '../../domain/sessionEdit';
@@ -25,10 +25,11 @@ import { NumberField } from '../components/NumberField';
 import { Sheet } from '../components/Sheet';
 import { useApp, useData } from '../context';
 import { formatKg } from '../format';
-import { href, navigate } from '../router';
+import { href, navigate, setLeaveGuard } from '../router';
 import { S } from '../strings';
 import { PrescriptionEditor, useCatalogue } from '../session/EditSession';
 import { saveTemplateWithRename } from '../actions';
+import { exportTemplates } from '../backupIO';
 
 const FAR_FUTURE = '9999-12-31';
 
@@ -47,7 +48,7 @@ export function TemplateEditorScreen({ id }: { id: string }) {
   return <Editor key={id} saved={data.template} catalogue={data.catalogue} />;
 }
 
-type Dialog = 'copy' | 'progression' | 'more' | 'reset' | 'delete' | { future: Session[] } | null;
+type Dialog = 'copy' | 'progression' | 'more' | 'reset' | 'delete' | { future: Session[] } | { leave: string } | null;
 
 function Editor({ saved, catalogue }: { saved: SessionTemplate; catalogue: Exercise[] }) {
   const app = useApp();
@@ -55,6 +56,15 @@ function Editor({ saved, catalogue }: { saved: SessionTemplate; catalogue: Exerc
   const [week, setWeek] = useState(1);
   const [dirty, setDirty] = useState(false);
   const [savedName, setSavedName] = useState(saved.name);
+
+  // Quitter l'éditeur (onglet, retour, lien) avec des modifications non enregistrées : on demande d'abord.
+  useEffect(() => {
+    if (!dirty) return undefined;
+    return setLeaveGuard((to) => {
+      setDialog({ leave: to });
+      return false;
+    });
+  }, [dirty]);
   const [dialog, setDialog] = useState<Dialog>(null);
   const { known, resolve, newExercises } = useCatalogue(catalogue);
 
@@ -242,6 +252,19 @@ function Editor({ saved, catalogue }: { saved: SessionTemplate; catalogue: Exerc
             <button type="button" class="choice" onClick={() => void duplicate()}>
               {S.templateEditor.duplicate}
             </button>
+            <button
+              type="button"
+              class="choice"
+              onClick={() => {
+                setDialog(null);
+                void exportTemplates(app.repo, [template], template.name).then(
+                  (r) => r === 'downloaded' && app.toast(S.templatesFile.exported(1)),
+                  () => app.toast(S.templatesFile.exportError),
+                );
+              }}
+            >
+              {S.templatesFile.exportOne}
+            </button>
             {template.native ? (
               <button type="button" class="choice" onClick={() => setDialog('reset')}>
                 {S.templateEditor.reset}
@@ -251,6 +274,45 @@ function Editor({ saved, catalogue }: { saved: SessionTemplate; catalogue: Exerc
                 {S.templateEditor.delete}
               </button>
             )}
+          </div>
+        </Sheet>
+      )}
+      {dialog && typeof dialog === 'object' && 'leave' in dialog && (
+        <Sheet title={S.templateEditor.unsavedTitle} onClose={() => setDialog(null)}>
+          <div class="stack">
+            <p>{S.templateEditor.unsavedText}</p>
+            <div class="choice-list">
+              <button
+                type="button"
+                class="choice"
+                disabled={template.name.trim() === ''}
+                onClick={async () => {
+                  await persist(template, savedName);
+                  setSavedName(template.name);
+                  setDirty(false);
+                  setLeaveGuard(null);
+                  app.refresh();
+                  app.toast(S.templateEditor.saved);
+                  navigate(dialog.leave);
+                }}
+              >
+                {S.templateEditor.saveAndLeave}
+              </button>
+              <button
+                type="button"
+                class="choice danger"
+                onClick={() => {
+                  setDirty(false);
+                  setLeaveGuard(null);
+                  navigate(dialog.leave);
+                }}
+              >
+                {S.templateEditor.discardAndLeave}
+              </button>
+              <button type="button" class="choice" onClick={() => setDialog(null)}>
+                {S.templateEditor.stay}
+              </button>
+            </div>
           </div>
         </Sheet>
       )}
@@ -283,7 +345,7 @@ function Editor({ saved, catalogue }: { saved: SessionTemplate; catalogue: Exerc
           </div>
         </Sheet>
       )}
-      {dialog !== null && typeof dialog === 'object' && (
+      {dialog !== null && typeof dialog === 'object' && 'future' in dialog && (
         <Sheet
           title={S.templateEditor.updateFutureTitle}
           onClose={() => {

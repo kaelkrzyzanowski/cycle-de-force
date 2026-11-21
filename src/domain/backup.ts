@@ -1,7 +1,7 @@
 import { isRealized } from './load';
 import { FOOD_CATEGORIES, MEALS } from './nutrition';
 import type { CustomFood, FoodDay } from './nutrition';
-import { DEFAULT_SETTINGS } from './types';
+import { DEFAULT_SETTINGS, EXERCISE_CATEGORIES } from './types';
 import type { Activity, Cycle, DailySteps, Exercise, IsoDate, MaxChange, Session, SessionTemplate, Settings } from './types';
 
 export const BACKUP_APP = 'cycle-de-force';
@@ -140,10 +140,8 @@ function checkMaxes(v: unknown, where: string): void {
   check(isRecord(v) && isNum(v['S']) && isNum(v['B']) && isNum(v['D']), `${where} : max`);
 }
 
-function checkData(data: unknown): asserts data is BackupData {
-  check(isRecord(data), 'données absentes');
-  check(isRecord(data['settings']), 'réglages absents');
-
+/** Modèles et catalogue d'exercices valides (sauvegarde complète ou fichier de modèles). */
+export function checkTemplatesAndExercises(data: Json): void {
   checkArray(data, 'templates', (t, w) => {
     check(isStr(t['name']) && isNum(t['weeksCount']) && isRecord(t['weeks']) && optNum(t['deloadWeek']), w);
     for (const week of Object.values(t['weeks'] as Json)) {
@@ -157,7 +155,16 @@ function checkData(data: unknown): asserts data is BackupData {
       }
     }
   });
-  checkArray(data, 'exercises', (e, w) => check(isStr(e['name']) && Array.isArray(e['aliases']), w));
+  checkArray(data, 'exercises', (e, w) =>
+    check(isStr(e['name']) && Array.isArray(e['aliases']) && (e['category'] === undefined || EXERCISE_CATEGORIES.includes(e['category'] as never)), w),
+  );
+}
+
+function checkData(data: unknown): asserts data is BackupData {
+  check(isRecord(data), 'données absentes');
+  check(isRecord(data['settings']), 'réglages absents');
+
+  checkTemplatesAndExercises(data);
   checkArray(data, 'cycles', (c, w) => {
     check(isStr(c['name']) && isStr(c['startDate']) && ISO_DATE.test(c['startDate']) && isNum(c['weeksCount']), w);
     checkMaxes(c['max'], w);

@@ -60,6 +60,9 @@ function SessionView({ session: initial, cycle, cycleSessions, catalogue }: Data
 
   // Notes : enregistrées pendant la frappe (après une courte pause) et aussitôt en quittant le champ ou l'écran,
   // pour ne rien perdre si l'app est fermée juste après la saisie.
+  // Chaque note part de la dernière version de la séance, même si l'écran n'a pas encore été redessiné.
+  const latest = useRef(session);
+  latest.current = session;
   const noteTimer = useRef<number | undefined>(undefined);
   const pendingNote = useRef<Session | null>(null);
   const flushNote = () => {
@@ -68,7 +71,9 @@ function SessionView({ session: initial, cycle, cycleSessions, catalogue }: Data
     pendingNote.current = null;
     if (next) app.repo.saveSessions([next]).catch((err: unknown) => console.error(err));
   };
-  const typeNote = (next: Session) => {
+  const typeNote = (update: (s: Session) => Session) => {
+    const next = update(pendingNote.current ?? latest.current);
+    latest.current = next;
     setSession(next);
     pendingNote.current = next;
     window.clearTimeout(noteTimer.current);
@@ -235,9 +240,10 @@ function SessionView({ session: initial, cycle, cycleSessions, catalogue }: Data
                 placeholder={S.session.note}
                 aria-label={S.session.exerciseNote(ex.name)}
                 value={ex.note ?? ''}
-                onInput={(e) => typeNote(mapExercise(session, ex.id, (x) => withOptional(x, 'note', e.currentTarget.value || undefined)))}
+                onInput={(e) => { const v = e.currentTarget.value; typeNote((s) => mapExercise(s, ex.id, (x) => withOptional(x, 'note', v || undefined))); }}
                 onBlur={(e) => {
-                  typeNote(mapExercise(session, ex.id, (x) => withOptional(x, 'note', e.currentTarget.value.trim() || undefined)));
+                  const v = e.currentTarget.value.trim();
+                  typeNote((s) => mapExercise(s, ex.id, (x) => withOptional(x, 'note', v || undefined)));
                   flushNote();
                 }}
               />
@@ -250,9 +256,10 @@ function SessionView({ session: initial, cycle, cycleSessions, catalogue }: Data
               class="text-input note"
               rows={2}
               value={session.note ?? ''}
-              onInput={(e) => typeNote(withOptional(session, 'note', e.currentTarget.value || undefined))}
+              onInput={(e) => { const v = e.currentTarget.value; typeNote((s) => withOptional(s, 'note', v || undefined)); }}
               onBlur={(e) => {
-                typeNote(withOptional(session, 'note', e.currentTarget.value.trim() || undefined));
+                const v = e.currentTarget.value.trim();
+                typeNote((s) => withOptional(s, 'note', v || undefined));
                 flushNote();
               }}
             />

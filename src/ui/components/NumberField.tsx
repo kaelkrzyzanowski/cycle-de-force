@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import { formatKg, parseDecimal } from '../format';
 
 interface Props {
@@ -16,7 +16,13 @@ interface Props {
 /** Nombre avec gros boutons − / + (ou saisie seule) et clavier numérique. */
 export function NumberField({ label, value, onChange, step = 1, min = 0, max = 9999, suffix, buttons = true }: Props) {
   const [text, setText] = useState(formatKg(value));
+  // Au premier affichage, le texte vaut déjà la valeur : ne pas écraser une saisie très rapide.
+  const mounted = useRef(false);
   useEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true;
+      return;
+    }
     // Ne pas réécrire le champ pendant la frappe si la valeur est la même (« 16, » → 16).
     setText((current) => (parseDecimal(current) === value ? current : formatKg(value)));
   }, [value]);

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import type { Palette, Profile, Rounding, ThemePref } from '../../domain/types';
 import { errorCode, Tracker } from '../../platform/tracker';
 import type { StepStatus } from '../../platform/tracker';
@@ -23,7 +23,13 @@ const SEXES: Profile['sex'][] = ['M', 'F', 'NA'];
 function ProfileSettings() {
   const { settings, updateSettings } = useApp();
   const profile: Profile = settings.profile ?? { sex: 'NA', ageYears: 0, heightCm: 0, weightKg: 0 };
-  const set = (patch: Partial<Profile>) => void updateSettings({ profile: { ...profile, ...patch } });
+  // Chaque champ part du dernier profil saisi, même si l'écran n'a pas encore été redessiné.
+  const latest = useRef(profile);
+  latest.current = profile;
+  const set = (patch: Partial<Profile>) => {
+    latest.current = { ...latest.current, ...patch };
+    void updateSettings({ profile: latest.current });
+  };
 
   return (
     <section class="card stack tight">

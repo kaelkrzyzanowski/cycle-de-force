@@ -1,8 +1,9 @@
 import 'fake-indexeddb/auto';
 import { afterEach, describe, expect, it } from 'vitest';
 import { buildBackup, parseBackup } from '../domain/backup';
+import { OFFICIAL_EXERCISES, seedData } from '../seed';
 import { session, set, fixed } from '../domain/testUtils';
-import type { Session } from '../domain/types';
+import type { Session, SessionTemplate } from '../domain/types';
 import { openCdfDb } from './db';
 import { openRepository } from './repository';
 import type { Repository } from './repository';
@@ -14,37 +15,52 @@ const fresh = async () => (repo = await openRepository(`test-${++n}`));
 afterEach(() => repo?.close());
 
 describe('repository IndexedDB', () => {
-  it('charge les 5 modèles natifs une seule fois', async () => {
+  it('nouvelle installation : aucun modèle, aucun cycle, catalogue d’exercices classé', async () => {
     const r = await fresh();
     expect(await r.ensureSeeded()).toEqual({ seeded: true });
-    expect(await r.listTemplates()).toHaveLength(5);
-    expect((await r.listExercises()).length).toBeGreaterThan(30);
+    expect(await r.listTemplates()).toEqual([]);
+    expect(await r.listCycles()).toEqual([]);
+    const catalogue = await r.listExercises();
+    expect(catalogue).toHaveLength(OFFICIAL_EXERCISES.length);
+    expect(catalogue.every((e) => e.category !== undefined)).toBe(true);
     expect(await r.ensureSeeded()).toEqual({ seeded: false });
   });
 
-  it('ne réécrase pas un modèle natif modifié', async () => {
-    const r = await fresh();
-    await r.ensureSeeded();
-    const t = await r.getTemplate('tpl-deadlift');
-    await r.saveTemplate({ ...t!, name: 'Deadlift perso' });
-    await r.ensureSeeded();
-    expect((await r.getTemplate('tpl-deadlift'))?.name).toBe('Deadlift perso');
+  it('GARANTIE : une mise à jour (base v3, seed 2) ne modifie jamais un modèle, un cycle ni une séance', async () => {
+    const name = `test-${++n}`;
+    // Base telle qu'elle était sur le téléphone avant la mise à jour.
+    const { templates, exercises } = seedData();
+    const mine = templates.map((t) => (t.id === 'tpl-deadlift' ? { ...t, name: 'Deadlift perso', weeks: { ...t.weeks, 1: [] } } : t));
+    const custom = { id: 'tpl-perso', name: 'Haut du corps', color: '#123456', native: false, weeksCount: 1, weeks: { 1: [] } };
+    const cycle = { id: 'c1', name: 'Bloc 1', startDate: '2026-11-02', weeksCount: 7, max: { S: 180, B: 120, D: 220 }, weeklyPlan: [] };
+    const old = await openCdfDb(name, 3);
+    for (const t of [...mine, custom]) await old.put('templates', t);
+    for (const e of exercises) await old.put('exercises', e);
+    await old.put('cycles', cycle);
+    await old.put('sessions', session('2026-11-03', [set(0, 5, fixed(100))], 's1'));
+    await old.put('meta', { key: 'seedVersion', value: 2 });
+    old.close();
+
+    const r = (repo = await openRepository(name));
+    expect(await r.ensureSeeded()).toEqual({ seeded: true });
+    const after = await r.listTemplates();
+    expect(after.sort((a, b) => a.id.localeCompare(b.id))).toEqual([...mine, custom].sort((a, b) => a.id.localeCompare(b.id)));
+    expect(await r.listCycles()).toEqual([cycle]);
+    expect(await r.getSession('s1')).toEqual(session('2026-11-03', [set(0, 5, fixed(100))], 's1'));
+    // Exercices existants : seulement classés, noms et mouvements intacts ; catalogue de base ajouté.
+    const catalogue = await r.listExercises();
+    expect(catalogue.find((e) => e.id === 'squat')).toMatchObject({ name: 'Squat', defaultLift: 'S', category: 'libre' });
+    expect(catalogue.length).toBeGreaterThan(exercises.length);
   });
 
-  it('mise à jour du seed : ajoute la semaine de deload sans écraser les modifications', async () => {
+  it('import de modèles : ajout atomique des modèles et des exercices', async () => {
     const r = await fresh();
     await r.ensureSeeded();
-    // État d'une base créée avant la version 2 : modèle natif modifié, sans deloadWeek.
-    const old = { ...(await r.getTemplate('tpl-deadlift'))!, name: 'Deadlift perso' };
-    delete old.deloadWeek;
-    await r.saveTemplate(old);
-    const db = await openCdfDb(`test-${n}`);
-    await db.put('meta', { key: 'seedVersion', value: 1 });
-    db.close();
-
-    expect(await r.ensureSeeded()).toEqual({ seeded: true });
-    expect(await r.getTemplate('tpl-deadlift')).toMatchObject({ name: 'Deadlift perso', deloadWeek: 5 });
-    expect((await r.getTemplate('tpl-sbd'))?.deloadWeek).toBeUndefined();
+    const { templates, exercises } = seedData();
+    await r.addTemplates(templates, exercises);
+    expect(await r.listTemplates()).toHaveLength(5);
+    await expect(r.addTemplates([{ id: undefined } as unknown as SessionTemplate], [])).rejects.toThrow();
+    expect(await r.listTemplates()).toHaveLength(5);
   });
 
   it('réglages par défaut puis enregistrés', async () => {

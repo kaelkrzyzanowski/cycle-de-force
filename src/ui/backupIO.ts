@@ -1,9 +1,10 @@
 import type { Repository } from '../data/repository';
-import { AUTO_BACKUP_MIN_INTERVAL_MS, isAutoBackupDue } from '../domain/autoBackup';
+import { AUTO_BACKUP_MIN_INTERVAL_MS, isAutoBackupDue, needsPreUpdateBackup, preUpdateBackupName } from '../domain/autoBackup';
 import { backupFileName, buildBackup } from '../domain/backup';
 import { todayIso } from '../domain/dates';
 import { gpxFileName, toGpx } from '../domain/gpx';
-import type { Activity } from '../domain/types';
+import { buildTemplatesFile, templatesFileName } from '../domain/templatesFile';
+import type { Activity, SessionTemplate } from '../domain/types';
 import { isNative, loadNative } from '../platform';
 import { formatDayMedium } from './format';
 import { S } from './strings';
@@ -32,10 +33,16 @@ export async function shareGpx(activity: Pick<Activity, 'type' | 'date' | 'track
 }
 
 /** Enregistre un fichier JSON : feuille de partage dans l'app Android, téléchargement dans le navigateur. */
-export async function saveJsonFile(json: string, fileName: string): Promise<ExportResult> {
-  if (isNative) return (await loadNative()).shareBackupFile(json, fileName, S.backup.shareTitle);
+export async function saveJsonFile(json: string, fileName: string, title: string = S.backup.shareTitle): Promise<ExportResult> {
+  if (isNative) return (await loadNative()).shareBackupFile(json, fileName, title);
   downloadText(json, fileName);
   return 'downloaded';
+}
+
+/** Exporte des modèles seuls (tous, ou un seul) avec les exercices qu'ils utilisent. */
+export async function exportTemplates(repo: Repository, templates: readonly SessionTemplate[], single?: string): Promise<ExportResult> {
+  const file = buildTemplatesFile(templates, await repo.listExercises(), new Date().toISOString());
+  return saveJsonFile(JSON.stringify(file, null, 2), templatesFileName(todayIso(), single), S.templatesFile.shareTitle);
 }
 
 export async function backupJson(repo: Repository, now: Date = new Date()): Promise<string> {
@@ -64,6 +71,23 @@ export async function exportBackup(repo: Repository): Promise<ExportResult> {
   }
   downloadText(json, name);
   return 'downloaded';
+}
+
+export const APP_VERSION_FLAG = 'appVersion';
+
+/**
+ * Premier lancement d'une nouvelle version (app Android) : copie complète datée dans Documents/CycleDeForce,
+ * avant toute autre opération, conservée indéfiniment. Si l'écriture échoue, elle sera retentée au lancement suivant.
+ */
+export async function backupBeforeUpdate(repo: Repository, version: string): Promise<void> {
+  const last = await repo.getFlag(APP_VERSION_FLAG);
+  if (last === version) return;
+  const hasData = (await repo.listTemplates()).length > 0 || (await repo.listCycles()).length > 0;
+  if (isNative && needsPreUpdateBackup(last, version, hasData)) {
+    const native = await loadNative();
+    await native.writeAutoBackup(await backupJson(repo), new Date(), preUpdateBackupName(last ?? 'ancienne', todayIso()));
+  }
+  await repo.setFlag(APP_VERSION_FLAG, version);
 }
 
 export const AUTO_BACKUP_AT = 'autoBackupAt';

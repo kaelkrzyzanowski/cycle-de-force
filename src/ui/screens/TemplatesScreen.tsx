@@ -5,6 +5,7 @@ import type { SessionTemplate } from '../../domain/types';
 import { TEMPLATE_IDS } from '../../seed';
 import { saveTemplateWithRename } from '../actions';
 import { TextField } from '../components/fields';
+import { TemplatesTransfer } from '../components/TemplatesTransfer';
 import { NumberField } from '../components/NumberField';
 import { Sheet } from '../components/Sheet';
 import { useApp, useData } from '../context';
@@ -85,6 +86,10 @@ export function TemplatesScreen() {
           </li>
         ))}
       </ul>
+
+      {sorted.length === 0 && <p class="card muted">{S.templates.empty}</p>}
+
+      <TemplatesTransfer templates={sorted} />
 
       <div class="button-row sticky-actions">
         <button type="button" class="btn primary" onClick={() => {

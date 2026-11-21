@@ -5,7 +5,7 @@ import { newId } from '../../domain/ids';
 import { sessionLabel } from '../../domain/templates';
 import { LIFTS } from '../../domain/types';
 import type { Cycle, Maxes, Session, SessionTemplate, Weekday } from '../../domain/types';
-import { DEFAULT_MAX, DEFAULT_WEEKLY_PLAN } from '../../seed';
+import { DEFAULT_WEEKLY_PLAN } from '../../seed';
 import { commit, templatesById } from '../actions';
 import { allResolved, ConflictResolver } from '../components/ConflictResolver';
 import type { Choices } from '../components/ConflictResolver';
@@ -38,9 +38,9 @@ function Wizard({ cycles, templates }: Setup) {
     previous && cycleEndDate(previous) >= todayIso() ? addDays(cycleEndDate(previous), 1) : mondayOf(todayIso()),
   );
   const [weeksCount, setWeeksCount] = useState(7);
-  const [max, setMax] = useState<Maxes>(previous ? { ...previous.max } : { ...DEFAULT_MAX });
+  const [max, setMax] = useState<Maxes>(previous ? { ...previous.max } : { S: 0, B: 0, D: 0 });
   const [plan, setPlan] = useState<Partial<Record<Weekday, string>>>(
-    Object.fromEntries(DEFAULT_WEEKLY_PLAN.map((e) => [e.weekday, e.templateId])),
+    Object.fromEntries(DEFAULT_WEEKLY_PLAN.filter((e) => templates.some((t) => t.id === e.templateId)).map((e) => [e.weekday, e.templateId])),
   );
   const [existing, setExisting] = useState<Session[]>([]);
   const [choices, setChoices] = useState<Choices>({});
@@ -67,7 +67,7 @@ function Wizard({ cycles, templates }: Setup) {
     app.repo.listSessionsBetween(cycle.startDate, cycleEndDate(cycle)).then(setExisting);
   }, [cycle.startDate, cycle.weeksCount]);
 
-  const valid = cycle.name !== '' && LIFTS.every((l) => max[l] > 0);
+  const valid = cycle.name !== '' && LIFTS.every((l) => max[l] >= 0);
   const steps = S.cycleForm.steps;
 
   const create = async () => {

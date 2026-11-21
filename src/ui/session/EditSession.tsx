@@ -7,6 +7,7 @@ import type { Exercise, Lift, LoadRule, Session, SessionExercise, SessionSet } f
 import { useApp } from '../context';
 import { formatKg, parseDecimal } from '../format';
 import { S } from '../strings';
+import { ExercisePickerSheet } from '../sheets/ExercisePickerSheet';
 import { resolveExercise } from './catalog';
 
 export const CATALOGUE_LIST_ID = 'exercise-catalogue';
@@ -82,10 +83,11 @@ interface PrescriptionEditorProps {
 export function PrescriptionEditor({ draft, known, dispatch, resolve }: PrescriptionEditorProps) {
   const app = useApp();
   const [newName, setNewName] = useState('');
+  const [browsing, setBrowsing] = useState(false);
 
-  const addExercise = () => {
-    if (newName.trim() === '') return;
-    const exercise = resolve(newName);
+  const addExercise = (name = newName) => {
+    if (name.trim() === '') return;
+    const exercise = resolve(name);
     if (draft.exercises.some((e) => e.exerciseId === exercise.id)) {
       app.toast(S.edit.duplicateExercise);
       return;
@@ -99,7 +101,7 @@ export function PrescriptionEditor({ draft, known, dispatch, resolve }: Prescrip
     <>
       <datalist id={CATALOGUE_LIST_ID}>
         {known.map((e) => (
-          <option key={e.id} value={e.name} />
+          <option key={e.id} value={e.name} label={e.category ? S.exerciseCategories[e.category] : undefined} />
         ))}
       </datalist>
 
@@ -126,10 +128,26 @@ export function PrescriptionEditor({ draft, known, dispatch, resolve }: Prescrip
             onKeyDown={(e) => e.key === 'Enter' && addExercise()}
           />
         </label>
-        <button type="button" class="btn" onClick={addExercise} disabled={newName.trim() === ''}>
-          + {S.edit.addExercise}
-        </button>
+        <div class="button-row">
+          <button type="button" class="btn" onClick={() => setBrowsing(true)}>
+            {S.edit.browseCatalogue}
+          </button>
+          <button type="button" class="btn" onClick={() => addExercise()} disabled={newName.trim() === ''}>
+            + {S.edit.addExercise}
+          </button>
+        </div>
       </section>
+
+      {browsing && (
+        <ExercisePickerSheet
+          known={known}
+          onClose={() => setBrowsing(false)}
+          onPick={(e) => {
+            setBrowsing(false);
+            addExercise(e.name);
+          }}
+        />
+      )}
     </>
   );
 }

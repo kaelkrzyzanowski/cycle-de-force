@@ -25,7 +25,8 @@ export async function shareBackupFile(json: string, fileName: string, dialogTitl
  * Copie datée dans Documents/CycleDeForce (visible dans l'app Fichiers, conservée après désinstallation),
  * puis suppression des copies au-delà de 14 jours. Renvoie le chemin écrit.
  */
-export async function writeAutoBackup(json: string, now: Date = new Date()): Promise<string> {
+/** `name` : nom de fichier imposé (copie d'avant mise à jour, jamais supprimée par le ménage des 14 jours). */
+export async function writeAutoBackup(json: string, now: Date = new Date(), name?: string): Promise<string> {
   // Android 10 et moins : permission de stockage nécessaire ; accordée d'office à partir d'Android 11.
   const permission = await Filesystem.checkPermissions();
   if (permission.publicStorage !== 'granted') {
@@ -33,7 +34,7 @@ export async function writeAutoBackup(json: string, now: Date = new Date()): Pro
     if (asked.publicStorage !== 'granted') throw new Error('Permission de stockage refusée');
   }
   const date = todayIso(now);
-  let path = `${AUTO_BACKUP_DIR}/${backupFileName(date)}`;
+  let path = `${AUTO_BACKUP_DIR}/${name ?? backupFileName(date)}`;
   const write = (p: string) =>
     Filesystem.writeFile({ path: p, data: json, directory: Directory.Documents, encoding: Encoding.UTF8, recursive: true });
   try {

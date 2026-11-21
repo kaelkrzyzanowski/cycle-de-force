@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { importOriginTemplates } from './helpers';
 import type { Page } from '@playwright/test';
 import { addDays, mondayOf, todayIso } from '../src/domain/dates';
 
@@ -19,6 +20,7 @@ async function nextWeeks(page: Page, n: number) {
 const cards = (page: Page) => page.locator('.session-card .session-name');
 
 test('créer un cycle de 7 semaines avec l’assistant et le voir dans le calendrier', async ({ page }) => {
+  await importOriginTemplates(page);
   await page.goto('/#/cycle/nouveau');
   await page.getByLabel('Nom du cycle').fill('Bloc test');
   await page.getByLabel('Date de début').fill(addDays(monday, 2)); // un mercredi : ramené au lundi
@@ -44,6 +46,7 @@ test('créer un cycle de 7 semaines avec l’assistant et le voir dans le calend
 });
 
 test('dupliquer une semaine vers une date libre, puis sur une semaine occupée', async ({ page }) => {
+  await importOriginTemplates(page);
   await page.goto('/#/calendrier');
   await page.getByRole('button', { name: 'Créer le Bloc 0' }).click();
   await expect(page.getByRole('status')).toHaveText('Bloc 0 créé : 28 séances');
@@ -78,6 +81,7 @@ test('dupliquer une semaine vers une date libre, puis sur une semaine occupée',
 });
 
 test('dupliquer le cycle avec Deadlift +5 kg', async ({ page }) => {
+  await importOriginTemplates(page);
   await page.goto('/#/calendrier');
   await page.getByRole('button', { name: 'Créer le Bloc 0' }).click();
   await page.getByRole('link', { name: /Bloc 0 · semaine 1\/7/ }).click();
@@ -97,6 +101,7 @@ test('dupliquer le cycle avec Deadlift +5 kg', async ({ page }) => {
 });
 
 test('menu d’une séance : déplacer puis supprimer', async ({ page }) => {
+  await importOriginTemplates(page);
   await page.goto('/#/calendrier');
   await page.getByRole('button', { name: 'Créer le Bloc 0' }).click();
   await page.getByRole('button', { name: 'Semaine', exact: true }).click();

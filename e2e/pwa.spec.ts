@@ -1,10 +1,22 @@
 import { expect, test } from '@playwright/test';
+import { importOriginTemplates, ORIGIN_TEMPLATES } from './helpers';
 
-test('les 5 modèles natifs sont chargés au premier lancement', async ({ page }) => {
+test('premier lancement : aucun modèle ni cycle, catalogue d’exercices classé ; import du programme d’origine', async ({ page }) => {
+  await page.goto('/#/calendrier');
+  await expect(page.getByRole('link', { name: 'Créer mes modèles' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Créer le Bloc 0' })).toHaveCount(0);
+
   await page.goto('/#/modeles');
+  await expect(page.locator('.template-row')).toHaveCount(0);
+  await expect(page.getByText('Aucun modèle pour l’instant')).toBeVisible();
+
+  await importOriginTemplates(page);
   for (const name of ['Deadlift', 'SBD', 'Bench', 'Squat', 'Joker']) {
     await expect(page.locator('.template-row .name', { hasText: new RegExp(`^${name}`) })).toBeVisible();
   }
+  // Un second import n'ajoute ni ne remplace rien.
+  await page.locator('input[type="file"][aria-label="Importer des modèles"]').setInputFiles(ORIGIN_TEMPLATES);
+  await expect(page.getByRole('dialog')).toContainText('Tous les modèles de ce fichier sont déjà présents');
 });
 
 test("l'app est installable et s'ouvre hors ligne", async ({ page, context }) => {
@@ -23,7 +35,7 @@ test("l'app est installable et s'ouvre hors ligne", async ({ page, context }) =>
   await context.setOffline(true);
   await page.goto('/#/modeles');
   await page.reload();
-  await expect(page.getByRole('listitem').filter({ hasText: /^Deadlift/ })).toBeVisible();
+  await expect(page.getByText('Aucun modèle pour l’instant')).toBeVisible();
   await page.getByRole('link', { name: 'Réglages' }).click();
   await expect(page.getByRole('heading', { name: 'Réglages' })).toBeVisible();
 });

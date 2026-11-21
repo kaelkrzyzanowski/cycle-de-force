@@ -1,4 +1,6 @@
 import { expect, test } from '@playwright/test';
+import { importOriginTemplates } from './helpers';
+import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 import { mondayOf, todayIso } from '../src/domain/dates';
 
@@ -11,6 +13,7 @@ async function setNumber(page: Page, label: string, value: string) {
 }
 
 test('créer « Bench volume » sur 4 semaines, progression 65 → 80 %, et l’utiliser dans un nouveau cycle', async ({ page }) => {
+  await importOriginTemplates(page);
   await page.goto('/#/modeles');
   await page.getByRole('button', { name: /Nouveau modèle/ }).click();
   await page.getByLabel('Nom du modèle').fill('Bench volume');
@@ -48,6 +51,8 @@ test('créer « Bench volume » sur 4 semaines, progression 65 → 80 %, et l’
   await page.getByLabel('Nom du cycle').fill('Bloc volume');
   await page.getByLabel('Date de début').fill(monday);
   await page.getByRole('button', { name: 'Suivant' }).click();
+  // Premier cycle : les max partent de zéro, on saisit celui du Bench.
+  await setNumber(page, 'Bench', '115');
   await page.getByRole('button', { name: 'Suivant' }).click();
   await page.getByLabel('Mardi').selectOption({ label: 'Bench volume' });
   for (const day of ['Jeudi', 'Samedi', 'Dimanche']) await page.getByLabel(day).selectOption('');
@@ -68,6 +73,7 @@ test('créer « Bench volume » sur 4 semaines, progression 65 → 80 %, et l’
 });
 
 test('progression : la semaine de deload ne fait pas avancer le pourcentage', async ({ page }) => {
+  await importOriginTemplates(page);
   await page.goto('/#/modeles');
   await page.getByRole('link', { name: /^Bench/ }).click();
   await page.getByRole('button', { name: /Appliquer une progression/ }).click();
@@ -78,6 +84,7 @@ test('progression : la semaine de deload ne fait pas avancer le pourcentage', as
 });
 
 test('modifier un modèle natif, mettre à jour les séances futures, puis le réinitialiser', async ({ page }) => {
+  await importOriginTemplates(page);
   await page.goto('/#/calendrier');
   await page.getByRole('button', { name: 'Créer le Bloc 0' }).click();
   await page.goto('/#/modeles');
@@ -114,6 +121,7 @@ test('modifier un modèle natif, mettre à jour les séances futures, puis le r�
 });
 
 test('renommer un modèle depuis la liste, puis une séance depuis le calendrier', async ({ page }) => {
+  await importOriginTemplates(page);
   await page.goto('/#/calendrier');
   await page.getByRole('button', { name: 'Créer le Bloc 0' }).click();
   await page.goto('/#/modeles');
@@ -132,4 +140,49 @@ test('renommer un modèle depuis la liste, puis une séance depuis le calendrier
   await page.getByRole('textbox', { name: 'Nom de la séance' }).press('Enter');
   await expect(page.getByRole('status')).toHaveText('Séance renommée « DC lourd »');
   await expect(page.locator('.session-name', { hasText: /^DC lourd$/ })).toBeVisible();
+});
+
+test('modèle modifié : alerte avant de quitter sans enregistrer ; export d’un modèle ou de tous ; catalogue classé', async ({ page }) => {
+  await importOriginTemplates(page);
+  await page.getByRole('link', { name: /^Bench/ }).click();
+  await page.getByLabel('Nom du modèle').fill('Bench lourd');
+
+  // Quitter par la barre du bas : l'app demande d'abord.
+  await page.getByRole('link', { name: 'Stats' }).click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toContainText('Modifications non enregistrées');
+  await dialog.getByRole('button', { name: 'Rester sur le modèle' }).click();
+  await expect(page.getByLabel('Nom du modèle')).toHaveValue('Bench lourd');
+
+  // Catalogue : poids du corps → Pompes, ajouté au modèle.
+  await page.getByRole('button', { name: 'Catalogue' }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Poids du corps', exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Pompes Push-up', exact: true }).click();
+  await expect(page.getByRole('combobox', { name: /Nom de l’exercice/ }).last()).toHaveValue('Pompes');
+
+  await page.getByRole('link', { name: 'Stats' }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Enregistrer et quitter' }).click();
+  await expect(page).toHaveURL(/#\/stats$/);
+  await page.goto('/#/modeles');
+  await expect(page.getByRole('link', { name: /^Bench lourd/ })).toBeVisible();
+
+  // Exporter ce modèle seul.
+  await page.getByRole('link', { name: /^Bench lourd/ }).click();
+  await page.getByRole('button', { name: 'Autres actions' }).click();
+  const one = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Exporter ce modèle' }).click();
+  const single = await one;
+  expect(single.suggestedFilename()).toMatch(/^modele-bench-lourd-\d{4}-\d{2}-\d{2}\.json$/);
+  const singleFile = JSON.parse(await readFile(await single.path(), 'utf8')) as { kind: string; templates: { name: string }[]; exercises: { id: string }[] };
+  expect(singleFile.kind).toBe('modeles');
+  expect(singleFile.templates.map((t) => t.name)).toEqual(['Bench lourd']);
+  expect(singleFile.exercises.map((e) => e.id)).toContain('pompes');
+  expect(Object.keys(singleFile)).not.toContain('data');
+
+  // Exporter tous les modèles.
+  await page.goto('/#/modeles');
+  const all = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Exporter mes modèles' }).click();
+  const allFile = JSON.parse(await readFile(await (await all).path(), 'utf8')) as { templates: unknown[] };
+  expect(allFile.templates).toHaveLength(5);
 });

@@ -1,0 +1,6487 @@
+{
+  "app": "cycle-de-force",
+  "kind": "modeles",
+  "version": 1,
+  "exportedAt": "2026-11-21T00:00:00.000Z",
+  "templates": [
+    {
+      "id": "tpl-deadlift",
+      "name": "Deadlift",
+      "color": "#b5452f",
+      "native": true,
+      "weeksCount": 7,
+      "deloadWeek": 5,
+      "weeks": {
+        "1": [
+          {
+            "exerciseId": "deadlift-sumo-2-iso",
+            "name": "Deadlift Sumo 2''+ iso",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.7
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.7
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "deadlift-sumo-inche-mur",
+            "name": "Deadlift Sumo + Inche mur",
+            "sets": [
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.8
+                }
+              },
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.8
+                }
+              },
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.8
+                }
+              },
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.8
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "hack-squat",
+            "name": "Hack Squat",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "lombaire",
+            "name": "Lombaire",
+            "sets": [
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 50
+                }
+              },
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 50
+                }
+              },
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 50
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "rowing-3-points",
+            "name": "Rowing 3 points",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 36
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 36
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 36
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "tirage-dos-rameur",
+            "name": "Tirage dos Rameur",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 65
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 65
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 65
+                }
+              }
+            ]
+          }
+        ],
+        "2": [
+          {
+            "exerciseId": "deadlift-sumo-2-iso",
+            "name": "Deadlift Sumo 2''+ iso",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.7
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.7
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "deadlift-sumo-inche-mur",
+            "name": "Deadlift Sumo + Inche mur",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.85
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.85
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.85
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.85
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "hack-squat",
+            "name": "Hack Squat",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "lombaire",
+            "name": "Lombaire",
+            "sets": [
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 50
+                }
+              },
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 50
+                }
+              },
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 50
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "rowing-3-points",
+            "name": "Rowing 3 points",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 36
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 36
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 36
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "tirage-dos-rameur",
+            "name": "Tirage dos Rameur",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 65
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 65
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 65
+                }
+              }
+            ]
+          }
+        ],
+        "3": [
+          {
+            "exerciseId": "deadlift-sumo-2-iso",
+            "name": "Deadlift Sumo 2''+ iso",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.7
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.7
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "deadlift-sumo-inche-mur",
+            "name": "Deadlift Sumo + Inche mur",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.85
+                }
+              },
+              {
+                "reps": 3,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.9
+                }
+              },
+              {
+                "reps": 3,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.9
+                }
+              },
+              {
+                "reps": 3,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.9
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "hack-squat",
+            "name": "Hack Squat",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "lombaire",
+            "name": "Lombaire",
+            "sets": [
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 50
+                }
+              },
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 50
+                }
+              },
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 50
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "rowing-3-points",
+            "name": "Rowing 3 points",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 36
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 36
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 36
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "tirage-dos-rameur",
+            "name": "Tirage dos Rameur",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 65
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 65
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 65
+                }
+              }
+            ]
+          }
+        ],
+        "4": [
+          {
+            "exerciseId": "deadlift-sumo-inche-mur",
+            "name": "Deadlift Sumo + Inche mur",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.85
+                }
+              },
+              {
+                "reps": 1,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.9
+                }
+              },
+              {
+                "reps": 1,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.95
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.65
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "hack-squat",
+            "name": "Hack Squat",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "lombaire",
+            "name": "Lombaire",
+            "sets": [
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 50
+                }
+              },
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 50
+                }
+              },
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 50
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "rowing-3-points",
+            "name": "Rowing 3 points",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 36
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 36
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 36
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "tirage-dos-rameur",
+            "name": "Tirage dos Rameur",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 65
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 65
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 65
+                }
+              }
+            ]
+          }
+        ],
+        "5": [
+          {
+            "exerciseId": "squat-sumo",
+            "name": "Squat Sumo",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "rdl",
+            "name": "RDL",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "hack-squat",
+            "name": "Hack Squat",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "lombaire",
+            "name": "Lombaire",
+            "sets": [
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 50
+                }
+              },
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 50
+                }
+              },
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 50
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "rowing-3-points",
+            "name": "Rowing 3 points",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 36
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 36
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 36
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "tirage-dos-rameur",
+            "name": "Tirage dos Rameur",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 65
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 65
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 65
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "poulie-dos",
+            "name": "Poulie Dos",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              }
+            ]
+          }
+        ],
+        "6": [
+          {
+            "exerciseId": "deadlift-sumo-2-iso",
+            "name": "Deadlift Sumo 2''+ iso",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.7
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.7
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "deadlift-sumo-inche-mur",
+            "name": "Deadlift Sumo + Inche mur",
+            "sets": [
+              {
+                "reps": 6,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.65
+                }
+              },
+              {
+                "reps": 6,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.65
+                }
+              },
+              {
+                "reps": 6,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.65
+                }
+              },
+              {
+                "reps": 6,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.65
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "hack-squat",
+            "name": "Hack Squat",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "lombaire",
+            "name": "Lombaire",
+            "sets": [
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 50
+                }
+              },
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 50
+                }
+              },
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 50
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "rowing-3-points",
+            "name": "Rowing 3 points",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 36
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 36
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 36
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "tirage-dos-rameur",
+            "name": "Tirage dos Rameur",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 65
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 65
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 65
+                }
+              }
+            ]
+          }
+        ],
+        "7": [
+          {
+            "exerciseId": "deadlift-sumo-2-iso",
+            "name": "Deadlift Sumo 2''+ iso",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.7
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.7
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "deadlift-sumo-inche-mur",
+            "name": "Deadlift Sumo + Inche mur",
+            "sets": [
+              {
+                "reps": 6,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.75
+                }
+              },
+              {
+                "reps": 6,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.75
+                }
+              },
+              {
+                "reps": 6,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.75
+                }
+              },
+              {
+                "reps": 6,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.75
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "hack-squat",
+            "name": "Hack Squat",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "lombaire",
+            "name": "Lombaire",
+            "sets": [
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 50
+                }
+              },
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 50
+                }
+              },
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 50
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "rowing-3-points",
+            "name": "Rowing 3 points",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 36
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 36
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 36
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "tirage-dos-rameur",
+            "name": "Tirage dos Rameur",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 65
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 65
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 65
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tpl-sbd",
+      "name": "SBD",
+      "color": "#c9a227",
+      "native": true,
+      "weeksCount": 7,
+      "weeks": {
+        "1": [
+          {
+            "exerciseId": "squat-420",
+            "name": "Squat 420",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.6
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.6
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.6
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "dc-420",
+            "name": "DC 420",
+            "sets": [
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.65
+                }
+              },
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.65
+                }
+              },
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.65
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "deadlift-sumo-420",
+            "name": "Deadlift Sumo 420",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.65
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.65
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.65
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "iso-sbd",
+            "name": "Iso SBD",
+            "sets": [
+              {
+                "reps": 1,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 1,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "dm",
+            "name": "DM",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "y-fly",
+            "name": "Y fly",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 6
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 6
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 6
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "pull-dos-poulie",
+            "name": "Pull dos poulie",
+            "sets": [
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              }
+            ]
+          }
+        ],
+        "2": [
+          {
+            "exerciseId": "squat-420",
+            "name": "Squat 420",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.6
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.6
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.6
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "dc-420",
+            "name": "DC 420",
+            "sets": [
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.65
+                }
+              },
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.65
+                }
+              },
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.65
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "deadlift-sumo-420",
+            "name": "Deadlift Sumo 420",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.65
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.65
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.65
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "iso-sbd",
+            "name": "Iso SBD",
+            "sets": [
+              {
+                "reps": 1,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 1,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "dm",
+            "name": "DM",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "y-fly",
+            "name": "Y fly",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 6
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 6
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 6
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "pull-dos-poulie",
+            "name": "Pull dos poulie",
+            "sets": [
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              }
+            ]
+          }
+        ],
+        "3": [
+          {
+            "exerciseId": "squat-420",
+            "name": "Squat 420",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.6
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.6
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.6
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "dc-420",
+            "name": "DC 420",
+            "sets": [
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.65
+                }
+              },
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.65
+                }
+              },
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.65
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "deadlift-sumo-420",
+            "name": "Deadlift Sumo 420",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.65
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.65
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.65
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "iso-sbd",
+            "name": "Iso SBD",
+            "sets": [
+              {
+                "reps": 1,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 1,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "dm",
+            "name": "DM",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "y-fly",
+            "name": "Y fly",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 6
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 6
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 6
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "pull-dos-poulie",
+            "name": "Pull dos poulie",
+            "sets": [
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              }
+            ]
+          }
+        ],
+        "4": [
+          {
+            "exerciseId": "squat-420",
+            "name": "Squat 420",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.6
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.6
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.6
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "dc-420",
+            "name": "DC 420",
+            "sets": [
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.65
+                }
+              },
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.65
+                }
+              },
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.65
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "deadlift-sumo-420",
+            "name": "Deadlift Sumo 420",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.65
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.65
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.65
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "iso-sbd",
+            "name": "Iso SBD",
+            "sets": [
+              {
+                "reps": 1,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 1,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "dm",
+            "name": "DM",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "y-fly",
+            "name": "Y fly",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 6
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 6
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 6
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "pull-dos-poulie",
+            "name": "Pull dos poulie",
+            "sets": [
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              }
+            ]
+          }
+        ],
+        "5": [
+          {
+            "exerciseId": "squat-420",
+            "name": "Squat 420",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.6
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.6
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.6
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "dc-420",
+            "name": "DC 420",
+            "sets": [
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.65
+                }
+              },
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.65
+                }
+              },
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.65
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "deadlift-sumo-420",
+            "name": "Deadlift Sumo 420",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.65
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.65
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.65
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "iso-sbd",
+            "name": "Iso SBD",
+            "sets": [
+              {
+                "reps": 1,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 1,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "dm",
+            "name": "DM",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "y-fly",
+            "name": "Y fly",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 6
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 6
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 6
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "pull-dos-poulie",
+            "name": "Pull dos poulie",
+            "sets": [
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              }
+            ]
+          }
+        ],
+        "6": [
+          {
+            "exerciseId": "squat-420",
+            "name": "Squat 420",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.6
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.6
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.6
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "dc-420",
+            "name": "DC 420",
+            "sets": [
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.65
+                }
+              },
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.65
+                }
+              },
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.65
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "deadlift-sumo-420",
+            "name": "Deadlift Sumo 420",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.65
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.65
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.65
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "iso-sbd",
+            "name": "Iso SBD",
+            "sets": [
+              {
+                "reps": 1,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 1,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "dm",
+            "name": "DM",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "y-fly",
+            "name": "Y fly",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 6
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 6
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 6
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "pull-dos-poulie",
+            "name": "Pull dos poulie",
+            "sets": [
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              }
+            ]
+          }
+        ],
+        "7": [
+          {
+            "exerciseId": "squat-420",
+            "name": "Squat 420",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.6
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.6
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.6
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "dc-420",
+            "name": "DC 420",
+            "sets": [
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.65
+                }
+              },
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.65
+                }
+              },
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.65
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "deadlift-sumo-420",
+            "name": "Deadlift Sumo 420",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.65
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.65
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "D",
+                  "pct": 0.65
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "iso-sbd",
+            "name": "Iso SBD",
+            "sets": [
+              {
+                "reps": 1,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 1,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "dm",
+            "name": "DM",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "y-fly",
+            "name": "Y fly",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 6
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 6
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 6
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "pull-dos-poulie",
+            "name": "Pull dos poulie",
+            "sets": [
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tpl-bench",
+      "name": "Bench",
+      "color": "#3d6fd1",
+      "native": true,
+      "weeksCount": 7,
+      "deloadWeek": 3,
+      "weeks": {
+        "1": [
+          {
+            "exerciseId": "dc-pause-2-iso-halteres",
+            "name": "DC pause 2\" + iso haltères",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.7
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.7
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "developpe-couche",
+            "name": "Développé couché",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.85
+                }
+              },
+              {
+                "reps": 3,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.9
+                }
+              },
+              {
+                "reps": 3,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.9
+                }
+              },
+              {
+                "reps": 3,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.9
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "dc-halteres-incline",
+            "name": "DC Haltères incliné",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 26
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 26
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 26
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 26
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "rowing-barre",
+            "name": "Rowing barre",
+            "sets": [
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              },
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              },
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "reverse-fly",
+            "name": "Reverse fly",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 10
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 10
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 10
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "triceps",
+            "name": "Triceps",
+            "sets": [
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 20
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 20
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 20
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "traction",
+            "name": "Traction",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "BODYWEIGHT",
+                  "extraKg": 7.5
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "BODYWEIGHT",
+                  "extraKg": 7.5
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "BODYWEIGHT",
+                  "extraKg": 7.5
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "biceps",
+            "name": "Biceps",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 25
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 25
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 25
+                }
+              }
+            ]
+          }
+        ],
+        "2": [
+          {
+            "exerciseId": "developpe-couche",
+            "name": "Développé couché",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.85
+                }
+              },
+              {
+                "reps": 1,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.9
+                }
+              },
+              {
+                "reps": 1,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.95
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 73
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "dc-halteres-incline",
+            "name": "DC Haltères incliné",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 26
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 26
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 26
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 26
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "rowing-barre",
+            "name": "Rowing barre",
+            "sets": [
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 85
+                }
+              },
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 85
+                }
+              },
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 85
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "reverse-fly",
+            "name": "Reverse fly",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 12
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 12
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 12
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "triceps",
+            "name": "Triceps",
+            "sets": [
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 20
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 20
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 20
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "traction",
+            "name": "Traction",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "BODYWEIGHT",
+                  "extraKg": 7.5
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "BODYWEIGHT",
+                  "extraKg": 7.5
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "BODYWEIGHT",
+                  "extraKg": 7.5
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "biceps",
+            "name": "Biceps",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 25
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 25
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 25
+                }
+              }
+            ]
+          }
+        ],
+        "3": [
+          {
+            "exerciseId": "dips-lestes",
+            "name": "Dips lestés",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "BODYWEIGHT",
+                  "extraKg": 20
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "BODYWEIGHT",
+                  "extraKg": 20
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "BODYWEIGHT",
+                  "extraKg": 20
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "dm",
+            "name": "DM",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 40
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "rowing-barre",
+            "name": "Rowing barre",
+            "sets": [
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 85
+                }
+              },
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 85
+                }
+              },
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 85
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "reverse-fly",
+            "name": "Reverse fly",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 12
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 12
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 12
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "triceps",
+            "name": "Triceps",
+            "sets": [
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 20
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 20
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 20
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "traction",
+            "name": "Traction",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "BODYWEIGHT",
+                  "extraKg": 7.5
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "BODYWEIGHT",
+                  "extraKg": 7.5
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "BODYWEIGHT",
+                  "extraKg": 7.5
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "biceps",
+            "name": "Biceps",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 25
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 25
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 25
+                }
+              }
+            ]
+          }
+        ],
+        "4": [
+          {
+            "exerciseId": "dc-pause-2-iso-halteres",
+            "name": "DC pause 2\" + iso haltères",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.7
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.7
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "developpe-couche",
+            "name": "Développé couché",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.65
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.65
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.65
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.65
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "dc-halteres-incline",
+            "name": "DC Haltères incliné",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 26
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 26
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 26
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 26
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "rowing-barre",
+            "name": "Rowing barre",
+            "sets": [
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 85
+                }
+              },
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 85
+                }
+              },
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 85
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "reverse-fly",
+            "name": "Reverse fly",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 12
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 12
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 12
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "triceps",
+            "name": "Triceps",
+            "sets": [
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 20
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 20
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 20
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "traction",
+            "name": "Traction",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "BODYWEIGHT",
+                  "extraKg": 7.5
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "BODYWEIGHT",
+                  "extraKg": 7.5
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "BODYWEIGHT",
+                  "extraKg": 7.5
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "biceps",
+            "name": "Biceps",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 25
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 25
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 25
+                }
+              }
+            ]
+          }
+        ],
+        "5": [
+          {
+            "exerciseId": "dc-pause-2-iso-halteres",
+            "name": "DC pause 2\" + iso haltères",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.7
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.7
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "developpe-couche",
+            "name": "Développé couché",
+            "sets": [
+              {
+                "reps": 6,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.75
+                }
+              },
+              {
+                "reps": 6,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.75
+                }
+              },
+              {
+                "reps": 6,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.75
+                }
+              },
+              {
+                "reps": 6,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.75
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "dc-halteres-incline",
+            "name": "DC Haltères incliné",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 26
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 26
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 26
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 26
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "rowing-barre",
+            "name": "Rowing barre",
+            "sets": [
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 85
+                }
+              },
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 85
+                }
+              },
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 85
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "reverse-fly",
+            "name": "Reverse fly",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 12
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 12
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 12
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "triceps",
+            "name": "Triceps",
+            "sets": [
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 20
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 20
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 20
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "traction",
+            "name": "Traction",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "BODYWEIGHT",
+                  "extraKg": 7.5
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "BODYWEIGHT",
+                  "extraKg": 7.5
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "BODYWEIGHT",
+                  "extraKg": 7.5
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "biceps",
+            "name": "Biceps",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 25
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 25
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 25
+                }
+              }
+            ]
+          }
+        ],
+        "6": [
+          {
+            "exerciseId": "dc-pause-2-iso-halteres",
+            "name": "DC pause 2\" + iso haltères",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.7
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.7
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "developpe-couche",
+            "name": "Développé couché",
+            "sets": [
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.8
+                }
+              },
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.8
+                }
+              },
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.8
+                }
+              },
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.8
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "dc-halteres-incline",
+            "name": "DC Haltères incliné",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 26
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 26
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 26
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 26
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "rowing-barre",
+            "name": "Rowing barre",
+            "sets": [
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 85
+                }
+              },
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 85
+                }
+              },
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 85
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "reverse-fly",
+            "name": "Reverse fly",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 12
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 12
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 12
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "triceps",
+            "name": "Triceps",
+            "sets": [
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 20
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 20
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 20
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "traction",
+            "name": "Traction",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "BODYWEIGHT",
+                  "extraKg": 7.5
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "BODYWEIGHT",
+                  "extraKg": 7.5
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "BODYWEIGHT",
+                  "extraKg": 7.5
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "biceps",
+            "name": "Biceps",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 25
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 25
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 25
+                }
+              }
+            ]
+          }
+        ],
+        "7": [
+          {
+            "exerciseId": "dc-pause-2-iso-halteres",
+            "name": "DC pause 2\" + iso haltères",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.7
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.7
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "developpe-couche",
+            "name": "Développé couché",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.85
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.85
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.85
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.85
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "dc-halteres-incline",
+            "name": "DC Haltères incliné",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 26
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 26
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 26
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 26
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "rowing-barre",
+            "name": "Rowing barre",
+            "sets": [
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 85
+                }
+              },
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 85
+                }
+              },
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 85
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "reverse-fly",
+            "name": "Reverse fly",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 12
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 12
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 12
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "triceps",
+            "name": "Triceps",
+            "sets": [
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 20
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 20
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 20
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "traction",
+            "name": "Traction",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "BODYWEIGHT",
+                  "extraKg": 7.5
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "BODYWEIGHT",
+                  "extraKg": 7.5
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "BODYWEIGHT",
+                  "extraKg": 7.5
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "biceps",
+            "name": "Biceps",
+            "sets": [
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 25
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 25
+                }
+              },
+              {
+                "reps": 12,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 25
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tpl-squat",
+      "name": "Squat",
+      "color": "#2a9d8f",
+      "native": true,
+      "weeksCount": 7,
+      "deloadWeek": 1,
+      "weeks": {
+        "1": [
+          {
+            "exerciseId": "hack-squat-inverse",
+            "name": "Hack Squat Inversé",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 70
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 70
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 70
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "squat-sumo-seatbelt",
+            "name": "Squat Sumo seatbelt",
+            "sets": [
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 100
+                }
+              },
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 100
+                }
+              },
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 100
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "dc-spoto-3",
+            "name": "DC Spoto 3\"",
+            "sets": [
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.7
+                }
+              },
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.7
+                }
+              },
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.7
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "abductor-moyen-fessier",
+            "name": "Abductor moyen fessier",
+            "sets": [
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 65
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 65
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 65
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "fente-bulgare",
+            "name": "Fente bulgare",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 18
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 18
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "leg-extension",
+            "name": "Leg extension",
+            "sets": [
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 22.5
+                }
+              },
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 22.5
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "good-morning",
+            "name": "Good morning",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              }
+            ]
+          }
+        ],
+        "2": [
+          {
+            "exerciseId": "squat-pause-2-iso",
+            "name": "Squat pause 2\" + iso",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.6
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.6
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "squat",
+            "name": "Squat",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.65
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.65
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.65
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.65
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "dc-haltere",
+            "name": "DC Haltère",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 30
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 30
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 30
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "abductor-moyen-fessier",
+            "name": "Abductor moyen fessier",
+            "sets": [
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 65
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 65
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 65
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "fente-bulgare",
+            "name": "Fente bulgare",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 18
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 18
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "leg-extension",
+            "name": "Leg extension",
+            "sets": [
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 22.5
+                }
+              },
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 22.5
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "good-morning",
+            "name": "Good morning",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              }
+            ]
+          }
+        ],
+        "3": [
+          {
+            "exerciseId": "squat-pause-2-iso",
+            "name": "Squat pause 2\" + iso",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.6
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.6
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "squat",
+            "name": "Squat",
+            "sets": [
+              {
+                "reps": 6,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.75
+                }
+              },
+              {
+                "reps": 6,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.75
+                }
+              },
+              {
+                "reps": 6,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.75
+                }
+              },
+              {
+                "reps": 6,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.75
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "dc-spoto-3",
+            "name": "DC Spoto 3\"",
+            "sets": [
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.7
+                }
+              },
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.7
+                }
+              },
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.7
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "abductor-moyen-fessier",
+            "name": "Abductor moyen fessier",
+            "sets": [
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 65
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 65
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 65
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "fente-bulgare",
+            "name": "Fente bulgare",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 18
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 18
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "leg-extension",
+            "name": "Leg extension",
+            "sets": [
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 22.5
+                }
+              },
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 22.5
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "good-morning",
+            "name": "Good morning",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              }
+            ]
+          }
+        ],
+        "4": [
+          {
+            "exerciseId": "squat-pause-2-iso",
+            "name": "Squat pause 2\" + iso",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.6
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.6
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "squat",
+            "name": "Squat",
+            "sets": [
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.8
+                }
+              },
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.8
+                }
+              },
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.8
+                }
+              },
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.8
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "dc-haltere",
+            "name": "DC Haltère",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 30
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 30
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 30
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "abductor-moyen-fessier",
+            "name": "Abductor moyen fessier",
+            "sets": [
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 60
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 60
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 60
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "fente-bulgare",
+            "name": "Fente bulgare",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 18
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 18
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "leg-extension",
+            "name": "Leg extension",
+            "sets": [
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 22.5
+                }
+              },
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 22.5
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "good-morning",
+            "name": "Good morning",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              }
+            ]
+          }
+        ],
+        "5": [
+          {
+            "exerciseId": "squat-pause-2-iso",
+            "name": "Squat pause 2\" + iso",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.6
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.6
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "squat",
+            "name": "Squat",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.85
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.85
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.85
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.85
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "dc-spoto-3",
+            "name": "DC Spoto 3\"",
+            "sets": [
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.7
+                }
+              },
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.7
+                }
+              },
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.7
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "abductor-moyen-fessier",
+            "name": "Abductor moyen fessier",
+            "sets": [
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 60
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 60
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 60
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "fente-bulgare",
+            "name": "Fente bulgare",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 18
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 18
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "leg-extension",
+            "name": "Leg extension",
+            "sets": [
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 22.5
+                }
+              },
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 22.5
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "good-morning",
+            "name": "Good morning",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              }
+            ]
+          }
+        ],
+        "6": [
+          {
+            "exerciseId": "squat-pause-2-iso",
+            "name": "Squat pause 2\" + iso",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.6
+                }
+              },
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.6
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "squat",
+            "name": "Squat",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.85
+                }
+              },
+              {
+                "reps": 3,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.9
+                }
+              },
+              {
+                "reps": 3,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.9
+                }
+              },
+              {
+                "reps": 3,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.9
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "dc-haltere",
+            "name": "DC Haltère",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 30
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 30
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 30
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "abductor-moyen-fessier",
+            "name": "Abductor moyen fessier",
+            "sets": [
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 60
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 60
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 60
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "fente-bulgare",
+            "name": "Fente bulgare",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 18
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 18
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "leg-extension",
+            "name": "Leg extension",
+            "sets": [
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 22.5
+                }
+              },
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 22.5
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "good-morning",
+            "name": "Good morning",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              }
+            ]
+          }
+        ],
+        "7": [
+          {
+            "exerciseId": "squat",
+            "name": "Squat",
+            "sets": [
+              {
+                "reps": 4,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.85
+                }
+              },
+              {
+                "reps": 1,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.9
+                }
+              },
+              {
+                "reps": 1,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.95
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "S",
+                  "pct": 0.65
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "dc-spoto-3",
+            "name": "DC Spoto 3\"",
+            "sets": [
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.7
+                }
+              },
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.7
+                }
+              },
+              {
+                "reps": 5,
+                "load": {
+                  "kind": "PERCENT",
+                  "lift": "B",
+                  "pct": 0.7
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "abductor-moyen-fessier",
+            "name": "Abductor moyen fessier",
+            "sets": [
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 60
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 60
+                }
+              },
+              {
+                "reps": 15,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 60
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "fente-bulgare",
+            "name": "Fente bulgare",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 18
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 18
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "leg-extension",
+            "name": "Leg extension",
+            "sets": [
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 22.5
+                }
+              },
+              {
+                "reps": 10,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 22.5
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "good-morning",
+            "name": "Good morning",
+            "sets": [
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              },
+              {
+                "reps": 8,
+                "load": {
+                  "kind": "FIXED",
+                  "kg": 80
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "tpl-joker",
+      "name": "Joker",
+      "color": "#6b7280",
+      "native": true,
+      "weeksCount": 7,
+      "weeks": {
+        "1": [
+          {
+            "exerciseId": "dc-incline-halteres",
+            "name": "DC incliné haltères",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "squat",
+            "name": "Squat",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "traction",
+            "name": "Traction",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "tirage-dos",
+            "name": "Tirage dos",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "souleve-de-terre",
+            "name": "Soulevé de terre",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "epaule-poulie",
+            "name": "Épaule poulie",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "biceps-triceps",
+            "name": "Biceps/triceps",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          }
+        ],
+        "2": [
+          {
+            "exerciseId": "dc-incline-halteres",
+            "name": "DC incliné haltères",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "squat",
+            "name": "Squat",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "traction",
+            "name": "Traction",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "tirage-dos",
+            "name": "Tirage dos",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "souleve-de-terre",
+            "name": "Soulevé de terre",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "epaule-poulie",
+            "name": "Épaule poulie",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "biceps-triceps",
+            "name": "Biceps/triceps",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          }
+        ],
+        "3": [
+          {
+            "exerciseId": "dc-incline-halteres",
+            "name": "DC incliné haltères",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "squat",
+            "name": "Squat",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "traction",
+            "name": "Traction",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "tirage-dos",
+            "name": "Tirage dos",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "souleve-de-terre",
+            "name": "Soulevé de terre",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "epaule-poulie",
+            "name": "Épaule poulie",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "biceps-triceps",
+            "name": "Biceps/triceps",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          }
+        ],
+        "4": [
+          {
+            "exerciseId": "dc-incline-halteres",
+            "name": "DC incliné haltères",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "squat",
+            "name": "Squat",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "traction",
+            "name": "Traction",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "tirage-dos",
+            "name": "Tirage dos",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "souleve-de-terre",
+            "name": "Soulevé de terre",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "epaule-poulie",
+            "name": "Épaule poulie",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "biceps-triceps",
+            "name": "Biceps/triceps",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          }
+        ],
+        "5": [
+          {
+            "exerciseId": "dc-incline-halteres",
+            "name": "DC incliné haltères",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "squat",
+            "name": "Squat",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "traction",
+            "name": "Traction",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "tirage-dos",
+            "name": "Tirage dos",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "souleve-de-terre",
+            "name": "Soulevé de terre",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "epaule-poulie",
+            "name": "Épaule poulie",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "biceps-triceps",
+            "name": "Biceps/triceps",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          }
+        ],
+        "6": [
+          {
+            "exerciseId": "dc-incline-halteres",
+            "name": "DC incliné haltères",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "squat",
+            "name": "Squat",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "traction",
+            "name": "Traction",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "tirage-dos",
+            "name": "Tirage dos",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "souleve-de-terre",
+            "name": "Soulevé de terre",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "epaule-poulie",
+            "name": "Épaule poulie",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "biceps-triceps",
+            "name": "Biceps/triceps",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          }
+        ],
+        "7": [
+          {
+            "exerciseId": "dc-incline-halteres",
+            "name": "DC incliné haltères",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "squat",
+            "name": "Squat",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "traction",
+            "name": "Traction",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "tirage-dos",
+            "name": "Tirage dos",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "souleve-de-terre",
+            "name": "Soulevé de terre",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "epaule-poulie",
+            "name": "Épaule poulie",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          },
+          {
+            "exerciseId": "biceps-triceps",
+            "name": "Biceps/triceps",
+            "sets": [
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              },
+              {
+                "reps": 0,
+                "load": {
+                  "kind": "NONE"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "exercises": [
+    {
+      "id": "abductor-moyen-fessier",
+      "name": "Abductor moyen fessier",
+      "aliases": []
+    },
+    {
+      "id": "biceps",
+      "name": "Biceps",
+      "aliases": []
+    },
+    {
+      "id": "biceps-triceps",
+      "name": "Biceps/triceps",
+      "aliases": []
+    },
+    {
+      "id": "dc-420",
+      "name": "DC 420",
+      "aliases": [],
+      "defaultLift": "B"
+    },
+    {
+      "id": "dc-haltere",
+      "name": "DC Haltère",
+      "aliases": []
+    },
+    {
+      "id": "dc-halteres-incline",
+      "name": "DC Haltères incliné",
+      "aliases": []
+    },
+    {
+      "id": "dc-incline-halteres",
+      "name": "DC incliné haltères",
+      "aliases": []
+    },
+    {
+      "id": "dc-pause-2-iso-halteres",
+      "name": "DC pause 2\" + iso haltères",
+      "aliases": [],
+      "defaultLift": "B"
+    },
+    {
+      "id": "dc-spoto-3",
+      "name": "DC Spoto 3\"",
+      "aliases": [],
+      "defaultLift": "B"
+    },
+    {
+      "id": "deadlift-sumo-inche-mur",
+      "name": "Deadlift Sumo + Inche mur",
+      "aliases": [],
+      "defaultLift": "D"
+    },
+    {
+      "id": "deadlift-sumo-2-iso",
+      "name": "Deadlift Sumo 2''+ iso",
+      "aliases": [],
+      "defaultLift": "D"
+    },
+    {
+      "id": "deadlift-sumo-420",
+      "name": "Deadlift Sumo 420",
+      "aliases": [],
+      "defaultLift": "D"
+    },
+    {
+      "id": "developpe-couche",
+      "name": "Développé couché",
+      "aliases": [
+        "DC",
+        "Bench"
+      ],
+      "defaultLift": "B"
+    },
+    {
+      "id": "dips-lestes",
+      "name": "Dips lestés",
+      "aliases": []
+    },
+    {
+      "id": "dm",
+      "name": "DM",
+      "aliases": []
+    },
+    {
+      "id": "epaule-poulie",
+      "name": "Épaule poulie",
+      "aliases": []
+    },
+    {
+      "id": "fente-bulgare",
+      "name": "Fente bulgare",
+      "aliases": []
+    },
+    {
+      "id": "good-morning",
+      "name": "Good morning",
+      "aliases": []
+    },
+    {
+      "id": "hack-squat",
+      "name": "Hack Squat",
+      "aliases": []
+    },
+    {
+      "id": "hack-squat-inverse",
+      "name": "Hack Squat Inversé",
+      "aliases": []
+    },
+    {
+      "id": "iso-sbd",
+      "name": "Iso SBD",
+      "aliases": []
+    },
+    {
+      "id": "leg-extension",
+      "name": "Leg extension",
+      "aliases": []
+    },
+    {
+      "id": "lombaire",
+      "name": "Lombaire",
+      "aliases": []
+    },
+    {
+      "id": "poulie-dos",
+      "name": "Poulie Dos",
+      "aliases": []
+    },
+    {
+      "id": "pull-dos-poulie",
+      "name": "Pull dos poulie",
+      "aliases": []
+    },
+    {
+      "id": "rdl",
+      "name": "RDL",
+      "aliases": []
+    },
+    {
+      "id": "reverse-fly",
+      "name": "Reverse fly",
+      "aliases": []
+    },
+    {
+      "id": "rowing-3-points",
+      "name": "Rowing 3 points",
+      "aliases": []
+    },
+    {
+      "id": "rowing-barre",
+      "name": "Rowing barre",
+      "aliases": []
+    },
+    {
+      "id": "souleve-de-terre",
+      "name": "Soulevé de terre",
+      "aliases": [
+        "Deadlift",
+        "SDT"
+      ]
+    },
+    {
+      "id": "squat",
+      "name": "Squat",
+      "aliases": [],
+      "defaultLift": "S"
+    },
+    {
+      "id": "squat-420",
+      "name": "Squat 420",
+      "aliases": [],
+      "defaultLift": "S"
+    },
+    {
+      "id": "squat-pause-2-iso",
+      "name": "Squat pause 2\" + iso",
+      "aliases": [],
+      "defaultLift": "S"
+    },
+    {
+      "id": "squat-sumo",
+      "name": "Squat Sumo",
+      "aliases": []
+    },
+    {
+      "id": "squat-sumo-seatbelt",
+      "name": "Squat Sumo seatbelt",
+      "aliases": []
+    },
+    {
+      "id": "tirage-dos",
+      "name": "Tirage dos",
+      "aliases": []
+    },
+    {
+      "id": "tirage-dos-rameur",
+      "name": "Tirage dos Rameur",
+      "aliases": []
+    },
+    {
+      "id": "traction",
+      "name": "Traction",
+      "aliases": []
+    },
+    {
+      "id": "triceps",
+      "name": "Triceps",
+      "aliases": []
+    },
+    {
+      "id": "y-fly",
+      "name": "Y fly",
+      "aliases": []
+    }
+  ]
+}

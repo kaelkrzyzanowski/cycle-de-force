@@ -1,4 +1,5 @@
 import { isRealized } from './load';
+import { REMINDER_TIME } from './reminders';
 import { FOOD_CATEGORIES, MEALS } from './nutrition';
 import type { CustomFood, FoodDay } from './nutrition';
 import { DEFAULT_SETTINGS, EXERCISE_CATEGORIES } from './types';
@@ -144,6 +145,7 @@ function checkMaxes(v: unknown, where: string): void {
 export function checkTemplatesAndExercises(data: Json): void {
   checkArray(data, 'templates', (t, w) => {
     check(isStr(t['name']) && isNum(t['weeksCount']) && isRecord(t['weeks']) && optNum(t['deloadWeek']), w);
+    check(t['reminderTime'] === undefined || (isStr(t['reminderTime']) && REMINDER_TIME.test(t['reminderTime'])), `${w} : heure de rappel`);
     for (const week of Object.values(t['weeks'] as Json)) {
       check(Array.isArray(week), `${w} : semaine`);
       for (const ex of week) {

@@ -564,6 +564,17 @@ export const S = {
     mine: 'Mes exercices',
   },
 
+  reminders: {
+    toggle: 'Rappel le jour de la séance',
+    time: 'Heure du rappel',
+    hint: 'Une notification te rappelle chaque séance de ce modèle placée dans le calendrier, le jour même à cette heure (sauf si tu l’as déjà commencée).',
+    webHint: 'Les notifications de rappel fonctionnent dans l’app Android.',
+    short: (time: string) => `rappel ${time.replace(':', ' h ')}`,
+    channel: 'Rappels de séance',
+    title: (name: string) => `Séance du jour : ${name}`,
+    body: (time: string) => `Prévue à ${time.replace(':', ' h ')}. Ne l’oublie pas !`,
+  },
+
   templatesFile: {
     title: 'Mes modèles en fichier',
     hint: 'Enregistre tes modèles tels qu’ils sont maintenant (sans séances, ni cycles, ni max), ou importe ceux d’un fichier.',

@@ -186,3 +186,29 @@ test('modèle modifié : alerte avant de quitter sans enregistrer ; export d’u
   const allFile = JSON.parse(await readFile(await (await all).path(), 'utf8')) as { templates: unknown[] };
   expect(allFile.templates).toHaveLength(5);
 });
+
+test('rappel de séance : heure choisie dans le modèle, enregistrée et exportée', async ({ page }) => {
+  await importOriginTemplates(page);
+  await page.getByRole('link', { name: /^Squat/ }).click();
+  await page.getByRole('checkbox', { name: 'Rappel le jour de la séance' }).check();
+  const time = page.getByLabel('Heure du rappel');
+  await expect(time).toHaveValue('18:00');
+  await time.fill('07:30');
+  await expect(page.getByText('Les notifications de rappel fonctionnent dans l’app Android.')).toBeVisible();
+  await page.getByRole('button', { name: 'Enregistrer' }).click();
+  await expect(page.getByRole('status')).toHaveText('Modèle enregistré');
+
+  await page.goto('/#/modeles');
+  await expect(page.getByRole('link', { name: /^Squat/ })).toContainText('rappel 07 h 30');
+  const download = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Exporter mes modèles' }).click();
+  const file = JSON.parse(await readFile(await (await download).path(), 'utf8')) as { templates: { id: string; reminderTime?: string }[] };
+  expect(file.templates.find((t) => t.id === 'tpl-squat')?.reminderTime).toBe('07:30');
+
+  // Désactiver le rappel.
+  await page.getByRole('link', { name: /^Squat/ }).click();
+  await page.getByRole('checkbox', { name: 'Rappel le jour de la séance' }).uncheck();
+  await page.getByRole('button', { name: 'Enregistrer' }).click();
+  await page.goto('/#/modeles');
+  await expect(page.getByRole('link', { name: /^Squat/ })).not.toContainText('rappel');
+});

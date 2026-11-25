@@ -66,6 +66,7 @@ export function TemplatesScreen() {
                 </div>
                 <div class="muted">
                   {S.templates.weeks(t.weeksCount)} · {S.templates.exercisesWeek1(t.weeks[1]?.length ?? 0)}
+                  {t.reminderTime && ` · ${S.reminders.short(t.reminderTime)}`}
                 </div>
               </div>
               <span aria-hidden="true" class="chevron">

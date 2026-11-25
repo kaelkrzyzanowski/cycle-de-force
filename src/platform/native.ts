@@ -115,6 +115,46 @@ export async function cancelTimerAlarm(): Promise<void> {
   }
 }
 
+const REMINDER_CHANNEL = 'rappels-seance';
+/** Plage d'identifiants réservée aux rappels de séance (le minuteur utilise 7001). */
+const REMINDER_ID_BASE = 20_000;
+const REMINDER_ID_RANGE = 1000;
+
+/** Remplace tous les rappels de séance programmés par la liste donnée. */
+export async function syncSessionReminders(
+  list: readonly { sessionId: string; at: number; title: string; body: string }[],
+  channelName: string,
+): Promise<void> {
+  try {
+    const { notifications } = await LocalNotifications.getPending();
+    const old = notifications.filter((n) => n.id >= REMINDER_ID_BASE && n.id < REMINDER_ID_BASE + REMINDER_ID_RANGE);
+    if (old.length > 0) await LocalNotifications.cancel({ notifications: old.map((n) => ({ id: n.id })) });
+    if (list.length === 0) return;
+    await LocalNotifications.createChannel({ id: REMINDER_CHANNEL, name: channelName, importance: 4, vibration: true, visibility: 1 });
+    await LocalNotifications.schedule({
+      notifications: list.slice(0, REMINDER_ID_RANGE).map((r, i) => ({
+        id: REMINDER_ID_BASE + i,
+        title: r.title,
+        body: r.body,
+        channelId: REMINDER_CHANNEL,
+        smallIcon: 'ic_stat_reminder',
+        schedule: { at: new Date(r.at), allowWhileIdle: true },
+        extra: { sessionId: r.sessionId },
+      })),
+    });
+  } catch {
+    // Notifications refusées ou indisponibles : pas de rappel.
+  }
+}
+
+/** Toucher une notification de rappel : renvoie la séance concernée. */
+export function onReminderTap(listener: (sessionId: string) => void): void {
+  void LocalNotifications.addListener('localNotificationActionPerformed', ({ notification }) => {
+    const sessionId = (notification.extra as { sessionId?: unknown } | undefined)?.sessionId;
+    if (typeof sessionId === 'string') listener(sessionId);
+  });
+}
+
 /** Appelé à chaque retour au premier plan / passage en arrière-plan de l'app. */
 export function onAppStateChange(listener: (active: boolean) => void): void {
   void App.addListener('appStateChange', ({ isActive }) => listener(isActive));

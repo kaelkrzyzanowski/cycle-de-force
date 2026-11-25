@@ -42,6 +42,8 @@ export interface SessionTemplate {
   deloadWeek?: number;
   /** Prescription par semaine de cycle (1..weeksCount). */
   weeks: Record<number, ExercisePrescription[]>;
+  /** Heure « HH:MM » du rappel le jour de chaque séance de ce modèle (app Android). */
+  reminderTime?: string;
 }
 
 export interface Cycle {

@@ -27,6 +27,7 @@ import { TemplateEditorScreen } from './screens/TemplateEditorScreen';
 import { TemplatesScreen } from './screens/TemplatesScreen';
 import { TodayScreen } from './screens/TodayScreen';
 import { TrackScreen } from './screens/TrackScreen';
+import { installReminderTap, scheduleReminderSync, syncReminders } from './remindersSync';
 import { installStepsSync } from './stepsSync';
 import { recording, resumeRecording } from './trackStore';
 
@@ -114,6 +115,9 @@ export function App() {
         void loadNative().then((native) => {
           native.onAppStateChange((active) => !active && void runAutoBackup(repo));
           installStepsSync(repo, () => setDataVersion((v) => v + 1), native.onAppStateChange);
+          // Au passage en arrière-plan, sans délai (séance commencée juste avant de quitter l'app).
+          native.onAppStateChange((active) => (active ? scheduleReminderSync(repo) : void syncReminders(repo).catch(() => undefined)));
+          installReminderTap();
         });
       }
     })().catch((err: unknown) => {
@@ -121,6 +125,12 @@ export function App() {
       setBoot({ state: 'error' });
     });
   }, []);
+
+  // Rappels de séance : recalculés au lancement et après chaque modification des données.
+  const readyRepo = boot.state === 'ready' ? boot.repo : null;
+  useEffect(() => {
+    if (readyRepo) scheduleReminderSync(readyRepo);
+  }, [readyRepo, dataVersion]);
 
   const theme = boot.state === 'ready' ? boot.settings.theme : 'dark';
   const palette = boot.state === 'ready' ? boot.settings.palette : 'rouge';

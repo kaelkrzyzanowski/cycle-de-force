@@ -20,6 +20,8 @@ import {
 import { LIFTS } from '../../domain/types';
 import type { Exercise, Lift, Session, SessionTemplate } from '../../domain/types';
 import { nativeTemplates } from '../../seed';
+import { REMINDER_TIME } from '../../domain/reminders';
+import { isNative, loadNative } from '../../platform';
 import { TextField } from '../components/fields';
 import { NumberField } from '../components/NumberField';
 import { Sheet } from '../components/Sheet';
@@ -47,6 +49,37 @@ export function TemplateEditorScreen({ id }: { id: string }) {
   if (!data.template) return <p class="card">{S.templateEditor.notFound}</p>;
   return <Editor key={id} saved={data.template} catalogue={data.catalogue} />;
 }
+
+/** Rappel le jour de chaque séance du modèle, à l'heure choisie (notification Android). */
+function ReminderField({ value, onChange }: { value: string | undefined; onChange: (time: string | undefined) => void }) {
+  const enable = (on: boolean) => {
+    onChange(on ? (value ?? DEFAULT_REMINDER_TIME) : undefined);
+    // Android 13+ : autorisation d'afficher les notifications, demandée au moment où on active le rappel.
+    if (on && isNative) void loadNative().then((native) => native.ensureNotificationPermission());
+  };
+  return (
+    <div class="stack tight">
+      <label class="switch-row">
+        <input type="checkbox" checked={value !== undefined} onChange={(e) => enable(e.currentTarget.checked)} />
+        <span>{S.reminders.toggle}</span>
+      </label>
+      {value !== undefined && (
+        <label class="field">
+          <span>{S.reminders.time}</span>
+          <input
+            type="time"
+            class="text-input num"
+            value={value}
+            onInput={(e) => REMINDER_TIME.test(e.currentTarget.value) && onChange(e.currentTarget.value)}
+          />
+        </label>
+      )}
+      <p class="muted hint">{isNative ? S.reminders.hint : S.reminders.webHint}</p>
+    </div>
+  );
+}
+
+const DEFAULT_REMINDER_TIME = '18:00';
 
 type Dialog = 'copy' | 'progression' | 'more' | 'reset' | 'delete' | { future: Session[] } | { leave: string } | null;
 
@@ -125,6 +158,15 @@ function Editor({ saved, catalogue }: { saved: SessionTemplate; catalogue: Exerc
     <div class="stack">
       <section class="card stack">
         <TextField label={S.templateEditor.name} value={template.name} onChange={(name) => change({ ...template, name })} />
+        <ReminderField
+          value={template.reminderTime}
+          onChange={(reminderTime) => {
+            const next = { ...template };
+            if (reminderTime) next.reminderTime = reminderTime;
+            else delete next.reminderTime;
+            change(next);
+          }}
+        />
         <div class="field">
           <span id="tpl-color">{S.templateEditor.color}</span>
           <div class="color-row" role="radiogroup" aria-labelledby="tpl-color">
